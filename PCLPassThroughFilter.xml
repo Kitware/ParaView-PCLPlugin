@@ -1,0 +1,46 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="PCLPassThroughFilter" class="vtkPCLPassThroughFilter" label="PCL PassThrough">
+      <Documentation
+        short_help="PassThrough filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+      <IntVectorProperty
+        name="Axis"
+        default_values="2"
+        command="SetAxis"
+        number_of_elements="1">
+        <EnumerationDomain name="enum">
+          <Entry text="x" value="0" />
+          <Entry text="y" value="1" />
+          <Entry text="z" value="2" />
+        </EnumerationDomain>
+        <Documentation>Set the axis along which to apply the filter.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Limits"
+        command="SetLimits"
+        number_of_elements="2"
+        default_values="0.0 1.0">
+        <Documentation>Set the limits of the filter.</Documentation>
+      </DoubleVectorProperty>
+
+      <!-- End PCLPassThroughFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
