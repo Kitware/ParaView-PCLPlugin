@@ -101,14 +101,15 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
   vtkIdType nr_points = cloud->points.size();
 
   vtkNew<vtkPoints> points;
-  points->SetDataTypeToFloat();
+  points->SetDataTypeToDouble();
   points->SetNumberOfPoints(nr_points);
-
 
   if (cloud->is_dense)
   {
-    for (vtkIdType i = 0; i < nr_points; ++i) {
-      points->SetPoint(i, cloud->points[i].x, cloud->points[i].y, cloud->points[i].z);
+    for (vtkIdType i = 0; i < nr_points; ++i)
+    {
+      double point[3] {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
+      points->SetPoint(i, point);
     }
   }
   else
@@ -133,7 +134,8 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
   }
   vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
   polyData->SetPoints(points);
-  // polyData->SetVerts(NewVertexCells(nr_points));
+  polyData->SetVerts(NewVertexCells(nr_points));
+
   return polyData;
 }
 
@@ -259,32 +261,52 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr vtkPCLConversions::PointCloudFromPolyData(vt
     return cloud;
   }
 
-  vtkFloatArray * floatPoints = vtkFloatArray::SafeDownCast(polyData->GetPoints()->GetData());
-  vtkDoubleArray * doublePoints = vtkDoubleArray::SafeDownCast(polyData->GetPoints()->GetData());
-  assert(floatPoints || doublePoints);
-
-  if (floatPoints)
+  vtkPoints const * points = polyData->GetPoints();
+  // The original implementation used vtkFloatArray::SafeDownCast and
+  // vtkDoubleArray::SafeDownCast to determine the element type of the array.
+  // Pointer arithmetic was then performed to access the data directly via the
+  // raw data pointers to avoid calls to GetPoint. The disadvantage of that
+  // approach is that is makes assumptions about the layout of memory within the
+  // array which are allegedly not upheld on all systems. The following approach
+  // makes no such assumptions and is independent of the underlying type. If
+  // speed becomes an issue, the previous approach can be revisited with
+  // additional check to ensure that the assumptions about memory layout are
+  // correct.
+  for (vtkIdType i = 0; i < numberOfPoints; ++i)
   {
-    float * data = floatPoints->GetPointer(0);
-
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
-      cloud->points[i].x = data[i * 3];
-      cloud->points[i].y = data[i * 3 + 1];
-      cloud->points[i].z = data[i * 3 + 2];
-    }
+    double point[3];
+    polyData->GetPoint(i, point);
+    cloud->points[i].x = point[0];
+    cloud->points[i].y = point[1];
+    cloud->points[i].z = point[2];
   }
-  else if (doublePoints)
-  {
-    double * data = doublePoints->GetPointer(0);
 
-    for (vtkIdType i = 0; i < numberOfPoints; ++i)
-    {
-      cloud->points[i].x = data[i * 3];
-      cloud->points[i].y = data[i * 3 + 1];
-      cloud->points[i].z = data[i * 3 + 2];
-    }
-  }
+  // vtkFloatArray * floatPoints = vtkFloatArray::SafeDownCast(polyData->GetPoints()->GetData());
+  // vtkDoubleArray * doublePoints = vtkDoubleArray::SafeDownCast(polyData->GetPoints()->GetData());
+  // assert(floatPoints || doublePoints);
+  //
+  // if (floatPoints)
+  // {
+  //   float * data = floatPoints->GetPointer(0);
+  //
+  //   for (vtkIdType i = 0; i < numberOfPoints; ++i)
+  //   {
+  //     cloud->points[i].x = data[i * 3];
+  //     cloud->points[i].y = data[i * 3 + 1];
+  //     cloud->points[i].z = data[i * 3 + 2];
+  //   }
+  // }
+  // else if (doublePoints)
+  // {
+  //   double * data = doublePoints->GetPointer(0);
+  //
+  //   for (vtkIdType i = 0; i < numberOfPoints; ++i)
+  //   {
+  //     cloud->points[i].x = data[i * 3];
+  //     cloud->points[i].y = data[i * 3 + 1];
+  //     cloud->points[i].z = data[i * 3 + 2];
+  //   }
+  // }
 
   return cloud;
 }

@@ -22,7 +22,7 @@
 
 #ifndef __vtkPCLConversions_h
 #define __vtkPCLConversions_h
-#define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << " [" << __LINE__ << "]" << std::endl
+// #define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << " [" << __LINE__ << "]" << std::endl
 
 #include <vtkObject.h>
 #include <vtkSmartPointer.h>

@@ -24,7 +24,7 @@ protected:
     vtkInformation * request,
     vtkInformationVector ** inputVector,
     vtkInformationVector * outputVector
-  );
+  ) override;
 
   vtkPCLPassThroughFilter();
   ~vtkPCLPassThroughFilter();

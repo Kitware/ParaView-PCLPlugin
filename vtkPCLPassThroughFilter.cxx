@@ -6,6 +6,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+#include <pcl/point_types.h>
+#include <pcl/filters/passthrough.h>
+
 vtkStandardNewMacro(vtkPCLPassThroughFilter);
 
 //----------------------------------------------------------------------------
@@ -39,11 +42,27 @@ int vtkPCLPassThroughFilter::RequestData(
   vtkPolyData * input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
-  pcl::PointCloud<pcl::PointXYZ>::Ptr tmpPCL = vtkPCLConversions::PointCloudFromPolyData(input);
-  vtkSmartPointer<vtkPolyData> tmpPD = vtkPCLConversions::PolyDataFromPointCloud(tmpPCL);
-  
-  // output->ShallowCopy(input);
+
+  pcl::PointCloud<pcl::PointXYZ>::Ptr inputPCL = vtkPCLConversions::PointCloudFromPolyData(input);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr outputPCL(new pcl::PointCloud<pcl::PointXYZ>);
+
+  pcl::PassThrough<pcl::PointXYZ> passthrough_filter;
+  passthrough_filter.setInputCloud(inputPCL);
+  switch (this->Axis)
+  {
+    case 0:
+      passthrough_filter.setFilterFieldName("x");
+      break;
+    case 1:
+      passthrough_filter.setFilterFieldName("y");
+      break;
+    default:
+      passthrough_filter.setFilterFieldName("z");
+  }
+  passthrough_filter.setFilterLimits(this->Limits[0], this->Limits[1]);
+  passthrough_filter.filter(* outputPCL);
+
+  vtkSmartPointer<vtkPolyData> tmpPD = vtkPCLConversions::PolyDataFromPointCloud(outputPCL);
 
   output->ShallowCopy(tmpPD);
 

@@ -19,19 +19,21 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-set(PCLFilterXML PCLPassThroughFilter.xml)
-set(PCLFilterSources
+set(ServerManagerXML
+  PCLPassThroughFilter.xml
+  )
+set(ServerManagerSources
   vtkPCLConversions.cxx
   vtkPCLPassThroughFilter.cxx
-)
+  )
 
-set(library_name PCLFilters)
-# set(server_deps ${VTK_LIBRARIES} ${PCL_LIBRARIES})
+set(plugin_name PCLFilters)
+set(plugin_deps ${VTK_LIBRARIES} ${PCL_LIBRARIES})
 
 ADD_PARAVIEW_PLUGIN(
-  ${library_name} "1.0"
-  SERVER_MANAGER_XML ${PCLFilterXML}
-  SERVER_MANAGER_SOURCES ${PCLFilterSources}
+  ${plugin_name} "1.0"
+  SERVER_MANAGER_XML ${ServerManagerXML}
+  SERVER_MANAGER_SOURCES ${ServerManagerSources}
 )
-# target_link_libraries(${library_name} LINK_PUBLIC ${server_deps})
+target_link_libraries(${plugin_name} LINK_PUBLIC ${plugin_deps})
 
