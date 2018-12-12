@@ -22,9 +22,15 @@ add_definitions(${PCL_DEFINITIONS})
 set(ServerManagerXML
   PCLPassThroughFilter.xml
   )
+
+set(ServerManagerIncludeDirs
+  common
+  filters
+  )
+
 set(ServerManagerSources
-  vtkPCLConversions.cxx
-  vtkPCLPassThroughFilter.cxx
+  common/vtkPCLConversions.cxx
+  filters/vtkPCLPassThroughFilter.cxx
   )
 
 set(plugin_name PCLFilters)
@@ -35,5 +41,6 @@ ADD_PARAVIEW_PLUGIN(
   SERVER_MANAGER_XML ${ServerManagerXML}
   SERVER_MANAGER_SOURCES ${ServerManagerSources}
 )
-target_link_libraries(${plugin_name} LINK_PUBLIC ${plugin_deps})
+target_include_directories(${plugin_name} PRIVATE ${ServerManagerIncludeDirs})
+target_link_libraries(${plugin_name} LINK_PRIVATE ${plugin_deps})
 
