@@ -1,6 +1,6 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="PCLPassThroughFilter" class="vtkPCLPassThroughFilter" label="PCL PassThrough">
+    <SourceProxy name="PCLPassThroughFilter" class="vtkPCLPassThroughFilter" label="PCL Pass Through Filter">
       <Documentation
         short_help="PassThrough filter from the Point Cloud Library (PCL)." >
       </Documentation>
@@ -39,6 +39,14 @@
         <Documentation>Set the limits of the filter.</Documentation>
       </DoubleVectorProperty>
 
+      <IntVectorProperty
+        name="Invert"
+        default_values="0"
+        command="SetInvert"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>Invert the filter. If set, the filter will remove points within the limits.</Documentation>
+      </IntVectorProperty>
       <!-- End PCLPassThroughFilter -->
     </SourceProxy>
   </ProxyGroup>

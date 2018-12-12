@@ -1,0 +1,39 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="PCLStatisticalOutlierRemovalFilter" class="vtkPCLStatisticalOutlierRemovalFilter" label="PCL Statistical Outlier Removal Filter">
+      <Documentation
+        short_help="StatisticalOutlierRemoval filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <DoubleVectorProperty
+        name="Mean"
+        command="SetMeanK"
+        number_of_elements="1"
+        default_values="50.0">
+        <Documentation>Set the mean.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="Standard Deviation"
+        command="SetStddevMulThresh"
+        number_of_elements="1"
+        default_values="1.0">
+        <Documentation>Set the standard deviation.</Documentation>
+      </DoubleVectorProperty>
+      <!-- End PCLStatisticalOutlierRemovalFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

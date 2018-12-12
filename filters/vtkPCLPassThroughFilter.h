@@ -16,6 +16,9 @@ public:
   vtkSetVector2Macro(Limits, double);
   vtkGetVector2Macro(Limits, double);
 
+  vtkSetMacro(Invert, bool);
+  vtkGetMacro(Invert, bool);
+
 protected:
 
   vtkPCLPassThroughFilter();
@@ -27,6 +30,7 @@ private:
 
   unsigned char Axis;
   double Limits[2];
+  bool Invert;
 
   void ApplyPCLFilter(
     pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,

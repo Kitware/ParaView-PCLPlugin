@@ -19,20 +19,28 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-set(ServerManagerXML
-  PCLPassThroughFilter.xml
-  )
-
 set(ServerManagerIncludeDirs
   common
   filters
   )
 
+set(ServerManagerXML)
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
   filters/vtkPCLFilter.cxx
-  filters/vtkPCLPassThroughFilter.cxx
   )
+
+# Use a macro to make sure that related files are handled together.
+macro(add_filter name)
+  list(APPEND ServerManagerXML "xml/${name}.xml")
+  list(APPEND ServerManagerSources "filters/vtk${name}.cxx")
+endmacro(add_filter)
+
+# Add the filters.
+add_filter(PCLPassThroughFilter)
+add_filter(PCLVoxelGridFilter)
+add_filter(PCLStatisticalOutlierRemovalFilter)
+
 
 set(plugin_name PCLFilters)
 set(plugin_deps ${VTK_LIBRARIES} ${PCL_LIBRARIES})

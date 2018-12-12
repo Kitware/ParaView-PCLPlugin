@@ -16,6 +16,7 @@ vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
   this->Limits[0] = 0.0;
   this->Limits[1] = 1.0;
+  this->Invert = false;
 }
 
 //----------------------------------------------------------------------------
@@ -35,20 +36,21 @@ void vtkPCLPassThroughFilter::ApplyPCLFilter(
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
 )
 {
-  pcl::PassThrough<pcl::PointXYZ> passthrough_filter;
-  passthrough_filter.setInputCloud(inputCloud);
+  pcl::PassThrough<pcl::PointXYZ> filter;
+  filter.setInputCloud(inputCloud);
   switch (this->Axis)
   {
     case 0:
-      passthrough_filter.setFilterFieldName("x");
+      filter.setFilterFieldName("x");
       break;
     case 1:
-      passthrough_filter.setFilterFieldName("y");
+      filter.setFilterFieldName("y");
       break;
     default:
-      passthrough_filter.setFilterFieldName("z");
+      filter.setFilterFieldName("z");
   }
-  passthrough_filter.setFilterLimits(this->Limits[0], this->Limits[1]);
-  passthrough_filter.filter(* outputCloud);
+  filter.setFilterLimits(this->Limits[0], this->Limits[1]);
+  filter.setFilterLimitsNegative(this->Invert);
+  filter.filter(* outputCloud);
 }
 
