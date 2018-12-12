@@ -1,14 +1,14 @@
 #ifndef vtkPCLPassThroughFilter_h
 #define vtkPCLPassThroughFilter_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkPCLFilter.h"
 
-class VTK_EXPORT vtkPCLPassThroughFilter : public vtkPolyDataAlgorithm
+class VTK_EXPORT vtkPCLPassThroughFilter : public vtkPCLFilter
 {
 public:
-  static vtkPCLPassThroughFilter* New();
-  vtkTypeMacro(vtkPCLPassThroughFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  static vtkPCLPassThroughFilter * New();
+  vtkTypeMacro(vtkPCLPassThroughFilter, vtkPCLFilter);
+  void PrintSelf(ostream & os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkSetMacro(Axis, unsigned char);
   vtkGetMacro(Axis, unsigned char);
@@ -17,14 +17,6 @@ public:
   vtkGetVector2Macro(Limits, double);
 
 protected:
-  unsigned char Axis;
-  double Limits[2];
-
-  int RequestData(
-    vtkInformation * request,
-    vtkInformationVector ** inputVector,
-    vtkInformationVector * outputVector
-  ) override;
 
   vtkPCLPassThroughFilter();
   ~vtkPCLPassThroughFilter();
@@ -32,6 +24,15 @@ protected:
 private:
   vtkPCLPassThroughFilter(const vtkPCLPassThroughFilter&) = delete;
   void operator=(const vtkPCLPassThroughFilter&) = delete;
+
+  unsigned char Axis;
+  double Limits[2];
+
+  void ApplyPCLFilter(
+    pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
+    pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+  ) override;
 };
 
-#endif
+#endif // vtkPCLPassThroughFilter_h
+

@@ -16,8 +16,6 @@ vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
   this->Limits[0] = 0.0;
   this->Limits[1] = 1.0;
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -32,22 +30,13 @@ void vtkPCLPassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkPCLPassThroughFilter::RequestData(
-  vtkInformation * request,
-  vtkInformationVector ** inputVector,
-  vtkInformationVector * outputVector
+void vtkPCLPassThroughFilter::ApplyPCLFilter(
+  pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
+  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
 )
 {
-  vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPolyData * input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkInformation * outInfo = outputVector->GetInformationObject(0);
-  vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputPCL = vtkPCLConversions::PointCloudFromPolyData(input);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputPCL(new pcl::PointCloud<pcl::PointXYZ>);
-
   pcl::PassThrough<pcl::PointXYZ> passthrough_filter;
-  passthrough_filter.setInputCloud(inputPCL);
+  passthrough_filter.setInputCloud(inputCloud);
   switch (this->Axis)
   {
     case 0:
@@ -60,12 +49,6 @@ int vtkPCLPassThroughFilter::RequestData(
       passthrough_filter.setFilterFieldName("z");
   }
   passthrough_filter.setFilterLimits(this->Limits[0], this->Limits[1]);
-  passthrough_filter.filter(* outputPCL);
-
-  vtkSmartPointer<vtkPolyData> tmpPD = vtkPCLConversions::PolyDataFromPointCloud(outputPCL);
-
-  output->ShallowCopy(tmpPD);
-
-  return 1;
+  passthrough_filter.filter(* outputCloud);
 }
 

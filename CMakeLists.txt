@@ -30,6 +30,7 @@ set(ServerManagerIncludeDirs
 
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
+  filters/vtkPCLFilter.cxx
   filters/vtkPCLPassThroughFilter.cxx
   )
 
