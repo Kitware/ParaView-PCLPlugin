@@ -30,7 +30,7 @@ void vtkPCLStatisticalOutlierRemovalFilter::PrintSelf(ostream& os, vtkIndent ind
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
+int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
   pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
 )
@@ -40,5 +40,6 @@ void vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
   filter.setMeanK(this->MeanK);
   filter.setStddevMulThresh(this->StddevMulThresh);
   filter.filter(* outputCloud);
+  return 1;
 }
 

@@ -1,4 +1,4 @@
-#include "vtkPCLFilter.h"
+#include "vtkPCLSource.h"
 #include "vtkPCLConversions.h"
 
 #include "vtkPolyData.h"
@@ -8,44 +8,41 @@
 
 #include <pcl/point_types.h>
 
-// vtkStandardNewMacro(vtkPCLFilter);
+// vtkStandardNewMacro(vtkPCLSource);
 
 //----------------------------------------------------------------------------
-vtkPCLFilter::vtkPCLFilter()
+vtkPCLSource::vtkPCLSource()
 {
-  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
-vtkPCLFilter::~vtkPCLFilter()
+vtkPCLSource::~vtkPCLSource()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkPCLFilter::RequestData(
-  vtkInformation * request,
+int vtkPCLSource::RequestData(
+  vtkInformation * vtkNotUsed(request),
   vtkInformationVector * * inputVector,
   vtkInformationVector * outputVector
 )
 {
-  vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPolyData * input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputPCL = vtkPCLConversions::PointCloudFromPolyData(input);
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputPCL(new pcl::PointCloud<pcl::PointXYZ>);
   
-  int ret = this->ApplyPCLFilter(inputPCL, outputPCL);
+  int ret = this->LoadPCLSource(outputPCL);
 
-  if (ret != 0)
+  if (ret == 1)
   {
     output->ShallowCopy(vtkPCLConversions::PolyDataFromPointCloud(outputPCL));
   }

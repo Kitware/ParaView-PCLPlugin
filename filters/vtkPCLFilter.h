@@ -6,23 +6,24 @@
 #include <pcl/pcl_base.h>
 #include <pcl/point_types.h>
 
+//------------------------------------------------------------------------------
 //! @brief Common superclass for PCL filters.
 class VTK_EXPORT vtkPCLFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPCLFilter * New();
   vtkTypeMacro(vtkPCLFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream & os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
+  vtkPCLFilter();
+  ~vtkPCLFilter();
+
   int RequestData(
     vtkInformation * request,
     vtkInformationVector * * inputVector,
     vtkInformationVector * outputVector
   ) override;
-
-  vtkPCLFilter();
-  ~vtkPCLFilter();
 
 private:
   vtkPCLFilter(const vtkPCLFilter &) = delete;
@@ -35,7 +36,7 @@ private:
    *                         filter to the input cloud.
    */
   virtual
-  void ApplyPCLFilter(
+  int ApplyPCLFilter(
     pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
     pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
   ) = 0;

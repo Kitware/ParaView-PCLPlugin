@@ -31,7 +31,7 @@ void vtkPCLVoxelGridFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLVoxelGridFilter::ApplyPCLFilter(
+int vtkPCLVoxelGridFilter::ApplyPCLFilter(
   pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
 )
@@ -40,5 +40,6 @@ void vtkPCLVoxelGridFilter::ApplyPCLFilter(
   filter.setInputCloud(inputCloud);
   filter.setLeafSize(this->LeafSize[0], this->LeafSize[1], this->LeafSize[2]);
   filter.filter(* outputCloud);
+  return 1;
 }
 

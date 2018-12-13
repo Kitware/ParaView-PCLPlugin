@@ -22,24 +22,33 @@ add_definitions(${PCL_DEFINITIONS})
 set(ServerManagerIncludeDirs
   common
   filters
+  sources
   )
 
 set(ServerManagerXML)
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
   filters/vtkPCLFilter.cxx
+  sources/vtkPCLSource.cxx
   )
 
 # Use a macro to make sure that related files are handled together.
 macro(add_filter name)
   list(APPEND ServerManagerXML "xml/${name}.xml")
-  list(APPEND ServerManagerSources "filters/vtk${name}.cxx")
+
+  string(REGEX MATCH "Source$" filter_type "${name}")
+  if ("${filter_type}" STREQUAL "Source")
+    list(APPEND ServerManagerSources "sources/vtk${name}.cxx")
+  else()
+    list(APPEND ServerManagerSources "filters/vtk${name}.cxx")
+  endif()
 endmacro(add_filter)
 
 # Add the filters.
 add_filter(PCLPassThroughFilter)
 add_filter(PCLVoxelGridFilter)
 add_filter(PCLStatisticalOutlierRemovalFilter)
+add_filter(PCLPCDFileSource)
 
 
 set(plugin_name PCLFilters)

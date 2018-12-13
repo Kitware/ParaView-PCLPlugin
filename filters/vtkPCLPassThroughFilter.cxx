@@ -14,6 +14,7 @@ vtkStandardNewMacro(vtkPCLPassThroughFilter);
 //----------------------------------------------------------------------------
 vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
+  this->Axis = 2;
   this->Limits[0] = 0.0;
   this->Limits[1] = 1.0;
   this->Invert = false;
@@ -31,7 +32,7 @@ void vtkPCLPassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLPassThroughFilter::ApplyPCLFilter(
+int vtkPCLPassThroughFilter::ApplyPCLFilter(
   pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
 )
@@ -52,5 +53,6 @@ void vtkPCLPassThroughFilter::ApplyPCLFilter(
   filter.setFilterLimits(this->Limits[0], this->Limits[1]);
   filter.setFilterLimitsNegative(this->Invert);
   filter.filter(* outputCloud);
+  return 1;
 }
 
