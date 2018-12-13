@@ -45,10 +45,7 @@ int vtkPCLFilter::RequestData(
   
   this->ApplyPCLFilter(inputPCL, outputPCL);
 
-  // TODO: remove temporary object
-  vtkSmartPointer<vtkPolyData> tmpPD = vtkPCLConversions::PolyDataFromPointCloud(outputPCL);
-
-  output->ShallowCopy(tmpPD);
+  output->ShallowCopy(vtkPCLConversions::PolyDataFromPointCloud(outputPCL));
 
   return 1;
 }
