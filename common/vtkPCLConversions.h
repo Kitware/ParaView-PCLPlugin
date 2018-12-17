@@ -53,46 +53,8 @@ public:
   // static vtkSmartPointer<vtkPolyData> PolyDataFromPCDFile(const std::string& filename);
 
 
-// The right way to do this doesn't work because of VTK wrapping. Nevertheless,
-// it can be used to generate the code for manual insertion.
-//
-// TODO
-// Use an include file or PIMPL.
-//
-// #include <boost/preprocessor/seq/for_each.hpp>
-// #include <pcl/impl/point_types.hpp>
-// #define DECLARE_CONVERTER(i, data, PointType) \
-//   static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud(pcl::PointCloud<PointType>::ConstPtr cloud);
-//
-//   BOOST_PP_SEQ_FOR_EACH(DECLARE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
 
-  // Handle all PCL point types with XYZ data.
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZ          >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZI         >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZL         >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZRGBA      >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZRGB       >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZRGBL      >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZHSV       >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::InterestPoint     >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointNormal       >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZRGBNormal >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZINormal   >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointXYZLNormal   >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointWithRange    >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointWithViewpoint>::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointWithScale    >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointSurfel       >::ConstPtr cloud);
-  static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud (pcl::PointCloud <pcl::PointDEM          >::ConstPtr cloud);
-
-  // static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud(
-  //   pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud);
-  //
-  // static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud(
-  //   pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud);
-  //
-  // static vtkSmartPointer<vtkPolyData> PolyDataFromPointCloud(
-  //   pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud);
+#include "_PCLConversionsInternal.h"
 
   static pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudFromPolyData(
     vtkPolyData * polyData);
@@ -116,4 +78,4 @@ private:
   void operator=(const vtkPCLConversions&) = delete; // Not implemented
 };
 
-#endif
+#endif // __vtkPCLConversions_h

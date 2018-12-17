@@ -266,6 +266,11 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
+/*!
+ * @brief Function to convert all PCL XYZ point types to a poly data with
+ *        attribute arrays that can be recovered when converting back to a PCL
+ *        point cloud.
+ */
 template <typename CloudT>
 inline
 vtkSmartPointer<vtkPolyData> InternalPolyDataFromPointCloud(boost::shared_ptr<CloudT const> cloud)
