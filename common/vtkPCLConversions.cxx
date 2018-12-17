@@ -38,76 +38,169 @@
 #include <cassert>
 
 //----------------------------------------------------------------------------
-//! @brief Check if a point is spatiall finite.
-#define PCL_IS_FINITE(point) \
-  pcl_isfinite (point.x) &&  \
-  pcl_isfinite (point.y) &&  \
-  pcl_isfinite (point.z)
-
-//----------------------------------------------------------------------------
-/*!
- * @brief Bitfield for tracking point attributes.
- *
- * Different PCL point types share common attributes. For example, all of the
- * PointXYZ* types have x, y and z and all of the Point*RGB* have r, g and b.
- * The following enum values are used in templates below to convert these values
- * to and from PolyData values.
- */
-enum PointAttrs
-{
-  PA_XYZ    = 1 << 0,
-  PA_I      = 1 << 1,
-  PA_L      = 1 << 2,
-  PA_RGB    = 1 << 3,
-  PA_A      = 1 << 4,
-  PA_HSV    = 1 << 5,
-  PA_Normal = 1 << 6
-};
-
-//----------------------------------------------------------------------------
 // Boost-based macros for determining point attributes.
 //----------------------------------------------------------------------------
 //! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
 #define _CAST_VOID(i, name, attr) (void) name::attr
 
 //----------------------------------------------------------------------------
-/*!
- * @brief     Declare a templated struct that can be used to check if a given
- *            type as certain attributes.
- * @param[in] name The name of the struct to append to "Has", e.g. "XYZ" will
- *                 declare a struct named "HasXYZ".
- * @param[in] ...  A variadic list of attributes to check, e.g. x,y,z.
- *
- * The uses template specialization and SFINAE to check if the template type
- * contains all of the given attributes. For example, _DECLARE_HAS_ATTR(XYZ, x,
- * y, z) will declare the templated struct HasXYZ that checks its template type
- * for x, y and z attributes. HasXYZ<pcl::PointXYZ>::value will then be true.
- * This is used in templated conversion functions to determine which attributes
- * to copy at compile time. For example, if the point type is a template
- * parameter named PointType, then a conditional block guarded by
- * HasRGB<PointType>::value could be used to copy RGB values when present,
- * provided HasRGB has been declared with _DECLARE_HAS_ATTR(RGB, r, g, b).
- *
- * Details:
- * https://stackoverflow.com/questions/1005476/how-to-detect-whether-there-is-a-specific-member-variable-in-class
- */
-#define _DECLARE_HAS_ATTR(name, ...)                                                                \
-  template <typename T, typename = int>                                                             \
-  struct Has ## name : std::false_type {};                                                          \
-                                                                                                    \
-  template <typename T>                                                                             \
-  struct Has ## name<T, decltype(                                                                   \
-    BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_TRANSFORM(_CAST_VOID, T, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))) \
-    ,0)> : std::true_type {};
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
+#define _GET_ATTR(i, obj, attr) obj.attr
 
 //----------------------------------------------------------------------------
-//! @brief Check for x, y and z attributes.
-_DECLARE_HAS_ATTR(XYZ, x, y, z)
-//! @brief Check for r, g and b attributes.
-_DECLARE_HAS_ATTR(RGB, r, g, b)
-//! @brief Check for the alpha attribute.
-_DECLARE_HAS_ATTR(ALPHA, a)
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
+#define _SET(i, arr, var) var = arr[i];
 
+//----------------------------------------------------------------------------
+/*!
+ * @brief Base class for SFINAE-based point conversions.
+ *
+ * This restricts all conversions to point types with XYZ data. The PolyData is
+ * managed here in this base class along with the point data. Templated
+ * subclasses declared using the _DECLARE_CONV macro will either declare to
+ * shallow wrappers around this class if the point type lacks the passed
+ * attributes, or a full wrapper that handles the passed attributes before
+ * passing along the point to the parent. This allows a linear hierarchy of
+ * converter classes to each handle their own set of attributes. The compiler
+ * should flatten the nested calls into a single function.
+ */
+template <typename T>
+struct ConvXYZ
+{
+  typedef T PointType;
+  vtkSmartPointer<vtkPolyData> PolyData;
+  vtkSmartPointer<vtkPoints> Points;
+
+  ConvXYZ()
+  {
+    this->Points = vtkSmartPointer<vtkPoints>::New();
+    this->Points->SetDataTypeToFloat();
+    this->PolyData = vtkSmartPointer<vtkPolyData>::New();
+    this->PolyData->SetPoints(this->Points);
+  }
+
+  ConvXYZ(vtkSmartPointer<vtkPolyData> polyData) : PolyData { polyData }
+  {
+    this->Points = this->PolyData->GetPoints;
+  }
+
+  virtual
+  void SetNumberOfPoints(vtkIdType numberOfPoints)
+  {
+    this->Points->SetNumberOfPoints(numberOfPoints);
+  }
+
+  virtual
+  void CopyFromPoint(vtkIdType i, PointType const & point)
+  {
+    this->Points->SetPoint(i, point.x, point.y, point.z);
+  }
+
+  virtual
+  void CopyToPoint(vtkIdType i, PointType & point) const
+  {
+    auto pointData = this->Points->GetPoint(i);
+    point.x = pointData[0];
+    point.y = pointData[1];
+    point.z = pointData[2];
+  }
+};
+
+//----------------------------------------------------------------------------
+/*!
+ * @brief Declare a templated converter and a specialization for point types
+ *        that possess the passed attributes.
+ * @param[in] name The name of this class. The name will also be used for the
+ * PolyData array.
+ * @param[in] parent The parent class.
+ * @param[in] ... The attributes that are handled by this class, e.g. "x,y,z" or
+ * "r,g,b".
+ */
+#define _DECLARE_CONV(name, parent, ...)                                                                  \
+  template <typename PointType, typename = int>                                                           \
+  struct Conv ## name : public parent<PointType> {};                                                      \
+                                                                                                          \
+  template <typename PointType>                                                                           \
+  struct Conv ## name<PointType, decltype(                                                                \
+    BOOST_PP_SEQ_ENUM(                                                                                    \
+      BOOST_PP_SEQ_TRANSFORM(_CAST_VOID, PointType, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))                \
+    )                                                                                                     \
+    ,0)> : public parent<PointType>                                                                       \
+  {                                                                                                       \
+    typedef decltype(PointType::BOOST_PP_SEQ_ELEM(0, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))) ElementType; \
+    typedef vtkAOSDataArrayTemplate<ElementType> ArrayType;                                               \
+    vtkSmartPointer<ArrayType> name ## Array;                                                             \
+                                                                                                          \
+    Conv ## name()                                                                                        \
+    {                                                                                                     \
+      this->name ## Array = vtkSmartPointer<ArrayType>::New();                                            \
+      this->name ## Array->SetName(# name);                                                               \
+      this->name ## Array->SetNumberOfComponents(BOOST_PP_VARIADIC_SIZE(__VA_ARGS__));                    \
+      this->PolyData->GetPointData()->AddArray(this->name ## Array);                                      \
+    }                                                                                                     \
+    Conv ## name(vtkSmartPointer<vtkPolyData> polyData) : parent<PointType> { polyData }                  \
+    {                                                                                                     \
+      this->name ## Array = this->PolyData->GetAbstractArray(# name);                                     \
+    }                                                                                                     \
+                                                                                                          \
+    virtual                                                                                               \
+    void SetNumberOfPoints(vtkIdType numberOfPoints) override                                             \
+    {                                                                                                     \
+      this->name ## Array->SetNumberOfTuples(numberOfPoints);                                             \
+      this->parent<PointType>::SetNumberOfPoints(numberOfPoints);                                         \
+    }                                                                                                     \
+                                                                                                          \
+    virtual                                                                                               \
+    void CopyFromPoint(vtkIdType i, PointType const & point) override                                     \
+    {                                                                                                     \
+      ElementType data[] {                                                                                \
+        BOOST_PP_SEQ_ENUM(                                                                                \
+          BOOST_PP_SEQ_TRANSFORM(                                                                         \
+            _GET_ATTR,                                                                                    \
+            point,                                                                                        \
+            BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)                                                         \
+          )                                                                                               \
+        )                                                                                                 \
+      };                                                                                                  \
+      this->name ## Array->SetTypedTuple(i, data);                                                        \
+      this->parent<PointType>::CopyFromPoint(i, point);                                                   \
+    }                                                                                                     \
+                                                                                                          \
+    virtual                                                                                               \
+    void CopyToPoint(vtkIdType i, PointType & point) const override                                       \
+    {                                                                                                     \
+      ElementType values[BOOST_PP_VARIADIC_SIZE(__VA_ARGS__)];                                            \
+      this->name ## Array->GetTypedTuple(i, values);                                                      \
+      BOOST_PP_SEQ_FOR_EACH(                                                                              \
+        _SET,                                                                                             \
+        values,                                                                                           \
+        BOOST_PP_SEQ_TRANSFORM(                                                                           \
+          _GET_ATTR,                                                                                      \
+          point,                                                                                          \
+          BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)                                                           \
+        )                                                                                                 \
+      )                                                                                                   \
+      this->parent<PointType>::CopyToPoint(i, point);                                                     \
+    }                                                                                                     \
+  };
+
+//----------------------------------------------------------------------------
+// Declare attribute checks for all attributes that should be preserved across
+// conversions between VTK PolyData and PCL point clouds.
+//----------------------------------------------------------------------------
+_DECLARE_CONV(RGB       , ConvXYZ       , r,g,b)
+_DECLARE_CONV(Alpha     , ConvRGB       , a)
+_DECLARE_CONV(HSV       , ConvAlpha     , h,s,v)
+_DECLARE_CONV(Intensity , ConvHSV       , intensity)
+_DECLARE_CONV(Label     , ConvIntensity , label)
+_DECLARE_CONV(Strength  , ConvLabel     , strength)
+_DECLARE_CONV(Normal    , ConvStrength  , normal_x,normal_y,normal_z)
+_DECLARE_CONV(Curvature , ConvNormal    , curvature)
+_DECLARE_CONV(Viewpoint , ConvCurvature , vp_x,vp_y, vp_z)
+
+//! @brief Top-level wrapper for the conversion classes.
+template <typename PointType>
+struct ConvPoint : ConvViewpoint<PointType> {};
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLConversions);
@@ -171,161 +264,48 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
 //   }
 // }
 
+
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud)
+template <typename CloudT>
+inline
+vtkSmartPointer<vtkPolyData> InternalPolyDataFromPointCloud(boost::shared_ptr<CloudT const> cloud)
 {
-  vtkIdType nr_points = cloud->points.size();
-
-  vtkNew<vtkPoints> points;
-  points->SetDataTypeToDouble();
-  points->SetNumberOfPoints(nr_points);
-
-#define CHECK(pointtype) std::cout << "Type " #pointtype " has RGB: " << HasRGB<pcl:: pointtype>::value << std::endl;
-  CHECK(PointXYZ)
-  CHECK(PointXYZRGB)
-  CHECK(PointSurfel)
-  CHECK(Narf36)
+  vtkIdType numberOfPoints = cloud->points.size();
+  ConvPoint<typename CloudT::PointType> conv;
+  conv.SetNumberOfPoints(numberOfPoints);
 
   if (cloud->is_dense)
   {
-    for (vtkIdType i = 0; i < nr_points; ++i)
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
     {
-      double point[3] {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
-      points->SetPoint(i, point);
+      conv.CopyFromPoint(i, cloud->points[i]);
     }
   }
   else
   {
     vtkIdType j = 0;    // true point index
-    for (vtkIdType i = 0; i < nr_points; ++i)
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
     {
       // Check if the point is invalid
-      if (
-        !pcl_isfinite (cloud->points[i].x) ||
-        !pcl_isfinite (cloud->points[i].y) ||
-        !pcl_isfinite (cloud->points[i].z)
-      )
+      if (pcl::isFinite(cloud->points[i]))
       {
-        continue;
+        conv.CopyFromPoint(j, cloud->points[i]);
+        ++j;
       }
-
-      points->SetPoint(j++, cloud->points[i].x, cloud->points[i].y, cloud->points[i].z);
     }
-    nr_points = j;
-    points->SetNumberOfPoints(nr_points);
+    numberOfPoints = j;
+    conv.SetNumberOfPoints(numberOfPoints);
   }
-  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
-  polyData->SetPoints(points);
-  polyData->SetVerts(NewVertexCells(nr_points));
-
-  return polyData;
+  conv.PolyData->SetVerts(vtkPCLConversions::NewVertexCells(numberOfPoints));
+  return conv.PolyData;
 }
 
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr cloud)
-{
-  vtkIdType nr_points = cloud->points.size();
-
-  vtkNew<vtkPoints> points;
-  points->SetDataTypeToFloat();
-  points->SetNumberOfPoints(nr_points);
-
-  vtkNew<vtkUnsignedCharArray> rgbArray;
-  rgbArray->SetName("rgb_colors");
-  rgbArray->SetNumberOfComponents(3);
-  rgbArray->SetNumberOfTuples(nr_points);
-
-
-  if (cloud->is_dense)
-  {
-    for (vtkIdType i = 0; i < nr_points; ++i) {
-      float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
-      unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
-      points->SetPoint(i, point);
-      rgbArray->SetTuple3(i, color[0], color[1], color[2]);
-    }
+#define DEFINE_CONVERTER(i, data, PointType)                                                                         \
+  vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::PointCloud<PointType>::ConstPtr cloud) \
+  {                                                                                                                  \
+    return InternalPolyDataFromPointCloud(cloud);                                                                    \
   }
-  else
-  {
-    vtkIdType j = 0;    // true point index
-    for (vtkIdType i = 0; i < nr_points; ++i)
-    {
-      // Check if the point is invalid
-      if (!pcl_isfinite (cloud->points[i].x) ||
-          !pcl_isfinite (cloud->points[i].y) ||
-          !pcl_isfinite (cloud->points[i].z))
-        continue;
-
-      float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
-      unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
-      points->SetPoint(j, point);
-      rgbArray->SetTuple3(j, color[0], color[1], color[2]);
-      j++;
-    }
-    nr_points = j;
-    points->SetNumberOfPoints(nr_points);
-    rgbArray->SetNumberOfTuples(nr_points);
-  }
-
-  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
-  polyData->SetPoints(points.GetPointer());
-  polyData->GetPointData()->AddArray(rgbArray.GetPointer());
-  polyData->SetVerts(NewVertexCells(nr_points));
-  return polyData;
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud)
-{
-  vtkIdType nr_points = cloud->points.size();
-
-  vtkNew<vtkPoints> points;
-  points->SetDataTypeToFloat();
-  points->SetNumberOfPoints(nr_points);
-
-  vtkNew<vtkUnsignedCharArray> rgbArray;
-  rgbArray->SetName("rgb_colors");
-  rgbArray->SetNumberOfComponents(3);
-  rgbArray->SetNumberOfTuples(nr_points);
-
-
-  if (cloud->is_dense)
-  {
-    for (vtkIdType i = 0; i < nr_points; ++i) {
-      float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
-      unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
-      points->SetPoint(i, point);
-      rgbArray->SetTuple3(i, color[0], color[1], color[2]);
-    }
-  }
-  else
-  {
-    vtkIdType j = 0;    // true point index
-    for (vtkIdType i = 0; i < nr_points; ++i)
-    {
-      // Check if the point is invalid
-      if (!pcl_isfinite (cloud->points[i].x) ||
-          !pcl_isfinite (cloud->points[i].y) ||
-          !pcl_isfinite (cloud->points[i].z))
-        continue;
-
-      float point[3] = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
-      unsigned char color[3] = {cloud->points[i].r, cloud->points[i].g, cloud->points[i].b};
-      points->SetPoint(j, point);
-      rgbArray->SetTuple3(j, color[0], color[1], color[2]);
-      j++;
-    }
-    nr_points = j;
-    points->SetNumberOfPoints(nr_points);
-    rgbArray->SetNumberOfTuples(nr_points);
-  }
-
-  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
-  polyData->SetPoints(points.GetPointer());
-  polyData->GetPointData()->AddArray(rgbArray.GetPointer());
-  polyData->SetVerts(NewVertexCells(nr_points));
-  return polyData;
-}
+BOOST_PP_SEQ_FOR_EACH(DEFINE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
 
 //----------------------------------------------------------------------------
 pcl::PointCloud<pcl::PointXYZ>::Ptr vtkPCLConversions::PointCloudFromPolyData(vtkPolyData* polyData)
