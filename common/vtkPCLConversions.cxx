@@ -31,7 +31,83 @@
 
 #include <pcl/io/pcd_io.h>
 
+#include <boost/preprocessor/seq/transform.hpp>
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
+
 #include <cassert>
+
+//----------------------------------------------------------------------------
+//! @brief Check if a point is spatiall finite.
+#define PCL_IS_FINITE(point) \
+  pcl_isfinite (point.x) &&  \
+  pcl_isfinite (point.y) &&  \
+  pcl_isfinite (point.z)
+
+//----------------------------------------------------------------------------
+/*!
+ * @brief Bitfield for tracking point attributes.
+ *
+ * Different PCL point types share common attributes. For example, all of the
+ * PointXYZ* types have x, y and z and all of the Point*RGB* have r, g and b.
+ * The following enum values are used in templates below to convert these values
+ * to and from PolyData values.
+ */
+enum PointAttrs
+{
+  PA_XYZ    = 1 << 0,
+  PA_I      = 1 << 1,
+  PA_L      = 1 << 2,
+  PA_RGB    = 1 << 3,
+  PA_A      = 1 << 4,
+  PA_HSV    = 1 << 5,
+  PA_Normal = 1 << 6
+};
+
+//----------------------------------------------------------------------------
+// Boost-based macros for determining point attributes.
+//----------------------------------------------------------------------------
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
+#define _CAST_VOID(i, name, attr) (void) name::attr
+
+//----------------------------------------------------------------------------
+/*!
+ * @brief     Declare a templated struct that can be used to check if a given
+ *            type as certain attributes.
+ * @param[in] name The name of the struct to append to "Has", e.g. "XYZ" will
+ *                 declare a struct named "HasXYZ".
+ * @param[in] ...  A variadic list of attributes to check, e.g. x,y,z.
+ *
+ * The uses template specialization and SFINAE to check if the template type
+ * contains all of the given attributes. For example, _DECLARE_HAS_ATTR(XYZ, x,
+ * y, z) will declare the templated struct HasXYZ that checks its template type
+ * for x, y and z attributes. HasXYZ<pcl::PointXYZ>::value will then be true.
+ * This is used in templated conversion functions to determine which attributes
+ * to copy at compile time. For example, if the point type is a template
+ * parameter named PointType, then a conditional block guarded by
+ * HasRGB<PointType>::value could be used to copy RGB values when present,
+ * provided HasRGB has been declared with _DECLARE_HAS_ATTR(RGB, r, g, b).
+ *
+ * Details:
+ * https://stackoverflow.com/questions/1005476/how-to-detect-whether-there-is-a-specific-member-variable-in-class
+ */
+#define _DECLARE_HAS_ATTR(name, ...)                                                                \
+  template <typename T, typename = int>                                                             \
+  struct Has ## name : std::false_type {};                                                          \
+                                                                                                    \
+  template <typename T>                                                                             \
+  struct Has ## name<T, decltype(                                                                   \
+    BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_TRANSFORM(_CAST_VOID, T, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))) \
+    ,0)> : std::true_type {};
+
+//----------------------------------------------------------------------------
+//! @brief Check for x, y and z attributes.
+_DECLARE_HAS_ATTR(XYZ, x, y, z)
+//! @brief Check for r, g and b attributes.
+_DECLARE_HAS_ATTR(RGB, r, g, b)
+//! @brief Check for the alpha attribute.
+_DECLARE_HAS_ATTR(ALPHA, a)
+
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLConversions);
@@ -103,6 +179,12 @@ vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPointCloud(pcl::Poin
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(nr_points);
+
+#define CHECK(pointtype) std::cout << "Type " #pointtype " has RGB: " << HasRGB<pcl:: pointtype>::value << std::endl;
+  CHECK(PointXYZ)
+  CHECK(PointXYZRGB)
+  CHECK(PointSurfel)
+  CHECK(Narf36)
 
   if (cloud->is_dense)
   {
