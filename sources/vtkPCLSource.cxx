@@ -36,7 +36,7 @@ int vtkPCLSource::RequestData(
 )
 {
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
-  vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkSmartPointer<vtkPolyData> output(vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())));
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputPCL(new pcl::PointCloud<pcl::PointXYZ>);
   
@@ -44,7 +44,7 @@ int vtkPCLSource::RequestData(
 
   if (ret == 1)
   {
-    output->ShallowCopy(vtkPCLConversions::PolyDataFromPointCloud(outputPCL));
+    vtkPCLConversions::PolyDataFromPointCloud(outputPCL, output);
   }
 
   return ret;

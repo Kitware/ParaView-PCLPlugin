@@ -33,10 +33,15 @@ void vtkPCLPassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkPCLPassThroughFilter::ApplyPCLFilter(
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+  vtkSmartPointer<vtkPolyData> & input,
+  vtkSmartPointer<vtkPolyData> & output
 )
 {
+  pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud(new pcl::PointCloud<pcl::PointXYZ>);
+  
+  vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
+
   pcl::PassThrough<pcl::PointXYZ> filter;
   filter.setInputCloud(inputCloud);
   switch (this->Axis)
@@ -53,6 +58,8 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
   filter.setFilterLimits(this->Limits[0], this->Limits[1]);
   filter.setFilterLimitsNegative(this->Invert);
   filter.filter(* outputCloud);
+
+  vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
   return 1;
 }
 

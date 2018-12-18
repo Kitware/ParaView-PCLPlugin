@@ -47,9 +47,9 @@ endmacro(add_filter)
 
 # Add the filters.
 add_filter(PCLPassThroughFilter)
-add_filter(PCLVoxelGridFilter)
-add_filter(PCLStatisticalOutlierRemovalFilter)
-add_filter(PCLPCDFileSource)
+# add_filter(PCLVoxelGridFilter)
+# add_filter(PCLStatisticalOutlierRemovalFilter)
+# add_filter(PCLPCDFileSource)
 
 
 set(plugin_name PCLFilters)

@@ -41,8 +41,8 @@ public:
 //------------------------------------------------------------------------------
 private:
   int ApplyPCLFilter(
-    pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+    vtkSmartPointer<vtkPolyData> & input,
+    vtkSmartPointer<vtkPolyData> & output
   ) override;
 };
 
