@@ -18,18 +18,13 @@
       </InputProperty>
 
 
-      <IntVectorProperty
-        name="Axis"
-        default_values="2"
-        command="SetAxis"
+      <StringVectorProperty
+        name="FieldName"
+        default_values="x"
+        command="SetFieldName"
         number_of_elements="1">
-        <EnumerationDomain name="enum">
-          <Entry text="x" value="0" />
-          <Entry text="y" value="1" />
-          <Entry text="z" value="2" />
-        </EnumerationDomain>
-        <Documentation>Set the axis along which to apply the filter.</Documentation>
-      </IntVectorProperty>
+        <Documentation>Set the field (PCL point type attribute, e.g. "x", "y", "z", "r", "g", "b") to which the filter will be applied. The present fields will be determined by the input data.</Documentation>
+      </StringVectorProperty>
 
       <DoubleVectorProperty
         name="Limits"

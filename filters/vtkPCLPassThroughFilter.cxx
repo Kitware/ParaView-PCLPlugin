@@ -1,5 +1,6 @@
 #include "vtkPCLPassThroughFilter.h"
 #include "vtkPCLConversions.h"
+#include "_PCLInvokeWithPointType.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -12,9 +13,33 @@
 vtkStandardNewMacro(vtkPCLPassThroughFilter);
 
 //----------------------------------------------------------------------------
+template <typename PointType>
+void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
+  vtkSmartPointer<vtkPolyData> & input,
+  vtkSmartPointer<vtkPolyData> & output
+)
+{
+  typedef pcl::PointCloud<PointType> CloudT;
+  typename CloudT::Ptr inputCloud(new CloudT);
+  typename CloudT::Ptr outputCloud(new CloudT);
+  
+  vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
+
+  pcl::PassThrough<PointType> filter;
+  filter.setInputCloud(inputCloud);
+  filter.setFilterFieldName(this->FieldName);
+  filter.setFilterLimits(this->Limits[0], this->Limits[1]);
+  filter.setFilterLimitsNegative(this->Invert);
+  filter.filter(* outputCloud);
+
+  vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
+}
+
+
+//----------------------------------------------------------------------------
 vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
-  this->Axis = 2;
+  this->FieldName = "x";
   this->Limits[0] = 0.0;
   this->Limits[1] = 1.0;
   this->Invert = false;
@@ -37,29 +62,7 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
   vtkSmartPointer<vtkPolyData> & output
 )
 {
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud(new pcl::PointCloud<pcl::PointXYZ>);
-  
-  vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
-
-  pcl::PassThrough<pcl::PointXYZ> filter;
-  filter.setInputCloud(inputCloud);
-  switch (this->Axis)
-  {
-    case 0:
-      filter.setFilterFieldName("x");
-      break;
-    case 1:
-      filter.setFilterFieldName("y");
-      break;
-    default:
-      filter.setFilterFieldName("z");
-  }
-  filter.setFilterLimits(this->Limits[0], this->Limits[1]);
-  filter.setFilterLimitsNegative(this->Invert);
-  filter.filter(* outputCloud);
-
-  vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
+  INVOKE_WITH_POINT_TYPE(this->InternalApplyPCLFilter, input, output);
   return 1;
 }
 

@@ -24,13 +24,13 @@ private:
 //------------------------------------------------------------------------------
 // Filter parameters.
 private:
-  unsigned char Axis;
+  std::string FieldName;
   double Limits[2];
   bool Invert;
 
 public:
-  vtkSetMacro(Axis, unsigned char);
-  vtkGetMacro(Axis, unsigned char);
+  vtkSetMacro(FieldName, std::string);
+  vtkGetMacro(FieldName, std::string);
 
   vtkSetVector2Macro(Limits, double);
   vtkGetVector2Macro(Limits, double);
@@ -44,6 +44,12 @@ private:
     vtkSmartPointer<vtkPolyData> & input,
     vtkSmartPointer<vtkPolyData> & output
   ) override;
+
+  template <typename PointType>
+  void InternalApplyPCLFilter(
+    vtkSmartPointer<vtkPolyData> & input,
+    vtkSmartPointer<vtkPolyData> & output
+  );
 };
 
 #endif // vtkPCLPassThroughFilter_h
