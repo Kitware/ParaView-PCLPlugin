@@ -40,7 +40,8 @@ int vtkPCLFilter::RequestData(
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputPCL = vtkPCLConversions::PointCloudFromPolyData(input);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr inputPCL(new pcl::PointCloud<pcl::PointXYZ>);
+  vtkPCLConversions::PointCloudFromPolyData(input, inputPCL);
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputPCL(new pcl::PointCloud<pcl::PointXYZ>);
   
   int ret = this->ApplyPCLFilter(inputPCL, outputPCL);

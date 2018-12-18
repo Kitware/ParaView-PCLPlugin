@@ -22,7 +22,7 @@
 
 #ifndef __vtkPCLConversions_h
 #define __vtkPCLConversions_h
-// #define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << " [" << __LINE__ << "]" << std::endl
+#define DEBUG_MSG(msg) std::cout << "DEBUG: " << msg << " [" << __LINE__ << "]" << std::endl;
 
 #include <vtkObject.h>
 #include <vtkSmartPointer.h>
@@ -56,9 +56,7 @@ public:
 
 #include "_PCLConversionsInternal.h"
 
-  static pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudFromPolyData(
-    vtkPolyData * polyData);
-
+public:
   static vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts);
   //
   // static vtkSmartPointer<vtkIntArray> NewLabelsArray(pcl::IndicesConstPtr indices, vtkIdType length);
