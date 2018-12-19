@@ -1,12 +1,7 @@
-// #include "vtkPCLConversions.h"
+#ifndef __PCLInvokeWithPointType_h
+#define __PCLInvokeWithPointType_h
 
-#include <boost/preprocessor/seq/elem.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
-#include <boost/preprocessor/seq/pop_front.hpp>
-#include <boost/preprocessor/seq/push_front.hpp>
-#include <boost/preprocessor/seq/to_tuple.hpp>
-#include <boost/preprocessor/seq/transform.hpp>
-#include <boost/preprocessor/variadic/to_seq.hpp>
+#include <boost/preprocessor.hpp>
 #include <pcl/impl/point_types.hpp>
 
 //------------------------------------------------------------------------------
@@ -15,7 +10,7 @@
 
 //------------------------------------------------------------------------------
 //! @brief Internal switch case macro for INVOKE_WITH_POINT_TYPE
-#define _POINT_TYPE_SWITCH_CASE(i, args, PointType)        \
+#define _POINT_TYPE_SWITCH_CASE(r, args, i, PointType)        \
   case i:                                                  \
     BOOST_PP_SEQ_ELEM(0, args)<PointType>                  \
       BOOST_PP_SEQ_TO_TUPLE(BOOST_PP_SEQ_POP_FRONT(args)); \
@@ -37,17 +32,15 @@
   int _tmp_index = vtkPCLConversions::_GetPointTypeIndex(_FIRST_ARG(__VA_ARGS__)); \
   switch (_tmp_index)                                                              \
   {                                                                                \
-    BOOST_PP_SEQ_ENUM(                                                             \
-      BOOST_PP_SEQ_TRANSFORM(                                                      \
-        _POINT_TYPE_SWITCH_CASE,                                                   \
-        BOOST_PP_SEQ_PUSH_FRONT(                                                   \
-          BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__),                                   \
-          function                                                                 \
-        ),                                                                         \
-        PCL_XYZ_POINT_TYPES                                                        \
+    BOOST_PP_SEQ_FOR_EACH_I(                                                       \
+      _POINT_TYPE_SWITCH_CASE,                                                     \
+      (function)BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__),                             \
+      PCL_XYZ_POINT_TYPES                                                          \
     )                                                                              \
-    )                                                                              \
+    /* All supported point types are expected to contain XYZ data. */              \
     default:                                                                       \
-      function<pcl::PointXYZ>(__VA_ARGS_);                                         \
+      function<pcl::PointXYZ>(__VA_ARGS__);                                        \
   }
+
+#endif // __PCLInvokeWithPointType_h
 

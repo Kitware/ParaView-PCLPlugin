@@ -40,6 +40,12 @@ private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
     pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
   ) override;
+
+  template <typename PointType>
+  void InternalApplyPCLFilter(
+    vtkSmartPointer<vtkPolyData> & input,
+    vtkSmartPointer<vtkPolyData> & output
+  );
 };
 
 #endif // vtkPCLStatisticalOutlierRemovalFilter_h

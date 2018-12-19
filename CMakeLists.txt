@@ -20,6 +20,9 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+find_package(Boost REQUIRED)
+include_directories(${BOOST_INCLUDE_DIRS})
+
 set(ServerManagerIncludeDirs
   common
   filters

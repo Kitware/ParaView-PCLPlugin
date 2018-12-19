@@ -2,8 +2,6 @@
 #include "vtkPCLConversions.h"
 
 #include "vtkPolyData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
 #include <pcl/point_types.h>

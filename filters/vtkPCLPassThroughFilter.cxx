@@ -3,9 +3,6 @@
 #include "_PCLInvokeWithPointType.h"
 
 #include "vtkPolyData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 
 #include <pcl/point_types.h>
 #include <pcl/filters/passthrough.h>
@@ -22,7 +19,7 @@ void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
   typedef pcl::PointCloud<PointType> CloudT;
   typename CloudT::Ptr inputCloud(new CloudT);
   typename CloudT::Ptr outputCloud(new CloudT);
-  
+
   vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
 
   pcl::PassThrough<PointType> filter;
@@ -62,6 +59,7 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
   vtkSmartPointer<vtkPolyData> & output
 )
 {
+  // this->InternalApplyPCLFilter<pcl::PointXYZ>(input, output);
   INVOKE_WITH_POINT_TYPE(this->InternalApplyPCLFilter, input, output);
   return 1;
 }

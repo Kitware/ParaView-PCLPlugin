@@ -449,7 +449,7 @@ int vtkPCLConversions::_GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyDat
   int score = -1, highestScore = -1;
   int index = -1;
 
-#define _POINT_TYPE_INDEX_UPDATER(i, data, PointType)         \
+#define _POINT_TYPE_INDEX_UPDATER(r, data, i, PointType)      \
   score = ConvPoint<PointType>().GetAttributeScore(polyData); \
   if (score > highestScore )                                  \
   {                                                           \
@@ -457,7 +457,7 @@ int vtkPCLConversions::_GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyDat
     index = i;                                                \
   }
 
-  BOOST_PP_SEQ_FOR_EACH(_POINT_TYPE_INDEX_UPDATER, _, PCL_XYZ_POINT_TYPES)
+  BOOST_PP_SEQ_FOR_EACH_I(_POINT_TYPE_INDEX_UPDATER, _, PCL_XYZ_POINT_TYPES)
 
   return index;
 }
