@@ -1,10 +1,7 @@
 #include "vtkPCLStatisticalOutlierRemovalFilter.h"
 #include "vtkPCLConversions.h"
+#include "_PCLInvokeWithPointType.h"
 
-#include "vtkPolyData.h"
-#include "vtkObjectFactory.h"
-
-#include <pcl/point_types.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 
 vtkStandardNewMacro(vtkPCLStatisticalOutlierRemovalFilter);
@@ -29,15 +26,33 @@ void vtkPCLStatisticalOutlierRemovalFilter::PrintSelf(ostream& os, vtkIndent ind
 
 //----------------------------------------------------------------------------
 int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+  vtkSmartPointer<vtkPolyData> & input,
+  vtkSmartPointer<vtkPolyData> & output
 )
 {
-  pcl::StatisticalOutlierRemoval<pcl::PointXYZ> filter;
+  INVOKE_WITH_POINT_TYPE(this->InternalApplyPCLFilter, input, output);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+template <typename PointType>
+void vtkPCLStatisticalOutlierRemovalFilter::InternalApplyPCLFilter(
+  vtkSmartPointer<vtkPolyData> & input,
+  vtkSmartPointer<vtkPolyData> & output
+)
+{
+  typedef pcl::PointCloud<PointType> CloudT;
+  typename CloudT::Ptr inputCloud(new CloudT);
+  typename CloudT::Ptr outputCloud(new CloudT);
+
+  vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
+
+  pcl::StatisticalOutlierRemoval<PointType> filter;
   filter.setInputCloud(inputCloud);
   filter.setMeanK(this->MeanK);
   filter.setStddevMulThresh(this->StddevMulThresh);
   filter.filter(* outputCloud);
-  return 1;
+
+  vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
 }
 

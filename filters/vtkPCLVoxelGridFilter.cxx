@@ -1,12 +1,7 @@
 #include "vtkPCLVoxelGridFilter.h"
 #include "vtkPCLConversions.h"
+#include "_PCLInvokeWithPointType.h"
 
-#include "vtkPolyData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-
-#include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
 
 vtkStandardNewMacro(vtkPCLVoxelGridFilter);
@@ -32,14 +27,32 @@ void vtkPCLVoxelGridFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkPCLVoxelGridFilter::ApplyPCLFilter(
-  pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+  vtkSmartPointer<vtkPolyData> & input,
+  vtkSmartPointer<vtkPolyData> & output
 )
 {
-  pcl::VoxelGrid<pcl::PointXYZ> filter;
+  INVOKE_WITH_POINT_TYPE(this->InternalApplyPCLFilter, input, output);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+template <typename PointType>
+void vtkPCLVoxelGridFilter::InternalApplyPCLFilter(
+  vtkSmartPointer<vtkPolyData> & input,
+  vtkSmartPointer<vtkPolyData> & output
+)
+{
+  typedef pcl::PointCloud<PointType> CloudT;
+  typename CloudT::Ptr inputCloud(new CloudT);
+  typename CloudT::Ptr outputCloud(new CloudT);
+
+  vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
+
+  pcl::VoxelGrid<PointType> filter;
   filter.setInputCloud(inputCloud);
   filter.setLeafSize(this->LeafSize[0], this->LeafSize[1], this->LeafSize[2]);
   filter.filter(* outputCloud);
-  return 1;
+
+  vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
 }
 
