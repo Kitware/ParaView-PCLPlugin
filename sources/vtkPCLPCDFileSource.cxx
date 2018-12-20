@@ -30,13 +30,24 @@ void vtkPCLPCDFileSource::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkPCLPCDFileSource::LoadPCLSource(
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+  vtkSmartPointer<vtkPolyData> & output
 )
 {
   if (this->FilePath == "")
   {
     return 0;
   }
-  return (pcl::io::loadPCDFile(this->FilePath, (* outputCloud)) == -1) ? 0 : 1;
+  typedef pcl::PointXYZRGB PointType;
+  typedef pcl::PointCloud<PointType> CloudT;
+  typename CloudT::Ptr outputCloud(new CloudT);
+  if (pcl::io::loadPCDFile(this->FilePath, (* outputCloud)) == -1)
+  {
+    return 0;
+  }
+  else
+  {
+    vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
+    return 1;
+  }
 }
 

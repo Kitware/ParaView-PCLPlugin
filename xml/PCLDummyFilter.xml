@@ -1,0 +1,32 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy name="PCLDummyFilter" class="vtkPCLDummyFilter" label="PCL Dummy Filter">
+      <Documentation
+        short_help="Dummy filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+      <StringVectorProperty
+        name="Message"
+        default_values="Dummy filter applied."
+        command="SetMessage"
+        number_of_elements="1">
+        <Documentation>The message to display when this filter is applied.</Documentation>
+      </StringVectorProperty>
+      <!-- End PCLDummyFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

@@ -50,7 +50,7 @@ private:
     vtkSmartPointer<vtkPolyData> & input,
     vtkSmartPointer<vtkPolyData> & output
   );
-};
 
+};
 #endif // vtkPCLPassThroughFilter_h
 

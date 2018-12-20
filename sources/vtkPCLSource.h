@@ -35,7 +35,7 @@ private:
    */
   virtual
   int LoadPCLSource(
-    pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+    vtkSmartPointer<vtkPolyData> & output
   ) = 0;
 };
 

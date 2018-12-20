@@ -33,7 +33,7 @@ public:
 //------------------------------------------------------------------------------
 protected:
   int LoadPCLSource(
-    pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+    vtkSmartPointer<vtkPolyData> & output
   ) override;
 };
 
