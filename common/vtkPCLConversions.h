@@ -34,6 +34,8 @@
 #include <pcl/ModelCoefficients.h>
 // #include <vtkPCLFiltersModule.h>
 
+#include <set>
+
 //------------------------------------------------------------------------------
 class vtkPolyData;
 class vtkCellArray;
@@ -57,8 +59,9 @@ public:
 
 public:
   //! @brief Get the index of the best matching PCL point type in the
-  //         PCL_XYZ_POINT_TYPES sequence.
-  static int _GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyData);
+  //!        PCL_XYZ_POINT_TYPES sequence.
+  static int GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyData);
+  static int GetPointTypeIndex(std::set<std::string> & fieldNames);
 
   static vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts);
   

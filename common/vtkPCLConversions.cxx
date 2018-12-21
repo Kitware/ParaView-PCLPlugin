@@ -39,15 +39,28 @@
 // Boost-based macros for determining point attributes.
 //----------------------------------------------------------------------------
 //! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
-#define _CAST_VOID(i, name, attr) (void) name::attr
+#define _CAST_VOID(r, name, attr) (void) name::attr
 
 //----------------------------------------------------------------------------
 //! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
-#define _GET_ATTR(i, obj, attr) obj.attr
+#define _GET_ATTR(r, obj, attr) obj.attr
 
 //----------------------------------------------------------------------------
 //! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
-#define _SET_FROM_ARRAY(i, arr, var) var = arr[i];
+#define _SET_FROM_ARRAY(r, arr, i, var) var = arr[i];
+
+//----------------------------------------------------------------------------
+//! @brief Check if an element is in a set.
+//! @todo  Remove this in favor of the set's "contains" method (C++20).
+#define _IS_IN_SET(set, element) (set.find(element) != set.end())
+
+//----------------------------------------------------------------------------
+//! @brief Return -1 if an element is not in the set.
+#define _RETURN_MINUS_ONE_IF_NOT_IN_SET(r, set, i, name) \
+  if (! _IS_IN_SET(set, BOOST_PP_STRINGIZE(name)))       \
+  {                                                      \
+    return -1;                                           \
+  }
 
 //----------------------------------------------------------------------------
 /*!
@@ -115,11 +128,18 @@ struct ConvXYZ
   }
   
   //! @brief Get a score to estimate how well a given PolyData instance matches
-  //         the expected attributes of this PCL point type.
+  //!        the expected attributes of this PCL point type.
   virtual
   int GetAttributeScore(vtkSmartPointer<vtkPolyData> & polyData)
   {
     return (polyData->GetPoints() == nullptr) ? -1 : 3;
+  }
+
+  //! @brief Same as GetAttributeScore but for PCD file field names.
+  virtual
+  int GetFieldNameScore(std::set<std::string> & fields)
+  {
+    return (_IS_IN_SET(fields, "x") && _IS_IN_SET(fields, "y") && _IS_IN_SET(fields, "z")) ? 3 : -1;
   }
 };
 
@@ -214,7 +234,7 @@ struct ConvXYZ
       {                                                                                      \
         this->name ## Array->GetTypedTuple(i, values);                                       \
       }                                                                                      \
-      BOOST_PP_SEQ_FOR_EACH(                                                                 \
+      BOOST_PP_SEQ_FOR_EACH_I(                                                               \
         _SET_FROM_ARRAY,                                                                     \
         values,                                                                              \
         BOOST_PP_SEQ_TRANSFORM(                                                              \
@@ -240,6 +260,22 @@ struct ConvXYZ
       }                                                                                      \
       return score;                                                                          \
     }                                                                                        \
+                                                                                             \
+    virtual                                                                                  \
+    int GetFieldNameScore(std::set<std::string> & fields)                                    \
+    {                                                                                        \
+      BOOST_PP_SEQ_FOR_EACH_I(                                                               \
+        _RETURN_MINUS_ONE_IF_NOT_IN_SET,                                                     \
+        fields,                                                                              \
+        BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)                                                \
+      )                                                                                      \
+      int score = this->Conv ## parent<PointType>::GetFieldNameScore(fields);                \
+      if (score >= 0)                                                                        \
+      {                                                                                      \
+        score += BOOST_PP_VARIADIC_SIZE(__VA_ARGS__);                                        \
+      }                                                                                      \
+      return score;                                                                          \
+    }                                                                                        \
   };
 
 //----------------------------------------------------------------------------
@@ -255,11 +291,15 @@ _DECLARE_CONV(Strength , Label    , strength)
 _DECLARE_CONV(Normal   , Strength , normal_x,normal_y,normal_z)
 _DECLARE_CONV(Curvature, Normal   , curvature)
 _DECLARE_CONV(Viewpoint, Curvature, vp_x,vp_y, vp_z)
+_DECLARE_CONV(Scale    , Viewpoint, scale)
+_DECLARE_CONV(Angle    , Scale    , angle)
+_DECLARE_CONV(Response , Angle    , response)
+_DECLARE_CONV(Octave   , Response , octave)
 
 // Create an alias for the final child that can be used transparently in
 // functions.
 template <typename PointType>
-using ConvPoint = ConvViewpoint<PointType>;
+using ConvPoint = ConvOctave<PointType>;
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLConversions);
@@ -416,13 +456,12 @@ void InternalPointCloudFromPolyData(
 
 //----------------------------------------------------------------------------
 // Define converters for all XYZ point types.
-#define _DEFINE_CONVERTER(i, data, PointType)                                    \
+#define _DEFINE_CONVERTER(r, data, PointType)                                    \
   void vtkPCLConversions::PolyDataFromPointCloud(                                \
     pcl::PointCloud<PointType>::ConstPtr cloud,                                  \
     vtkSmartPointer<vtkPolyData> & polyData                                      \
   )                                                                              \
   {                                                                              \
-    std::cout << "PD from PCL: " BOOST_PP_STRINGIZE(PointType) << std::endl; \
     return InternalPolyDataFromPointCloud(cloud, polyData);                      \
   }                                                                              \
   void vtkPCLConversions::PointCloudFromPolyData(                                \
@@ -430,20 +469,19 @@ void InternalPointCloudFromPolyData(
     pcl::PointCloud<PointType>::Ptr & cloud                                      \
   )                                                                              \
   {                                                                              \
-    std::cout << "PCL from PD: " BOOST_PP_STRINGIZE(PointType) << std::endl; \
     InternalPointCloudFromPolyData<pcl::PointCloud<PointType>>(polyData, cloud); \
   }
 BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
 
 //----------------------------------------------------------------------------
 //! @brief Get the index of the best matching PCL point type in the
-//         PCL_XYZ_POINT_TYPES sequence.
-int vtkPCLConversions::_GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyData)
+//!        PCL_XYZ_POINT_TYPES sequence.
+int vtkPCLConversions::GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyData)
 {
   int score = -1, highestScore = -1;
   int index = -1;
 
-#define _POINT_TYPE_INDEX_UPDATER(r, data, i, PointType)      \
+#define _POINT_TYPE_INDEX_UPDATER_PD(r, data, i, PointType)   \
   score = ConvPoint<PointType>().GetAttributeScore(polyData); \
   if (score > highestScore )                                  \
   {                                                           \
@@ -451,7 +489,26 @@ int vtkPCLConversions::_GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyDat
     index = i;                                                \
   }
 
-  BOOST_PP_SEQ_FOR_EACH_I(_POINT_TYPE_INDEX_UPDATER, _, PCL_XYZ_POINT_TYPES)
+  BOOST_PP_SEQ_FOR_EACH_I(_POINT_TYPE_INDEX_UPDATER_PD, _, PCL_XYZ_POINT_TYPES)
+
+  return index;
+}
+
+//----------------------------------------------------------------------------
+int vtkPCLConversions::GetPointTypeIndex(std::set<std::string> & fieldNames)
+{
+  int score = -1, highestScore = -1;
+  int index = -1;
+
+#define _POINT_TYPE_INDEX_UPDATER_FN(r, data, i, PointType)     \
+  score = ConvPoint<PointType>().GetFieldNameScore(fieldNames); \
+  if (score > highestScore )                                    \
+  {                                                             \
+    highestScore = score;                                       \
+    index = i;                                                  \
+  }
+
+  BOOST_PP_SEQ_FOR_EACH_I(_POINT_TYPE_INDEX_UPDATER_FN, _, PCL_XYZ_POINT_TYPES)
 
   return index;
 }

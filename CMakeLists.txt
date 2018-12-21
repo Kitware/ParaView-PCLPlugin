@@ -58,7 +58,7 @@ add_filter(PCLStatisticalOutlierRemovalFilter)
 add_filter(PCLPCDFileSource)
 
 
-set(plugin_name MyPCLFilters)
+set(plugin_name PCLFilters)
 set(plugin_deps ${VTK_LIBRARIES} ${PCL_LIBRARIES})
 
 ADD_PARAVIEW_PLUGIN(

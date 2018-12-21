@@ -30,7 +30,8 @@ int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
   vtkSmartPointer<vtkPolyData> & output
 )
 {
-  INVOKE_WITH_POINT_TYPE(this->InternalApplyPCLFilter, input, output);
+  int index = vtkPCLConversions::GetPointTypeIndex(input);
+  INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter, input, output)
   return 1;
 }
 

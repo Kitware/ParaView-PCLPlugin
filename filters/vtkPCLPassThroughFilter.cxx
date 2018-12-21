@@ -34,7 +34,8 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
   vtkSmartPointer<vtkPolyData> & output
 )
 {
-  INVOKE_WITH_POINT_TYPE(this->InternalApplyPCLFilter, input, output);
+  int index = vtkPCLConversions::GetPointTypeIndex(input);
+  INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter, input, output)
   return 1;
 }
 
@@ -58,7 +59,6 @@ void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
   filter.setFilterLimitsNegative(this->Invert);
   filter.filter(* outputCloud);
   
-  // pcl::io::pointCloudTovtkPolyData(outputCloud, output);
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
 }
 

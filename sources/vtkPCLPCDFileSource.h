@@ -35,6 +35,11 @@ protected:
   int LoadPCLSource(
     vtkSmartPointer<vtkPolyData> & output
   ) override;
+
+  template <typename PointType>
+  int InternalLoadPCLSource(
+    vtkSmartPointer<vtkPolyData> & output
+  );
 };
 
 #endif // vtkPCLPCDFileSource_h

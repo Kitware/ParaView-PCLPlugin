@@ -1,5 +1,6 @@
 #include "vtkPCLPCDFileSource.h"
 #include "vtkPCLConversions.h"
+#include "_PCLInvokeWithPointType.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -8,6 +9,8 @@
 
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
+
+#include <set>
 
 vtkStandardNewMacro(vtkPCLPCDFileSource);
 
@@ -38,7 +41,42 @@ int vtkPCLPCDFileSource::LoadPCLSource(
   {
     return 0;
   }
-  typedef pcl::PointXYZ PointType;
+
+  // Determine which fields are in the file.
+	pcl::PCLPointCloud2 header;
+  pcl::PCDReader reader {};
+  reader.readHeader(this->FileName, header);
+  std::set<std::string> fields;
+	for (auto field : header.fields)
+	{
+    // The rgb and rgba fields are special. Replace them with the attribute
+    // names here to avoid extra complexity in the ConvPoint classes.
+    if (field.name == "rgb" || field.name == "rgba")
+    {
+      fields.insert("r");
+      fields.insert("g");
+      fields.insert("b");
+      // The RGB type contains an "a" member apparently due to common definition
+      // macros, so we cannot distinguish between RGB and RGBA.
+      fields.insert("a");
+    }
+    else
+    {
+      fields.insert(field.name);
+    }
+	}
+
+  int index = vtkPCLConversions::GetPointTypeIndex(fields);
+  INVOKE_WITH_POINT_TYPE(index, return this->InternalLoadPCLSource, output)
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+template <typename PointType>
+int vtkPCLPCDFileSource::InternalLoadPCLSource(
+  vtkSmartPointer<vtkPolyData> & output
+)
+{
   typedef pcl::PointCloud<PointType> CloudT;
   typename CloudT::Ptr outputCloud(new CloudT);
   if (pcl::io::loadPCDFile(this->FileName, (* outputCloud)) == -1)
@@ -51,4 +89,3 @@ int vtkPCLPCDFileSource::LoadPCLSource(
     return 1;
   }
 }
-
