@@ -2,6 +2,7 @@
 #define vtkPCLSource_h
 
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkObjectFactory.h"
 
 #include <pcl/pcl_base.h>
 #include <pcl/point_types.h>

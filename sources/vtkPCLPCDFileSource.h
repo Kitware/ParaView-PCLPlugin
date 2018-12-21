@@ -24,11 +24,11 @@ private:
 //------------------------------------------------------------------------------
 // Source parameters.
 private:
-  std::string FilePath;
+  std::string FileName;
 
 public:
-  vtkSetMacro(FilePath, std::string);
-  vtkGetMacro(FilePath, std::string);
+  vtkSetMacro(FileName, std::string);
+  vtkGetMacro(FileName, std::string);
 
 //------------------------------------------------------------------------------
 protected:

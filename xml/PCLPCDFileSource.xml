@@ -6,9 +6,9 @@
       </Documentation>
 
       <StringVectorProperty
-        name="FilePath"
+        name="FileName"
         animateable="0"
-        command="SetFilePath"
+        command="SetFileName"
         number_of_elements="1">
         <FileListDomain name="files" />
         <Documentation>

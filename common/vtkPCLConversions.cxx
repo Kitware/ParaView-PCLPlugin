@@ -107,7 +107,8 @@ struct ConvXYZ
   virtual
   void CopyToPoint(vtkIdType i, PointType & point) const
   {
-    float * pointData = static_cast<float *>(this->Points->GetData()->GetVoidPointer(i));
+    // float * pointData = static_cast<float *>(this->Points->GetData()->GetVoidPointer(i));
+    auto * pointData = this->Points->GetPoint(i);
     point.x = pointData[0];
     point.y = pointData[1];
     point.z = pointData[2];
@@ -258,15 +259,7 @@ _DECLARE_CONV(Viewpoint, Curvature, vp_x,vp_y, vp_z)
 // Create an alias for the final child that can be used transparently in
 // functions.
 template <typename PointType>
-using ConvPointBaseClass = ConvViewpoint<PointType>;
-
-template <typename PointType>
-struct ConvPoint : public ConvPointBaseClass<PointType>
-{
-  ConvPoint() {};
-  ConvPoint(vtkSmartPointer<vtkPolyData> & polyData)
-    : ConvPointBaseClass<PointType>(polyData) {};
-};
+using ConvPoint = ConvViewpoint<PointType>;
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLConversions);
@@ -341,7 +334,6 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
  * @return    The PolyData instance.
  */
 template <typename CloudT>
-inline
 // Ideally the input parameter should be "CloudT::ConstPtr" or
 // "pcl::PointCloud<PointType>::ConstPtr" with "PointType" as the template
 // parameter, but that raises compilation errors (e.g. templated variables). The
@@ -353,6 +345,7 @@ void InternalPolyDataFromPointCloud(
 )
 {
   vtkIdType numberOfPoints = cloud->points.size();
+
   ConvPoint<typename CloudT::PointType> conv;
   conv.SetNumberOfPoints(numberOfPoints);
 
@@ -397,7 +390,6 @@ void InternalPolyDataFromPointCloud(
  * the invocation of this function by inspecting the PolyData instance.
  */
 template <typename CloudT>
-inline
 // See notes for InternalPolyDataFromPointCloud about template parameters.
 void InternalPointCloudFromPolyData(
   vtkSmartPointer<vtkPolyData> & polyData,
@@ -430,6 +422,7 @@ void InternalPointCloudFromPolyData(
     vtkSmartPointer<vtkPolyData> & polyData                                      \
   )                                                                              \
   {                                                                              \
+    std::cout << "PD from PCL: " BOOST_PP_STRINGIZE(PointType) << std::endl; \
     return InternalPolyDataFromPointCloud(cloud, polyData);                      \
   }                                                                              \
   void vtkPCLConversions::PointCloudFromPolyData(                                \
@@ -437,6 +430,7 @@ void InternalPointCloudFromPolyData(
     pcl::PointCloud<PointType>::Ptr & cloud                                      \
   )                                                                              \
   {                                                                              \
+    std::cout << "PCL from PD: " BOOST_PP_STRINGIZE(PointType) << std::endl; \
     InternalPointCloudFromPolyData<pcl::PointCloud<PointType>>(polyData, cloud); \
   }
 BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_XYZ_POINT_TYPES)

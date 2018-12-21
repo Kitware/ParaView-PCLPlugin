@@ -19,7 +19,7 @@ include(ParaViewPlugins)
 find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
-# add_definitions(${PCL_DEFINITIONS})
+add_definitions(${PCL_DEFINITIONS})
 
 find_package(Boost REQUIRED)
 include_directories(${BOOST_INCLUDE_DIRS})
@@ -35,7 +35,7 @@ set(ServerManagerXML)
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
   filters/vtkPCLFilter.cxx
-  # sources/vtkPCLSource.cxx
+  sources/vtkPCLSource.cxx
   )
 
 # Use a macro to make sure that related files are handled together.
@@ -55,7 +55,7 @@ add_filter(PCLDummyFilter)
 add_filter(PCLPassThroughFilter)
 add_filter(PCLVoxelGridFilter)
 add_filter(PCLStatisticalOutlierRemovalFilter)
-# add_filter(PCLPCDFileSource)
+add_filter(PCLPCDFileSource)
 
 
 set(plugin_name MyPCLFilters)

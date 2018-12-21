@@ -14,7 +14,7 @@ vtkStandardNewMacro(vtkPCLPCDFileSource);
 //----------------------------------------------------------------------------
 vtkPCLPCDFileSource::vtkPCLPCDFileSource()
 {
-  this->FilePath = "";
+  this->FileName = "";
 }
 
 //----------------------------------------------------------------------------
@@ -28,19 +28,20 @@ void vtkPCLPCDFileSource::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+#include <pcl/filters/passthrough.h>
 //----------------------------------------------------------------------------
 int vtkPCLPCDFileSource::LoadPCLSource(
   vtkSmartPointer<vtkPolyData> & output
 )
 {
-  if (this->FilePath == "")
+  if (this->FileName == "")
   {
     return 0;
   }
-  typedef pcl::PointXYZRGB PointType;
+  typedef pcl::PointXYZ PointType;
   typedef pcl::PointCloud<PointType> CloudT;
   typename CloudT::Ptr outputCloud(new CloudT);
-  if (pcl::io::loadPCDFile(this->FilePath, (* outputCloud)) == -1)
+  if (pcl::io::loadPCDFile(this->FileName, (* outputCloud)) == -1)
   {
     return 0;
   }

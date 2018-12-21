@@ -57,7 +57,8 @@ void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
   filter.setFilterLimits(this->Limits[0], this->Limits[1]);
   filter.setFilterLimitsNegative(this->Invert);
   filter.filter(* outputCloud);
-
+  
+  // pcl::io::pointCloudTovtkPolyData(outputCloud, output);
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
 }
 

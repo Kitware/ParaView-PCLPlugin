@@ -10,8 +10,9 @@
 
 //------------------------------------------------------------------------------
 //! @brief Internal switch case macro for INVOKE_WITH_POINT_TYPE
-#define _POINT_TYPE_SWITCH_CASE(r, args, i, PointType)        \
+#define _POINT_TYPE_SWITCH_CASE(r, args, i, PointType)     \
   case i:                                                  \
+    std::cout << "Detected point type " BOOST_PP_STRINGIZE(PointType) << std::endl; \
     BOOST_PP_SEQ_ELEM(0, args)<PointType>                  \
       BOOST_PP_SEQ_TO_TUPLE(BOOST_PP_SEQ_POP_FRONT(args)); \
     break;
