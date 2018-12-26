@@ -153,7 +153,7 @@ struct ConvXYZ
  * @param[in] ... The attributes that are handled by this class, e.g. "x,y,z" or
  * "r,g,b".
  */
-#define _DECLARE_CONV(name, parent, ...)                                                     \
+#define _DECLARE_CONV(parent, name, ...)                                                     \
   /* Class to handle points without the given attributes. */                                 \
   template <typename PointType, typename = int>                                              \
   struct Conv ## name : public Conv ## parent<PointType>                                     \
@@ -282,14 +282,15 @@ struct ConvXYZ
 // Declare classes for all attributes that should be preserved across
 // conversions between VTK PolyData and PCL point clouds.
 //----------------------------------------------------------------------------
-_DECLARE_CONV(RGB      , XYZ      , r,g,b)
+// These should match the fields defined in pcl/impl/point_types.hpp
+_DECLARE_CONV(Normal   , XYZ      , normal_x,normal_y,normal_z)
+_DECLARE_CONV(RGB      , Normal   , r,g,b)
 _DECLARE_CONV(Alpha    , RGB      , a)
 _DECLARE_CONV(HSV      , Alpha    , h,s,v)
 _DECLARE_CONV(Intensity, HSV      , intensity)
 _DECLARE_CONV(Label    , Intensity, label)
 _DECLARE_CONV(Strength , Label    , strength)
-_DECLARE_CONV(Normal   , Strength , normal_x,normal_y,normal_z)
-_DECLARE_CONV(Curvature, Normal   , curvature)
+_DECLARE_CONV(Curvature, Strength , curvature)
 _DECLARE_CONV(Viewpoint, Curvature, vp_x,vp_y, vp_z)
 _DECLARE_CONV(Scale    , Viewpoint, scale)
 _DECLARE_CONV(Angle    , Scale    , angle)
