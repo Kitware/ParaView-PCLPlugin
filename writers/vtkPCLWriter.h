@@ -15,50 +15,53 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLFilter_h
-#define vtkPCLFilter_h
+#ifndef vtkPCLWriter_h
+#define vtkPCLWriter_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkWriter.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
 #include <pcl/pcl_base.h>
 #include <pcl/point_types.h>
 
 //------------------------------------------------------------------------------
-//! @brief Common superclass for PCL filters.
-class VTK_EXPORT vtkPCLFilter : public vtkPolyDataAlgorithm
+//! @brief Common superclass for PCL sources.
+class VTK_EXPORT vtkPCLWriter : public vtkWriter
 {
 public:
-  static vtkPCLFilter * New();
-  vtkTypeMacro(vtkPCLFilter, vtkPolyDataAlgorithm);
+  static vtkPCLWriter * New();
+  vtkTypeMacro(vtkPCLWriter, vtkWriter);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
-  vtkPCLFilter();
-  ~vtkPCLFilter();
+  vtkPCLWriter();
+  ~vtkPCLWriter();
 
-  int RequestData(
-    vtkInformation * request,
-    vtkInformationVector * * inputVector,
-    vtkInformationVector * outputVector
-  ) override;
+  void WriteData() override;
+  int FillInputPortInformation(int port, vtkInformation * info) override;
 
 private:
-  vtkPCLFilter(const vtkPCLFilter &) = delete;
-  void operator=(const vtkPCLFilter &) = delete;
+  vtkPCLWriter(const vtkPCLWriter &) = delete;
+  void operator=(const vtkPCLWriter &) = delete;
 
+// TODO: remove this once it's included in vtkWriter
+protected:
+  char * FileName;
+public:
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+
+private:
   /*!
-   * @brief      Apply the PCL filter.
-   * @param[in]  inputCloud  The input cloud.
-   * @param[out] outputCloud The output cloud that results from applying the
-   *                         filter to the input cloud.
+   * @brief      Load the PCL source.
+   * @param[out] outputCloud The output cloud produced by the source.
    */
   virtual
-  int ApplyPCLFilter(
-    vtkPolyData * input,
-    vtkPolyData * output
+  int WritePCL(
+    vtkPolyData * input
   ) = 0;
 };
 
-#endif // vtkPCLFilter_h
+#endif // vtkPCLWriter_h
 

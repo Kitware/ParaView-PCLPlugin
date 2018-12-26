@@ -15,55 +15,47 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLStatisticalOutlierRemovalFilter_h
-#define vtkPCLStatisticalOutlierRemovalFilter_h
+#ifndef vtkPCLOpenNISource_h
+#define vtkPCLOpenNISource_h
 
-#include "vtkPCLFilter.h"
+#include "vtkPCLSource.h"
 
-class VTK_EXPORT vtkPCLStatisticalOutlierRemovalFilter : public vtkPCLFilter
+class VTK_EXPORT vtkPCLOpenNISource : public vtkPCLSource
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLStatisticalOutlierRemovalFilter * New();
-  vtkTypeMacro(vtkPCLStatisticalOutlierRemovalFilter, vtkPCLFilter);
+  static vtkPCLOpenNISource * New();
+  vtkTypeMacro(vtkPCLOpenNISource, vtkPCLSource);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLStatisticalOutlierRemovalFilter();
-  ~vtkPCLStatisticalOutlierRemovalFilter();
+  vtkPCLOpenNISource();
+  ~vtkPCLOpenNISource();
 
 private:
-  vtkPCLStatisticalOutlierRemovalFilter(const vtkPCLStatisticalOutlierRemovalFilter&) = delete;
-  void operator=(const vtkPCLStatisticalOutlierRemovalFilter&) = delete;
+  vtkPCLOpenNISource(const vtkPCLOpenNISource&) = delete;
+  void operator=(const vtkPCLOpenNISource&) = delete;
 
 //------------------------------------------------------------------------------
-// Filter parameters.
-private:
-  double MeanK;
-  double StddevMulThresh;
-
+// Source control.
 public:
-  vtkSetMacro(MeanK, double);
-  vtkGetMacro(MeanK, double);
 
-  vtkSetMacro(StddevMulThresh, double);
-  vtkGetMacro(StddevMulThresh, double);
+  bool HasNewData();
+  void Poll();
+  void StartGrabber();
+  void StopGrabber();
+
+  class vtkPCLOpenNISource::PCLOpenNISourceInternal;
+  vtkPCLOpenNISource::PCLOpenNISourceInternal * Internal;
 
 //------------------------------------------------------------------------------
-private:
-  int ApplyPCLFilter(
-    vtkPolyData * input,
-    vtkPolyData * output
+protected:
+  int LoadPCLSource(
+    pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
   ) override;
-
-  template <typename PointType>
-  void InternalApplyPCLFilter(
-    vtkPolyData * input,
-    vtkPolyData * output
-  );
 };
 
-#endif // vtkPCLStatisticalOutlierRemovalFilter_h
+#endif // vtkPCLOpenNISource_h
 

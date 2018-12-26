@@ -15,47 +15,47 @@
 // limitations under the License.
 //=============================================================================
 
-#include "vtkPCLDummyFilter.h"
+#include "vtkPCLReader.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkPCLDummyFilter);
+#include <pcl/point_types.h>
+
+// vtkStandardNewMacro(vtkPCLReader);
 
 //----------------------------------------------------------------------------
-vtkPCLDummyFilter::vtkPCLDummyFilter()
+vtkPCLReader::vtkPCLReader()
 {
-  this->SetNumberOfInputPorts(1);
+  // TODO
+  // Remove this once it's included in vtkAbstractPolyDataReader.
+  this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+  this->FileName = nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkPCLDummyFilter::~vtkPCLDummyFilter()
+vtkPCLReader::~vtkPCLReader()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLDummyFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkPCLDummyFilter::RequestData(
-  vtkInformation * request,
+int vtkPCLReader::RequestData(
+  vtkInformation * vtkNotUsed(request),
   vtkInformationVector * * inputVector,
   vtkInformationVector * outputVector
 )
 {
-  vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPolyData * input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  std::cout << this->Message << std::endl;
-  output->ShallowCopy(input);
-  return 1;
+  return this->LoadPCLReader(output);
 }
-
 

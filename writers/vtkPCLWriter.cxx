@@ -15,47 +15,48 @@
 // limitations under the License.
 //=============================================================================
 
-#include "vtkPCLDummyFilter.h"
+#include "vtkPCLWriter.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkPCLDummyFilter);
+#include <pcl/point_types.h>
+
+// vtkStandardNewMacro(vtkPCLWriter);
 
 //----------------------------------------------------------------------------
-vtkPCLDummyFilter::vtkPCLDummyFilter()
+vtkPCLWriter::vtkPCLWriter()
 {
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
+  this->FileName = nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkPCLDummyFilter::~vtkPCLDummyFilter()
+vtkPCLWriter::~vtkPCLWriter()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLDummyFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkPCLDummyFilter::RequestData(
-  vtkInformation * request,
-  vtkInformationVector * * inputVector,
-  vtkInformationVector * outputVector
-)
+void vtkPCLWriter::WriteData()
 {
-  vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPolyData * input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkInformation * outInfo = outputVector->GetInformationObject(0);
-  vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  std::cout << this->Message << std::endl;
-  output->ShallowCopy(input);
-  return 1;
+  vtkPolyData * input = vtkPolyData::SafeDownCast(this->GetInput(0));
+  this->WritePCL(input);
 }
 
-
+//----------------------------------------------------------------------------
+int vtkPCLWriter::FillInputPortInformation(int port, vtkInformation * info)
+{
+  if (port == 0)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+    return 1;
+  }
+  return 0;
+}

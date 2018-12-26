@@ -26,10 +26,10 @@
 #define _DECLARE_CONVERTER(i, data, PointType)  \
   static void PolyDataFromPointCloud(           \
     pcl::PointCloud<PointType>::ConstPtr cloud, \
-    vtkSmartPointer<vtkPolyData> & polyData     \
+    vtkPolyData * polyData     \
   );                                            \
   static void PointCloudFromPolyData(           \
-    vtkSmartPointer<vtkPolyData> & polyData,    \
+    vtkPolyData * polyData,    \
     pcl::PointCloud<PointType>::Ptr & cloud     \
   );
 

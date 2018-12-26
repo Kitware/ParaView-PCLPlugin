@@ -97,7 +97,7 @@ struct ConvXYZ
     this->PolyData->SetPoints(this->Points);
   }
 
-  ConvXYZ(vtkSmartPointer<vtkPolyData> & polyData) : PolyData { polyData }
+  ConvXYZ(vtkPolyData * polyData) : PolyData { polyData }
   {
     this->Points = this->PolyData->GetPoints();
   }
@@ -130,7 +130,7 @@ struct ConvXYZ
   //! @brief Get a score to estimate how well a given PolyData instance matches
   //!        the expected attributes of this PCL point type.
   virtual
-  int GetAttributeScore(vtkSmartPointer<vtkPolyData> & polyData)
+  int GetAttributeScore(vtkPolyData * polyData)
   {
     return (polyData->GetPoints() == nullptr) ? -1 : 3;
   }
@@ -163,7 +163,7 @@ struct ConvXYZ
   {                                                                                         \
     /* Default constructor and constructor to pass though PolyData instance. */             \
     BOOST_PP_CAT(Conv, name)() {};                                                          \
-    BOOST_PP_CAT(Conv, name)(vtkSmartPointer<vtkPolyData> & polyData)                       \
+    BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                       \
       : BOOST_PP_CAT(Conv, parent)<PointType>(polyData) {};                                 \
   };                                                                                        \
                                                                                             \
@@ -200,7 +200,7 @@ struct ConvXYZ
     }                                                                                       \
                                                                                             \
     /* Get the array from the PolyData instance. */                                         \
-    BOOST_PP_CAT(Conv, name)(vtkSmartPointer<vtkPolyData> & polyData)                       \
+    BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                       \
       : BOOST_PP_CAT(Conv, parent)<PointType> { polyData }                                  \
     {                                                                                       \
       this->BOOST_PP_CAT(name, Array) =                                                     \
@@ -253,7 +253,7 @@ struct ConvXYZ
     }                                                                                       \
                                                                                             \
     virtual                                                                                 \
-    int GetAttributeScore(vtkSmartPointer<vtkPolyData> & polyData)                          \
+    int GetAttributeScore(vtkPolyData * polyData)                          \
     {                                                                                       \
       int score = -1;                                                                       \
       if (polyData->GetPointData()->GetAbstractArray(BOOST_PP_STRINGIZE(name)) != nullptr)  \
@@ -446,7 +446,7 @@ template <typename CloudT>
 // defined in pcl/point_cloud.h.
 void InternalPolyDataFromPointCloud(
   boost::shared_ptr<CloudT const> cloud,
-  vtkSmartPointer<vtkPolyData> & polyData
+  vtkPolyData * polyData
 )
 {
   vtkIdType numberOfPoints = cloud->points.size();
@@ -497,7 +497,7 @@ void InternalPolyDataFromPointCloud(
 template <typename CloudT>
 // See notes for InternalPolyDataFromPointCloud about template parameters.
 void InternalPointCloudFromPolyData(
-  vtkSmartPointer<vtkPolyData> & polyData,
+  vtkPolyData * polyData,
   boost::shared_ptr<CloudT> & cloud
 )
 {
@@ -524,13 +524,13 @@ void InternalPointCloudFromPolyData(
 #define _DEFINE_CONVERTER(r, data, PointType)                                    \
   void vtkPCLConversions::PolyDataFromPointCloud(                                \
     pcl::PointCloud<PointType>::ConstPtr cloud,                                  \
-    vtkSmartPointer<vtkPolyData> & polyData                                      \
+    vtkPolyData * polyData                                      \
   )                                                                              \
   {                                                                              \
     return InternalPolyDataFromPointCloud(cloud, polyData);                      \
   }                                                                              \
   void vtkPCLConversions::PointCloudFromPolyData(                                \
-    vtkSmartPointer<vtkPolyData> & polyData,                                     \
+    vtkPolyData * polyData,                                     \
     pcl::PointCloud<PointType>::Ptr & cloud                                      \
   )                                                                              \
   {                                                                              \
@@ -541,7 +541,7 @@ BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
 //------------------------------------------------------------------------------
 //! @brief Get the index of the best matching PCL point type in the
 //!        PCL_XYZ_POINT_TYPES sequence.
-int vtkPCLConversions::GetPointTypeIndex(vtkSmartPointer<vtkPolyData> & polyData)
+int vtkPCLConversions::GetPointTypeIndex(vtkPolyData * polyData)
 {
   int score = -1, highestScore = -1;
   int index = -1;

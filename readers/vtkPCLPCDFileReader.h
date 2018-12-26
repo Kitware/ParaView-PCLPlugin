@@ -15,49 +15,40 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLPCDFileSource_h
-#define vtkPCLPCDFileSource_h
+#ifndef vtkPCLPCDFileReader_h
+#define vtkPCLPCDFileReader_h
 
-#include "vtkPCLSource.h"
+#include "vtkPCLReader.h"
 
-class VTK_EXPORT vtkPCLPCDFileSource : public vtkPCLSource
+class VTK_EXPORT vtkPCLPCDFileReader : public vtkPCLReader
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLPCDFileSource * New();
-  vtkTypeMacro(vtkPCLPCDFileSource, vtkPCLSource);
+  static vtkPCLPCDFileReader * New();
+  vtkTypeMacro(vtkPCLPCDFileReader, vtkPCLReader);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLPCDFileSource();
-  ~vtkPCLPCDFileSource();
+  vtkPCLPCDFileReader();
+  ~vtkPCLPCDFileReader();
 
 private:
-  vtkPCLPCDFileSource(const vtkPCLPCDFileSource&) = delete;
-  void operator=(const vtkPCLPCDFileSource&) = delete;
-
-//------------------------------------------------------------------------------
-// Source parameters.
-private:
-  std::string FileName;
-
-public:
-  vtkSetMacro(FileName, std::string);
-  vtkGetMacro(FileName, std::string);
+  vtkPCLPCDFileReader(const vtkPCLPCDFileReader&) = delete;
+  void operator=(const vtkPCLPCDFileReader&) = delete;
 
 //------------------------------------------------------------------------------
 protected:
-  int LoadPCLSource(
-    vtkSmartPointer<vtkPolyData> & output
+  int LoadPCLReader(
+    vtkPolyData * output
   ) override;
 
   template <typename PointType>
-  int InternalLoadPCLSource(
-    vtkSmartPointer<vtkPolyData> & output
+  int InternalLoadPCLReader(
+    vtkPolyData * output
   );
 };
 
-#endif // vtkPCLPCDFileSource_h
+#endif // vtkPCLPCDFileReader_h
 

@@ -1,9 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
-    <SourceProxy name="PCLPCDFileSource" class="vtkPCLPCDFileSource" label="PCL PCD File Source">
+    <SourceProxy name="PCLPCDFileReader" class="vtkPCLPCDFileReader" label="PCL PCD File Reader">
       <Documentation
-        short_help="PCD file loader from the Point Cloud Library (PCL)." >
-      </Documentation>
+        short_help="PCD file loader from the Point Cloud Library (PCL)." />
 
       <StringVectorProperty
         name="FileName"
@@ -11,9 +10,8 @@
         command="SetFileName"
         number_of_elements="1">
         <FileListDomain name="files" />
-        <Documentation>
-          The path to the PCD file.
-        </Documentation>
+        <Documentation
+          short_help="The path to the PCD file." />
       </StringVectorProperty>
 
       <Hints>
@@ -23,7 +21,7 @@
           file_description="Point Cloud Library (PCL) PCD file." />
       </Hints>
 
-      <!-- End PCLPCLReaderSource -->
+      <!-- End PCLPCDFileReader -->
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

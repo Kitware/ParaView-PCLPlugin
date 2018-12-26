@@ -15,10 +15,10 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLSource_h
-#define vtkPCLSource_h
+#ifndef vtkPCLReader_h
+#define vtkPCLReader_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkAbstractPolyDataReader.h"
 #include "vtkObjectFactory.h"
 
 #include <pcl/pcl_base.h>
@@ -26,16 +26,16 @@
 
 //------------------------------------------------------------------------------
 //! @brief Common superclass for PCL sources.
-class VTK_EXPORT vtkPCLSource : public vtkPolyDataAlgorithm
+class VTK_EXPORT vtkPCLReader : public vtkAbstractPolyDataReader
 {
 public:
-  static vtkPCLSource * New();
-  vtkTypeMacro(vtkPCLSource, vtkPolyDataAlgorithm);
+  static vtkPCLReader * New();
+  vtkTypeMacro(vtkPCLReader, vtkAbstractPolyDataReader);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
-  vtkPCLSource();
-  ~vtkPCLSource();
+  vtkPCLReader();
+  ~vtkPCLReader();
 
   int RequestData(
     vtkInformation * request,
@@ -44,18 +44,19 @@ protected:
   ) override;
 
 private:
-  vtkPCLSource(const vtkPCLSource &) = delete;
-  void operator=(const vtkPCLSource &) = delete;
+  vtkPCLReader(const vtkPCLReader &) = delete;
+  void operator=(const vtkPCLReader &) = delete;
 
+private:
   /*!
    * @brief      Load the PCL source.
    * @param[out] outputCloud The output cloud produced by the source.
    */
   virtual
-  int LoadPCLSource(
-    vtkSmartPointer<vtkPolyData> & output
+  int LoadPCLReader(
+    vtkPolyData * output
   ) = 0;
 };
 
-#endif // vtkPCLSource_h
+#endif // vtkPCLReader_h
 

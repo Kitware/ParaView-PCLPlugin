@@ -28,26 +28,26 @@ include_directories(${BOOST_INCLUDE_DIRS})
 set(ServerManagerIncludeDirs
   common
   filters
-  sources
+  readers
+  writers
   )
 
 set(ServerManagerXML)
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
   filters/vtkPCLFilter.cxx
-  sources/vtkPCLSource.cxx
+  readers/vtkPCLReader.cxx
+  writers/vtkPCLWriter.cxx
   )
 
 # Use a macro to make sure that related files are handled together.
 macro(add_filter name)
   list(APPEND ServerManagerXML "xml/${name}.xml")
 
-  string(REGEX MATCH "Source$" filter_type "${name}")
-  if ("${filter_type}" STREQUAL "Source")
-    list(APPEND ServerManagerSources "sources/vtk${name}.cxx")
-  else()
-    list(APPEND ServerManagerSources "filters/vtk${name}.cxx")
-  endif()
+  string(REGEX MATCH "[A-Z][a-z]+$" filter_type "${name}")
+  string(TOLOWER "${filter_type}" filter_type)
+
+  list(APPEND ServerManagerSources "${filter_type}s/vtk${name}.cxx")
 endmacro(add_filter)
 
 # Add the filters.
@@ -55,7 +55,8 @@ add_filter(PCLDummyFilter)
 add_filter(PCLPassThroughFilter)
 add_filter(PCLVoxelGridFilter)
 add_filter(PCLStatisticalOutlierRemovalFilter)
-add_filter(PCLPCDFileSource)
+add_filter(PCLPCDFileReader)
+add_filter(PCLPCDFileWriter)
 
 
 set(plugin_name PCLFilters)

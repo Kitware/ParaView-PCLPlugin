@@ -28,7 +28,7 @@ vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
-  this->FieldName = "x";
+  this->SetFieldName("x");
   this->Limits[0] = 0.0;
   this->Limits[1] = 1.0;
   this->Invert = false;
@@ -47,8 +47,8 @@ void vtkPCLPassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkPCLPassThroughFilter::ApplyPCLFilter(
-  vtkSmartPointer<vtkPolyData> & input,
-  vtkSmartPointer<vtkPolyData> & output
+  vtkPolyData * input,
+  vtkPolyData * output
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
@@ -59,8 +59,8 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
 //----------------------------------------------------------------------------
 template <typename PointType>
 void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
-  vtkSmartPointer<vtkPolyData> & input,
-  vtkSmartPointer<vtkPolyData> & output
+  vtkPolyData * input,
+  vtkPolyData * output
 )
 {
   typedef pcl::PointCloud<PointType> CloudT;

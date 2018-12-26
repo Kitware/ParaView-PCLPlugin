@@ -43,8 +43,8 @@ void vtkPCLStatisticalOutlierRemovalFilter::PrintSelf(ostream& os, vtkIndent ind
 
 //----------------------------------------------------------------------------
 int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
-  vtkSmartPointer<vtkPolyData> & input,
-  vtkSmartPointer<vtkPolyData> & output
+  vtkPolyData * input,
+  vtkPolyData * output
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
@@ -55,8 +55,8 @@ int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
 //----------------------------------------------------------------------------
 template <typename PointType>
 void vtkPCLStatisticalOutlierRemovalFilter::InternalApplyPCLFilter(
-  vtkSmartPointer<vtkPolyData> & input,
-  vtkSmartPointer<vtkPolyData> & output
+  vtkPolyData * input,
+  vtkPolyData * output
 )
 {
   typedef pcl::PointCloud<PointType> CloudT;

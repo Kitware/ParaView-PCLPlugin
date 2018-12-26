@@ -41,13 +41,13 @@ private:
 //------------------------------------------------------------------------------
 // Filter parameters.
 private:
-  std::string FieldName;
+  char * FieldName;
   double Limits[2];
   bool Invert;
 
 public:
-  vtkSetMacro(FieldName, std::string);
-  vtkGetMacro(FieldName, std::string);
+  vtkSetStringMacro(FieldName);
+  vtkGetStringMacro(FieldName);
 
   vtkSetVector2Macro(Limits, double);
   vtkGetVector2Macro(Limits, double);
@@ -58,14 +58,14 @@ public:
 //------------------------------------------------------------------------------
 private:
   int ApplyPCLFilter(
-    vtkSmartPointer<vtkPolyData> & input,
-    vtkSmartPointer<vtkPolyData> & output
+    vtkPolyData * input,
+    vtkPolyData * output
   ) override;
 
   template <typename PointType>
   void InternalApplyPCLFilter(
-    vtkSmartPointer<vtkPolyData> & input,
-    vtkSmartPointer<vtkPolyData> & output
+    vtkPolyData * input,
+    vtkPolyData * output
   );
 
 };

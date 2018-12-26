@@ -15,55 +15,40 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLStatisticalOutlierRemovalFilter_h
-#define vtkPCLStatisticalOutlierRemovalFilter_h
+#ifndef vtkPCLPCDFileWriter_h
+#define vtkPCLPCDFileWriter_h
 
-#include "vtkPCLFilter.h"
+#include "vtkPCLWriter.h"
 
-class VTK_EXPORT vtkPCLStatisticalOutlierRemovalFilter : public vtkPCLFilter
+class VTK_EXPORT vtkPCLPCDFileWriter : public vtkPCLWriter
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLStatisticalOutlierRemovalFilter * New();
-  vtkTypeMacro(vtkPCLStatisticalOutlierRemovalFilter, vtkPCLFilter);
+  static vtkPCLPCDFileWriter * New();
+  vtkTypeMacro(vtkPCLPCDFileWriter, vtkPCLWriter);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLStatisticalOutlierRemovalFilter();
-  ~vtkPCLStatisticalOutlierRemovalFilter();
+  vtkPCLPCDFileWriter();
+  ~vtkPCLPCDFileWriter();
 
 private:
-  vtkPCLStatisticalOutlierRemovalFilter(const vtkPCLStatisticalOutlierRemovalFilter&) = delete;
-  void operator=(const vtkPCLStatisticalOutlierRemovalFilter&) = delete;
+  vtkPCLPCDFileWriter(const vtkPCLPCDFileWriter&) = delete;
+  void operator=(const vtkPCLPCDFileWriter&) = delete;
 
 //------------------------------------------------------------------------------
-// Filter parameters.
-private:
-  double MeanK;
-  double StddevMulThresh;
-
-public:
-  vtkSetMacro(MeanK, double);
-  vtkGetMacro(MeanK, double);
-
-  vtkSetMacro(StddevMulThresh, double);
-  vtkGetMacro(StddevMulThresh, double);
-
-//------------------------------------------------------------------------------
-private:
-  int ApplyPCLFilter(
-    vtkPolyData * input,
+protected:
+  int WritePCL(
     vtkPolyData * output
   ) override;
 
   template <typename PointType>
-  void InternalApplyPCLFilter(
-    vtkPolyData * input,
+  int InternalWritePCL(
     vtkPolyData * output
   );
 };
 
-#endif // vtkPCLStatisticalOutlierRemovalFilter_h
+#endif // vtkPCLPCDFileWriter_h
 

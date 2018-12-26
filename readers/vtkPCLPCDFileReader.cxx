@@ -15,7 +15,7 @@
 // limitations under the License.
 //=============================================================================
 
-#include "vtkPCLPCDFileSource.h"
+#include "vtkPCLPCDFileReader.h"
 #include "vtkPCLConversions.h"
 #include "_PCLInvokeWithPointType.h"
 
@@ -29,29 +29,27 @@
 
 #include <set>
 
-vtkStandardNewMacro(vtkPCLPCDFileSource);
+vtkStandardNewMacro(vtkPCLPCDFileReader);
 
 //----------------------------------------------------------------------------
-vtkPCLPCDFileSource::vtkPCLPCDFileSource()
-{
-  this->FileName = "";
-}
-
-//----------------------------------------------------------------------------
-vtkPCLPCDFileSource::~vtkPCLPCDFileSource()
+vtkPCLPCDFileReader::vtkPCLPCDFileReader()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLPCDFileSource::PrintSelf(ostream& os, vtkIndent indent)
+vtkPCLPCDFileReader::~vtkPCLPCDFileReader()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkPCLPCDFileReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-#include <pcl/filters/passthrough.h>
 //----------------------------------------------------------------------------
-int vtkPCLPCDFileSource::LoadPCLSource(
-  vtkSmartPointer<vtkPolyData> & output
+int vtkPCLPCDFileReader::LoadPCLReader(
+  vtkPolyData * output
 )
 {
   if (this->FileName == "")
@@ -66,8 +64,8 @@ int vtkPCLPCDFileSource::LoadPCLSource(
   std::set<std::string> fields;
 	for (auto field : header.fields)
 	{
-    // The rgb and rgba fields are special. Replace them with the attribute
-    // names here to avoid extra complexity in the ConvPoint classes.
+    // The rgb and rgba fields are special cases. Replace them with the
+    // attribute names here to avoid extra complexity in the ConvPoint classes.
     if (field.name == "rgb" || field.name == "rgba")
     {
       fields.insert("r");
@@ -84,14 +82,14 @@ int vtkPCLPCDFileSource::LoadPCLSource(
 	}
 
   int index = vtkPCLConversions::GetPointTypeIndex(fields);
-  INVOKE_WITH_POINT_TYPE(index, return this->InternalLoadPCLSource, output)
+  INVOKE_WITH_POINT_TYPE(index, return this->InternalLoadPCLReader, output)
   return 0;
 }
 
 //----------------------------------------------------------------------------
 template <typename PointType>
-int vtkPCLPCDFileSource::InternalLoadPCLSource(
-  vtkSmartPointer<vtkPolyData> & output
+int vtkPCLPCDFileReader::InternalLoadPCLReader(
+  vtkPolyData * output
 )
 {
   typedef pcl::PointCloud<PointType> CloudT;

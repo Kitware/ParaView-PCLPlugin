@@ -44,8 +44,8 @@ void vtkPCLVoxelGridFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkPCLVoxelGridFilter::ApplyPCLFilter(
-  vtkSmartPointer<vtkPolyData> & input,
-  vtkSmartPointer<vtkPolyData> & output
+  vtkPolyData * input,
+  vtkPolyData * output
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
@@ -56,8 +56,8 @@ int vtkPCLVoxelGridFilter::ApplyPCLFilter(
 //----------------------------------------------------------------------------
 template <typename PointType>
 void vtkPCLVoxelGridFilter::InternalApplyPCLFilter(
-  vtkSmartPointer<vtkPolyData> & input,
-  vtkSmartPointer<vtkPolyData> & output
+  vtkPolyData * input,
+  vtkPolyData * output
 )
 {
   typedef pcl::PointCloud<PointType> CloudT;

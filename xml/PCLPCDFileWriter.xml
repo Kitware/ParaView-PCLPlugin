@@ -1,0 +1,42 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="writers">
+    <WriterProxy name="PCLPCDFileWriter" class="vtkPCLPCDFileWriter" label="PCL PCD File Writer">
+      <Documentation
+        short_help="PCD file writer from the Point Cloud Library (PCL)." />
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+      <StringVectorProperty
+        name="FileName"
+        animateable="0"
+        command="SetFileName"
+        number_of_elements="1">
+        <FileListDomain name="files" />
+        <Documentation
+          short_help="The path to the PCD file." />
+      </StringVectorProperty>
+
+      <Hints>
+        <Property name="Input" show="0"/>
+        <Property name="FileName" show="0"/>
+        <WriterFactory
+          extensions="pcd"
+          filename_patterns="*.pcd"
+          file_description="Point Cloud Library (PCL) PCD file." />
+      </Hints>
+
+      <!-- End PCLPCLFileWriter -->
+    </WriterProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

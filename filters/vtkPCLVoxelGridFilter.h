@@ -50,14 +50,14 @@ public:
 //------------------------------------------------------------------------------
 private:
   int ApplyPCLFilter(
-    vtkSmartPointer<vtkPolyData> & input,
-    vtkSmartPointer<vtkPolyData> & output
+    vtkPolyData * input,
+    vtkPolyData * output
   ) override;
 
   template <typename PointType>
   void InternalApplyPCLFilter(
-    vtkSmartPointer<vtkPolyData> & input,
-    vtkSmartPointer<vtkPolyData> & output
+    vtkPolyData * input,
+    vtkPolyData * output
   );
 };
 

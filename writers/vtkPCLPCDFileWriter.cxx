@@ -15,8 +15,9 @@
 // limitations under the License.
 //=============================================================================
 
-#include "vtkPCLSource.h"
+#include "vtkPCLPCDFileWriter.h"
 #include "vtkPCLConversions.h"
+#include "_PCLInvokeWithPointType.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -24,36 +25,52 @@
 #include "vtkObjectFactory.h"
 
 #include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
 
-// vtkStandardNewMacro(vtkPCLSource);
+#include <set>
 
-//----------------------------------------------------------------------------
-vtkPCLSource::vtkPCLSource()
-{
-  this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(1);
-}
+vtkStandardNewMacro(vtkPCLPCDFileWriter);
 
 //----------------------------------------------------------------------------
-vtkPCLSource::~vtkPCLSource()
+vtkPCLPCDFileWriter::vtkPCLPCDFileWriter()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkPCLSource::PrintSelf(ostream& os, vtkIndent indent)
+vtkPCLPCDFileWriter::~vtkPCLPCDFileWriter()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkPCLPCDFileWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-int vtkPCLSource::RequestData(
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector * * inputVector,
-  vtkInformationVector * outputVector
+int vtkPCLPCDFileWriter::WritePCL(
+  vtkPolyData * input
 )
 {
-  vtkInformation * outInfo = outputVector->GetInformationObject(0);
-  vtkSmartPointer<vtkPolyData> output(vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())));
-  return this->LoadPCLSource(output);
+  if (this->FileName == nullptr)
+  {
+    return 0;
+  }
+
+  int index = vtkPCLConversions::GetPointTypeIndex(input);
+  INVOKE_WITH_POINT_TYPE(index, return this->InternalWritePCL, input)
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+template <typename PointType>
+int vtkPCLPCDFileWriter::InternalWritePCL(
+  vtkPolyData * input
+)
+{
+  typedef pcl::PointCloud<PointType> CloudT;
+  typename CloudT::Ptr inputCloud(new CloudT);
+  vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
+  return (pcl::io::savePCDFile(this->FileName, (* inputCloud)) == -1) ? 0 : 1;
 }
 
