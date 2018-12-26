@@ -1,6 +1,6 @@
-//=========================================================================
+//=============================================================================
 //
-// Copyright 2012-2019 Kitware, Inc.
+// Copyright 2012-2018 Kitware, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=========================================================================
-//
-// .NAME vtkPCLConversions - collection of pointcloud library routines
-//
-// .SECTION Description
-//
+//=============================================================================
+
 
 #ifndef __vtkPCLConversions_h
 #define __vtkPCLConversions_h
