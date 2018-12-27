@@ -1,4 +1,4 @@
-//=============================================================================
+//==============================================================================
 //
 // Copyright 2012-2018 Kitware, Inc.
 //
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=============================================================================
+//==============================================================================
 
 #include "vtkPCLWriter.h"
 
@@ -26,31 +26,31 @@
 
 // vtkStandardNewMacro(vtkPCLWriter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLWriter::vtkPCLWriter()
 {
   this->FileName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLWriter::~vtkPCLWriter()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLWriter::WriteData()
 {
   vtkPolyData * input = vtkPolyData::SafeDownCast(this->GetInput(0));
   this->WritePCL(input);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCLWriter::FillInputPortInformation(int port, vtkInformation * info)
 {
   if (port == 0)
@@ -60,3 +60,4 @@ int vtkPCLWriter::FillInputPortInformation(int port, vtkInformation * info)
   }
   return 0;
 }
+

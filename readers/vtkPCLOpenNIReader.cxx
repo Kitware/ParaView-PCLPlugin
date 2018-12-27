@@ -1,4 +1,4 @@
-//=============================================================================
+//==============================================================================
 //
 // Copyright 2012-2018 Kitware, Inc.
 //
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=============================================================================
+//==============================================================================
 
 #include "vtkPCLOpenNISource.h"
 #include "vtkPCLConversions.h"
@@ -28,7 +28,7 @@
 #include <boost/thread/thread.hpp>
 
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class vtkPCLOpenNISource::PCLOpenNISourceInternal
 {
 public:
@@ -46,7 +46,7 @@ public:
 
   ~PCLOpenNISourceInternal()
   {
-    delete this->Grabber; 
+    delete this->Grabber;
   }
 
   void HandleIncomingCloud(CloudConstPtr const & newCloud)
@@ -73,42 +73,42 @@ public:
   }
 };
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLOpenNISource);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLOpenNISource::vtkPCLOpenNISource()
 {
   this->Internal = new vtkPCLOpenNISource::PCLOPenNISourceInternal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLOpenNISource::~vtkPCLOpenNISource()
 {
   delete this->Internal;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLOpenNISource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCLOpenNISource::LoadPCLSource(
   pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
 )
 {
   if (this->HasNewData())
   {
-    outputCloud = 
+    outputCloud =
   }
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Grabber management.
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StartGrabber()
 {
   if (! this->Internal->Grabber)
@@ -120,7 +120,7 @@ void vtkPCLOpenNISource::StartGrabber()
   this->Internal->Grabber->start();
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StopGrabber()
 {
   if (this->Internal->Grabber)
@@ -129,7 +129,7 @@ void vtkPCLOpenNISource::StopGrabber()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLOpenNISource::HasNewData()
 {
   if (this->Internal->Grabber)
@@ -138,7 +138,7 @@ void vtkPCLOpenNISource::HasNewData()
   }
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLOpenNISource::Poll()
 {
   if (this->HasNewData())

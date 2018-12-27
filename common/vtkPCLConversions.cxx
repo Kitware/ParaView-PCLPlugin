@@ -1,4 +1,4 @@
-//=============================================================================
+//==============================================================================
 //
 // Copyright 2012-2018 Kitware, Inc.
 //
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=============================================================================
+//==============================================================================
 
 #include "vtkPCLConversions.h"
 
@@ -140,8 +140,8 @@ struct ConvXYZ
   int GetFieldNameScore(std::set<std::string> & fields)
   {
     return (
-      _PCLP_IS_IN_SET(fields, "x") && 
-      _PCLP_IS_IN_SET(fields, "y") && 
+      _PCLP_IS_IN_SET(fields, "x") &&
+      _PCLP_IS_IN_SET(fields, "y") &&
       _PCLP_IS_IN_SET(fields, "z")
     ) ? 3 : -1;
   }
@@ -291,14 +291,14 @@ struct ConvXYZ
 //------------------------------------------------------------------------------
 // Declare a linear class hierarchy for all attributes that should be preserved
 // across conversions between VTK PolyData and PCL point clouds.
-// 
+//
 // The first element in the sequence is just a placeholder to specify the base
 // class ("XYZ" for "ConvXYZ"). Each element in the sequence after it is itself
 // a sequence, the first element of which is the name to use for the class (it
 // will be prefixed with "Conv") and the remaining elements of which are the
 // names of the point attributes to handle. The name (without the "Conv" prefix)
 // will also be used as the name of the array in the PolyData to transfer these
-// attributes alongside the point data. 
+// attributes alongside the point data.
 //
 // The sequence below should include all the fields defined in
 // pcl/impl/point_types.hpp. The very first sequence determines the base class

@@ -1,4 +1,4 @@
-//=============================================================================
+//==============================================================================
 //
 // Copyright 2012-2018 Kitware, Inc.
 //
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=============================================================================
+//==============================================================================
 
 #include "vtkPCLVoxelGridFilter.h"
 #include "vtkPCLConversions.h"
@@ -22,7 +22,7 @@
 
 vtkStandardNewMacro(vtkPCLVoxelGridFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLVoxelGridFilter::vtkPCLVoxelGridFilter()
 {
   this->LeafSize[0] = 0.01;
@@ -30,18 +30,18 @@ vtkPCLVoxelGridFilter::vtkPCLVoxelGridFilter()
   this->LeafSize[2] = 0.01;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLVoxelGridFilter::~vtkPCLVoxelGridFilter()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLVoxelGridFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCLVoxelGridFilter::ApplyPCLFilter(
   vtkPolyData * input,
   vtkPolyData * output
@@ -52,7 +52,7 @@ int vtkPCLVoxelGridFilter::ApplyPCLFilter(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename PointType>
 void vtkPCLVoxelGridFilter::InternalApplyPCLFilter(
   vtkPolyData * input,

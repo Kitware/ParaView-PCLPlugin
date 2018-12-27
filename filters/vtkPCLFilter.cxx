@@ -1,4 +1,4 @@
-//=============================================================================
+//==============================================================================
 //
 // Copyright 2012-2018 Kitware, Inc.
 //
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=============================================================================
+//==============================================================================
 
 #include "vtkPCLFilter.h"
 
@@ -26,25 +26,25 @@
 
 // vtkStandardNewMacro(vtkPCLFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLFilter::vtkPCLFilter()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLFilter::~vtkPCLFilter()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCLFilter::RequestData(
   vtkInformation * request,
   vtkInformationVector * * inputVector,

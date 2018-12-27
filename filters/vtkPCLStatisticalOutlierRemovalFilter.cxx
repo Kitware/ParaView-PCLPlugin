@@ -1,4 +1,4 @@
-//=============================================================================
+//==============================================================================
 //
 // Copyright 2012-2018 Kitware, Inc.
 //
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//=============================================================================
+//==============================================================================
 
 #include "vtkPCLStatisticalOutlierRemovalFilter.h"
 #include "vtkPCLConversions.h"
@@ -22,25 +22,25 @@
 
 vtkStandardNewMacro(vtkPCLStatisticalOutlierRemovalFilter);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLStatisticalOutlierRemovalFilter::vtkPCLStatisticalOutlierRemovalFilter()
 {
   this->MeanK = 50.0;
   this->StddevMulThresh = 1.0;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLStatisticalOutlierRemovalFilter::~vtkPCLStatisticalOutlierRemovalFilter()
 {
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void vtkPCLStatisticalOutlierRemovalFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
   vtkPolyData * input,
   vtkPolyData * output
@@ -51,7 +51,7 @@ int vtkPCLStatisticalOutlierRemovalFilter::ApplyPCLFilter(
   return 1;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 template <typename PointType>
 void vtkPCLStatisticalOutlierRemovalFilter::InternalApplyPCLFilter(
   vtkPolyData * input,
