@@ -17,7 +17,6 @@
 
 #include "vtkPCLVoxelGridFilter.h"
 #include "vtkPCLConversions.h"
-#include "_PCLInvokeWithPointType.h"
 
 #include <pcl/filters/voxel_grid.h>
 
@@ -49,7 +48,7 @@ int vtkPCLVoxelGridFilter::ApplyPCLFilter(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter, input, output)
+  PCLP_INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter, input, output)
   return 1;
 }
 

@@ -21,7 +21,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 //------------------------------------------------------------------------------
-//! @brief Common superclass for PCL filters.
+//! @brief Dummy filter for basic testing.
 class VTK_EXPORT vtkPCLDummyFilter : public vtkPolyDataAlgorithm
 {
 public:

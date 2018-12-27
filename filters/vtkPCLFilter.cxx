@@ -51,6 +51,7 @@ int vtkPCLFilter::RequestData(
   vtkInformationVector * outputVector
 )
 {
+  // Extract the polydata and pass it on to the derived classes method.
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
   vtkPolyData * input(vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())));
   vtkInformation * outInfo = outputVector->GetInformationObject(0);

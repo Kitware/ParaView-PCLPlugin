@@ -17,7 +17,6 @@
 
 #include "vtkPCLPCDFileWriter.h"
 #include "vtkPCLConversions.h"
-#include "_PCLInvokeWithPointType.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -58,7 +57,7 @@ int vtkPCLPCDFileWriter::WritePCL(
   }
 
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  INVOKE_WITH_POINT_TYPE(index, return this->InternalWritePCL, input)
+  PCLP_INVOKE_WITH_POINT_TYPE(index, return this->InternalWritePCL, input)
   return 0;
 }
 

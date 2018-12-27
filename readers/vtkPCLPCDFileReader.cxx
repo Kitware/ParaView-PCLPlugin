@@ -17,7 +17,6 @@
 
 #include "vtkPCLPCDFileReader.h"
 #include "vtkPCLConversions.h"
-#include "_PCLInvokeWithPointType.h"
 
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
@@ -82,7 +81,7 @@ int vtkPCLPCDFileReader::LoadPCLReader(
 	}
 
   int index = vtkPCLConversions::GetPointTypeIndex(fields);
-  INVOKE_WITH_POINT_TYPE(index, return this->InternalLoadPCLReader, output)
+  PCLP_INVOKE_WITH_POINT_TYPE(index, return this->InternalLoadPCLReader, output)
   return 0;
 }
 

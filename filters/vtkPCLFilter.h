@@ -49,9 +49,8 @@ private:
 
   /*!
    * @brief      Apply the PCL filter.
-   * @param[in]  inputCloud  The input cloud.
-   * @param[out] outputCloud The output cloud that results from applying the
-   *                         filter to the input cloud.
+   * @param[in]  input  The input data.
+   * @param[out] output The output data.
    */
   virtual
   int ApplyPCLFilter(

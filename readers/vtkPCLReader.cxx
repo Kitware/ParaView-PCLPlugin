@@ -26,17 +26,18 @@
 
 // vtkStandardNewMacro(vtkPCLReader);
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLReader::vtkPCLReader()
 {
   // TODO
-  // Remove this once it's included in vtkAbstractPolyDataReader.
-  this->SetNumberOfInputPorts(0);
-  this->SetNumberOfOutputPorts(1);
-  this->FileName = nullptr;
+  // Remove this once it's included in vtkAbstractPolyDataReader in the official
+  // release.
+  // this->SetNumberOfInputPorts(0);
+  // this->SetNumberOfOutputPorts(1);
+  // this->FileName = nullptr;
 }
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 vtkPCLReader::~vtkPCLReader()
 {
 }

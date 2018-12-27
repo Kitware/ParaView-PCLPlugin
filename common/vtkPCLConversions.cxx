@@ -38,26 +38,26 @@
 //------------------------------------------------------------------------------
 // Boost-based macros for determining point attributes.
 //------------------------------------------------------------------------------
-//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
-#define _CAST_VOID(r, name, attr) (void) name::attr
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _PCLP_DECLARE_CONV.
+#define _PCLP_CAST_VOID(r, name, attr) (void) name::attr
 
 //------------------------------------------------------------------------------
-//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
-#define _GET_ATTR(r, obj, attr) obj.attr
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _PCLP_DECLARE_CONV.
+#define _PCLP_GET_ATTR(r, obj, attr) obj.attr
 
 //------------------------------------------------------------------------------
-//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _DECLARE_HAS_ATTR.
-#define _SET_FROM_ARRAY(r, arr, i, var) var = arr[i];
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _PCLP_DECLARE_CONV.
+#define _PCLP_SET_FROM_ARRAY(r, arr, i, var) var = arr[i];
 
 //------------------------------------------------------------------------------
 //! @brief Check if an element is in a set.
 //! @todo  Remove this in favor of the set's "contains" method (C++20).
-#define _IS_IN_SET(set, element) (set.find(element) != set.end())
+#define _PCLP_IS_IN_SET(set, element) (set.find(element) != set.end())
 
 //------------------------------------------------------------------------------
 //! @brief Return -1 if an element is not in the set.
-#define _RETURN_MINUS_ONE_IF_NOT_IN_SET(r, set, i, name) \
-  if (! _IS_IN_SET(set, BOOST_PP_STRINGIZE(name)))       \
+#define _PCLP_RETURN_MINUS_ONE_IF_NOT_IN_SET(r, set, i, name) \
+  if (! _PCLP_IS_IN_SET(set, BOOST_PP_STRINGIZE(name)))       \
   {                                                      \
     return -1;                                           \
   }
@@ -68,7 +68,7 @@
  * @tparam T The PCL point type, e.g. PointXYZ.
  *
  * The PolyData is managed here in this base class along with the point data.
- * Templated subclasses declared using the _DECLARE_CONV macro will either
+ * Templated subclasses declared using the _PCLP_DECLARE_CONV macro will either
  * declare to shallow wrappers around this class if the point type lacks the
  * passed attributes, or a full wrapper that handles the passed attributes
  * before passing along the point to the parent. This allows a linear hierarchy
@@ -139,7 +139,11 @@ struct ConvXYZ
   virtual
   int GetFieldNameScore(std::set<std::string> & fields)
   {
-    return (_IS_IN_SET(fields, "x") && _IS_IN_SET(fields, "y") && _IS_IN_SET(fields, "z")) ? 3 : -1;
+    return (
+      _PCLP_IS_IN_SET(fields, "x") && 
+      _PCLP_IS_IN_SET(fields, "y") && 
+      _PCLP_IS_IN_SET(fields, "z")
+    ) ? 3 : -1;
   }
 };
 
@@ -156,14 +160,14 @@ struct ConvXYZ
  *                   class, e.g. "(r)(g)(b)" or
  *                   "(normal_x)(normal_y)(normal_z)".
  */
-#define _DECLARE_CONV(parent, name, attrs)                                                  \
+#define _PCLP_DECLARE_CONV(parent, name, attrs)                                             \
   /* Class to handle points without the given attributes. */                                \
   template <typename PointType, typename = int>                                             \
   struct BOOST_PP_CAT(Conv, name) : public BOOST_PP_CAT(Conv, parent)<PointType>            \
   {                                                                                         \
     /* Default constructor and constructor to pass though PolyData instance. */             \
     BOOST_PP_CAT(Conv, name)() {};                                                          \
-    BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                       \
+    BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                                        \
       : BOOST_PP_CAT(Conv, parent)<PointType>(polyData) {};                                 \
   };                                                                                        \
                                                                                             \
@@ -172,7 +176,7 @@ struct ConvXYZ
   struct BOOST_PP_CAT(Conv, name)<PointType, decltype(                                      \
     BOOST_PP_SEQ_ENUM(                                                                      \
       BOOST_PP_SEQ_TRANSFORM(                                                               \
-        _CAST_VOID,                                                                         \
+        _PCLP_CAST_VOID,                                                                    \
         PointType,                                                                          \
         attrs                                                                               \
       )                                                                                     \
@@ -200,7 +204,7 @@ struct ConvXYZ
     }                                                                                       \
                                                                                             \
     /* Get the array from the PolyData instance. */                                         \
-    BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                       \
+    BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                                        \
       : BOOST_PP_CAT(Conv, parent)<PointType> { polyData }                                  \
     {                                                                                       \
       this->BOOST_PP_CAT(name, Array) =                                                     \
@@ -222,7 +226,7 @@ struct ConvXYZ
       ElementType data[] {                                                                  \
         BOOST_PP_SEQ_ENUM(                                                                  \
           BOOST_PP_SEQ_TRANSFORM(                                                           \
-            _GET_ATTR,                                                                      \
+            _PCLP_GET_ATTR,                                                                 \
             point,                                                                          \
             attrs                                                                           \
           )                                                                                 \
@@ -241,10 +245,10 @@ struct ConvXYZ
         this->BOOST_PP_CAT(name, Array)->GetTypedTuple(i, values);                          \
       }                                                                                     \
       BOOST_PP_SEQ_FOR_EACH_I(                                                              \
-        _SET_FROM_ARRAY,                                                                    \
+        _PCLP_SET_FROM_ARRAY,                                                               \
         values,                                                                             \
         BOOST_PP_SEQ_TRANSFORM(                                                             \
-          _GET_ATTR,                                                                        \
+          _PCLP_GET_ATTR,                                                                   \
           point,                                                                            \
           attrs                                                                             \
         )                                                                                   \
@@ -253,7 +257,7 @@ struct ConvXYZ
     }                                                                                       \
                                                                                             \
     virtual                                                                                 \
-    int GetAttributeScore(vtkPolyData * polyData)                          \
+    int GetAttributeScore(vtkPolyData * polyData)                                           \
     {                                                                                       \
       int score = -1;                                                                       \
       if (polyData->GetPointData()->GetAbstractArray(BOOST_PP_STRINGIZE(name)) != nullptr)  \
@@ -271,7 +275,7 @@ struct ConvXYZ
     int GetFieldNameScore(std::set<std::string> & fields)                                   \
     {                                                                                       \
       BOOST_PP_SEQ_FOR_EACH_I(                                                              \
-        _RETURN_MINUS_ONE_IF_NOT_IN_SET,                                                    \
+        _PCLP_RETURN_MINUS_ONE_IF_NOT_IN_SET,                                               \
         fields,                                                                             \
         attrs                                                                               \
       )                                                                                     \
@@ -287,21 +291,32 @@ struct ConvXYZ
 //------------------------------------------------------------------------------
 // Declare a linear class hierarchy for all attributes that should be preserved
 // across conversions between VTK PolyData and PCL point clouds.
-//------------------------------------------------------------------------------
-// Each element in the sequence after the first is itself a sequence, the first
-// element of which is the name to use for the class (it will be prefixed with
-// "Conv") and the remaining elements of which are the names of the point
-// attributes to handle. The name (without the "Conv" prefix) will also be used
-// as the name of the array in the PolyData.
+// 
+// The first element in the sequence is just a placeholder to specify the base
+// class ("XYZ" for "ConvXYZ"). Each element in the sequence after it is itself
+// a sequence, the first element of which is the name to use for the class (it
+// will be prefixed with "Conv") and the remaining elements of which are the
+// names of the point attributes to handle. The name (without the "Conv" prefix)
+// will also be used as the name of the array in the PolyData to transfer these
+// attributes alongside the point data. 
 //
-// These should include all the fields defined in pcl/impl/point_types.hpp. The
-// very first sequence determines the base class (ConvXYZ). Subsequent sequences
-// will use the first element of the preceding sequence as its own base class.
-// For example, ConvNormal inherits from ConvXYZ, ConvRGB inherits from
-// ConvNormal, etc. The order thus determines the class hierarchy but should
-// have no effect on the conversion itself. To facilitate keeping this list
-// up-to-date, the order should follow the  PCL definitions.
-#define _DC_ATTR_SEQ                       \
+// The sequence below should include all the fields defined in
+// pcl/impl/point_types.hpp. The very first sequence determines the base class
+// (ConvXYZ). Subsequent sequences will use the first element of the preceding
+// sequence as its own base class. For example, in this case ConvNormal inherits
+// from ConvXYZ and ConvRGB inherits from ConvNormal. The order thus determines
+// the class hierarchy but should have no effect on the conversion itself. To
+// facilitate keeping this list up-to-date, it is recommended that the order
+// follow the order of the PCL definitions so that the header can be easily
+// scanned for changes.
+//
+// The result of these declarations is a templated class hierarchy that accepts
+// the PCL point type as its sole template parameter. Each class in the
+// hierarchy will handle specific attributes and then invoke the superclass's
+// method to deal with other attributes. For each template instantiation, the
+// compiler will inline these calls resulting in point-type-specific methods
+// that deal with all of the point's attributes in a single call.
+#define _PCLP_DC_ATTR_SEQ                  \
   ((XYZ))                                  \
   ((Normal)(normal_x)(normal_y)(normal_z)) \
   ((RGB)(r)(g)(b))                         \
@@ -322,17 +337,17 @@ struct ConvXYZ
 // declarations.
 
 // The state, which is just a tuple of the current index and the max index.
-#define _DC_STATE (0, BOOST_PP_DEC(BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(_DC_ATTR_SEQ))))
+#define _PCLP_DC_STATE (0, BOOST_PP_DEC(BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(_PCLP_DC_ATTR_SEQ))))
 
 // The for-loop condition. Stops when the index reaches the max index.
-#define _DC_PRED(r, state)                         \
+#define _PCLP_DC_PRED(r, state)                    \
   BOOST_PP_NOT_EQUAL(                              \
     BOOST_PP_TUPLE_ELEM(3, 0, state),              \
     BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 1, state)) \
   )
 
 // The loop operation. Increments the index each loop.
-#define _DC_OP(r, state)                            \
+#define _PCLP_DC_OP(r, state)                       \
   (                                                 \
     BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)), \
     BOOST_PP_TUPLE_ELEM(3, 1, state)                \
@@ -340,22 +355,35 @@ struct ConvXYZ
 
 // Internal macro to invoke _DECLARE_CONF with parent class, current class and
 // current class attributes.
-#define _DC_MACRO_I(i,j)                                   \
-  _DECLARE_CONV(                                           \
-    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(i, _DC_ATTR_SEQ)), \
-    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(j, _DC_ATTR_SEQ)), \
-    BOOST_PP_SEQ_TAIL(BOOST_PP_SEQ_ELEM(j, _DC_ATTR_SEQ))  \
+#define _PCLP_DC_MACRO_I(i,j)                                   \
+  _PCLP_DECLARE_CONV(                                           \
+    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(i, _PCLP_DC_ATTR_SEQ)), \
+    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(j, _PCLP_DC_ATTR_SEQ)), \
+    BOOST_PP_SEQ_TAIL(BOOST_PP_SEQ_ELEM(j, _PCLP_DC_ATTR_SEQ))  \
   )
 
-// Loop macro. It's just a wrapper around _DC_MACRO_I to invoke it with the
+// Loop macro. It's just a wrapper around _PCLP_DC_MACRO_I to invoke it with the
 // current index and the current index + 1.
-#define _DC_MACRO(r, state) _DC_MACRO_I(BOOST_PP_TUPLE_ELEM(3, 0, state), BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)))
+#define _PCLP_DC_MACRO(r, state)                   \
+  _PCLP_DC_MACRO_I(                                \
+    BOOST_PP_TUPLE_ELEM(3, 0, state),              \
+    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)) \
+  )
 
 // The for loop to declare the hierarchy.
-BOOST_PP_FOR(_DC_STATE, _DC_PRED, _DC_OP, _DC_MACRO)
+BOOST_PP_FOR(_PCLP_DC_STATE, _PCLP_DC_PRED, _PCLP_DC_OP, _PCLP_DC_MACRO)
 
 // The last class in the sequence, with the "Conv" prefix.
-#define _DC_LAST BOOST_PP_CAT(Conv, BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(_DC_ATTR_SEQ)), _DC_ATTR_SEQ)))
+#define _PCLP_DC_LAST                                         \
+    BOOST_PP_CAT(                                             \
+      Conv,                                                   \
+      BOOST_PP_SEQ_HEAD(                                      \
+        BOOST_PP_SEQ_ELEM(                                    \
+          BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(_PCLP_DC_ATTR_SEQ)), \
+          _PCLP_DC_ATTR_SEQ                                   \
+        )                                                     \
+      )                                                       \
+    )
 
 //------------------------------------------------------------------------------
 // Create an alias for the final child that can be used transparently elsewhere.
@@ -363,9 +391,12 @@ BOOST_PP_FOR(_DC_STATE, _DC_PRED, _DC_OP, _DC_MACRO)
 // is modified.
 //! @brief The only point converter class that should be used directly.
 template <typename PointType>
-using ConvPoint = _DC_LAST<PointType>;
+using ConvPoint = _PCLP_DC_LAST<PointType>;
 
 
+
+//------------------------------------------------------------------------------
+// vtkPCLConversions
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLConversions);
 
@@ -385,50 +416,6 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-// namespace {
-//
-//   template <typename T>
-//     vtkSmartPointer<vtkPolyData> TemplatedPolyDataFromPCDFile(const std::string& filename)
-//     {
-//       typename pcl::PointCloud<T>::Ptr cloud(new pcl::PointCloud<T>);
-//       if (pcl::io::loadPCDFile(filename, *cloud) == -1)
-//       {
-//         std::cout << "Error reading pcd file: " << filename;
-//         return 0;
-//       }
-//
-//       return vtkPCLConversions::PolyDataFromPointCloud(cloud);
-//     }
-//
-// }
-
-
-//------------------------------------------------------------------------------
-// vtkSmartPointer<vtkPolyData> vtkPCLConversions::PolyDataFromPCDFile(const std::string& filename)
-// {
-//   int version;
-//   int type;
-//   unsigned int idx;
-//
-//   pcl::PCLPointCloud2 cloud;
-//   Eigen::Vector4f origin;
-//   Eigen::Quaternionf orientation;
-//   pcl::PCDReader reader;
-//   reader.readHeader(filename, cloud, origin, orientation, version, type, idx);
-//
-//
-//   if (pcl::getFieldIndex(cloud, "rgba") != -1) {
-//     return TemplatedPolyDataFromPCDFile<pcl::PointXYZRGBA>(filename);
-//   }
-//   else if (pcl::getFieldIndex(cloud, "rgb") != -1) {
-//     return TemplatedPolyDataFromPCDFile<pcl::PointXYZRGB>(filename);
-//   }
-//   else {
-//     return TemplatedPolyDataFromPCDFile<pcl::PointXYZ>(filename);
-//   }
-// }
-
-
 //------------------------------------------------------------------------------
 /*!
  * @brief     Templated function to convert all PCL XYZ point types to a
@@ -441,9 +428,9 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
 template <typename CloudT>
 // Ideally the input parameter should be "CloudT::ConstPtr" or
 // "pcl::PointCloud<PointType>::ConstPtr" with "PointType" as the template
-// parameter, but that raises compilation errors (e.g. templated variables). The
-// workaround is to use the explicit type of PointCloud<PointType>::ConstPtr as
-// defined in pcl/point_cloud.h.
+// parameter, but that raises compilation errors (it's misrecognized as a
+// templated variable). The workaround is to use the explicit type of
+// PointCloud<PointType>::ConstPtr as defined in pcl/point_cloud.h.
 void InternalPolyDataFromPointCloud(
   boost::shared_ptr<CloudT const> cloud,
   vtkPolyData * polyData
@@ -524,13 +511,13 @@ void InternalPointCloudFromPolyData(
 #define _DEFINE_CONVERTER(r, data, PointType)                                    \
   void vtkPCLConversions::PolyDataFromPointCloud(                                \
     pcl::PointCloud<PointType>::ConstPtr cloud,                                  \
-    vtkPolyData * polyData                                      \
+    vtkPolyData * polyData                                                       \
   )                                                                              \
   {                                                                              \
     return InternalPolyDataFromPointCloud(cloud, polyData);                      \
   }                                                                              \
   void vtkPCLConversions::PointCloudFromPolyData(                                \
-    vtkPolyData * polyData,                                     \
+    vtkPolyData * polyData,                                                      \
     pcl::PointCloud<PointType>::Ptr & cloud                                      \
   )                                                                              \
   {                                                                              \
@@ -596,6 +583,8 @@ vtkSmartPointer<vtkCellArray> vtkPCLConversions::NewVertexCells(vtkIdType number
   return cellArray;
 }
 
+//------------------------------------------------------------------------------
+// Legacy code to be removed?
 //------------------------------------------------------------------------------
 // void vtkPCLConversions::PerformPointCloudConversionBenchmark(vtkPolyData* polyData)
 // {

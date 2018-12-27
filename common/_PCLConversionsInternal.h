@@ -15,26 +15,28 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef __PCLConversionsInternal_h
-#define __PCLConversionsInternal_h
-/*
- * These declarations needs to generated in a separate file due to the
- * limitations of VTK's wrapping parsers.
+
+// These declarations needs to generated in a separate file due to the
+// limitations of VTK's wrapping parsers.
+
+/*!
+ * @brief Temporary internal macro for declaring point cloud conversion
+ *        functions.
  */
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <pcl/impl/point_types.hpp>
-#define _DECLARE_CONVERTER(i, data, PointType)  \
-  static void PolyDataFromPointCloud(           \
-    pcl::PointCloud<PointType>::ConstPtr cloud, \
-    vtkPolyData * polyData     \
-  );                                            \
-  static void PointCloudFromPolyData(           \
-    vtkPolyData * polyData,    \
-    pcl::PointCloud<PointType>::Ptr & cloud     \
+#define _PCLP_DECLARE_CONVERTER(i, data, PointType) \
+  static void PolyDataFromPointCloud(               \
+    pcl::PointCloud<PointType>::ConstPtr cloud,     \
+    vtkPolyData * polyData                          \
+  );                                                \
+  static void PointCloudFromPolyData(               \
+    vtkPolyData * polyData,                         \
+    pcl::PointCloud<PointType>::Ptr & cloud         \
   );
 
+// Declare public conversion functions for all PCL XYZ point types.
 public:
-BOOST_PP_SEQ_FOR_EACH(_DECLARE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH(_PCLP_DECLARE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
 
-#endif // __PCLConversionsInternal_h
+// Undefine the temporary macro.
+#undef _PCLP_DECLARE_CONVERTER
 
