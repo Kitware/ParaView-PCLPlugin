@@ -1,0 +1,41 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+    <SourceProxy name="PCLOpenNISource" class="vtkPCLOpenNISource" label="PCL OpenNI Source">
+      <Documentation
+        short_help="OpenNI source from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <IntVectorProperty
+        name="WithColor"
+        default_values="0"
+        command="SetWithColor"
+        number_of_elements="1">
+        <BooleanDomain name="bool" />
+        <Documentation>Set to true if the OpenNI source supports RGB color data.</Documentation>
+      </IntVectorProperty>
+
+      <Property
+        name="StartGrabber"
+        command="StartGrabber" />
+
+      <Property
+        name="StopGrabber"
+        command="StopGrabber" />
+
+      <Property
+        name="Poll"
+        command="Poll" />
+
+      <IntVectorProperty
+        name="HasNewData"
+        command="HasNewData"
+        information_only="1">
+        <BooleanDomain name="bool" />
+        <SimplerInformationHelper />
+      </IntVectorProperty>
+
+      <!-- End PCLOpenNISource -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

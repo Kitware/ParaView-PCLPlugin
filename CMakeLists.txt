@@ -23,6 +23,10 @@ include_directories(${BOOST_INCLUDE_DIRS})
 # link_directories(${BOOST_LIBRARY_DIRS})
 
 #-------------------------------------------------------------------------------
+# Options
+option(ENABLE_OPENNI "Enable OpenNI Support (requires PCL with OpenNI support)." OFF)
+
+#-------------------------------------------------------------------------------
 # Initialize ParaView plugin variables.
 set(ServerManagerIncludeDirs
   common
@@ -71,12 +75,22 @@ endmacro(add_component)
 # Add the plugin components (filters, readers, etc.) The add_component macro
 # will add the XML and source files, and ensure that the include directory and
 # the base class's source files have already been added.
-add_component(PCLDummyFilter)
+
+# add_component(PCLDummyFilter)
 add_component(PCLPassThroughFilter)
 add_component(PCLVoxelGridFilter)
 add_component(PCLStatisticalOutlierRemovalFilter)
 add_component(PCLPCDFileReader)
 add_component(PCLPCDFileWriter)
+
+if(ENABLE_OPENNI)
+  if(OpenNI_FOUND OR OpenNI2_FOUND)
+    message(FATAL_ERROR "Enabling OpenNI.")
+    add_component(PCLOpenNISource)
+  else()
+    message(WARNING "OpenNI was not found.")
+  endif()
+endif()
 
 #-------------------------------------------------------------------------------
 # Function
