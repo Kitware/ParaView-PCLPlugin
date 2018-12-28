@@ -25,7 +25,7 @@
 #include <pcl/point_types.h>
 
 //------------------------------------------------------------------------------
-//! @brief Common superclass for PCL sources.
+//! @brief Common superclass for PCL readers.
 class VTK_EXPORT vtkPCLReader : public vtkAbstractPolyDataReader
 {
 public:
@@ -49,8 +49,8 @@ private:
 
 private:
   /*!
-   * @brief      Load the PCL source.
-   * @param[out] outputCloud The output cloud produced by the source.
+   * @brief      Load the PCL data.
+   * @param[out] outputCloud The output cloud produced by the reader.
    */
   virtual
   int LoadPCLReader(

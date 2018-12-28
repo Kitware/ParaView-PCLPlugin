@@ -1,64 +1,104 @@
 cmake_minimum_required(VERSION 3.3)
 set(CMAKE_CXX_STANDARD 11)
 
+#-------------------------------------------------------------------------------
+# Find ParaView
 if (NOT ParaView_BINARY_DIR)
   find_package(ParaView REQUIRED)
   include(${PARAVIEW_USE_FILE})
 endif()
-
-# Set a consistent MACOSX_RPATH default across all CMake versions.
-# When CMake 2.8.12 is required, change this default to 1.
-# When CMake 3.0.0 is required, remove this block (see CMP0042).
-if(NOT DEFINED CMAKE_MACOSX_RPATH)
-  set(CMAKE_MACOSX_RPATH 0)
-endif()
-
 include(ParaViewPlugins)
 
-# set(PCL_LIBRARIES)
+#-------------------------------------------------------------------------------
+# Find PCL
 find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+#-------------------------------------------------------------------------------
+# Find Boost
 find_package(Boost REQUIRED)
 include_directories(${BOOST_INCLUDE_DIRS})
 # link_directories(${BOOST_LIBRARY_DIRS})
 
+#-------------------------------------------------------------------------------
+# Initialize ParaView plugin variables.
 set(ServerManagerIncludeDirs
   common
-  filters
-  readers
-  writers
   )
-
-set(ServerManagerXML)
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
-  filters/vtkPCLFilter.cxx
-  readers/vtkPCLReader.cxx
-  writers/vtkPCLWriter.cxx
   )
+set(ServerManagerXML)
 
-# Use a macro to make sure that related files are handled together.
-macro(add_filter name)
+#-------------------------------------------------------------------------------
+# Macro
+#-------------------------------------------------------------------------------
+# Append an item to a list if not already in the list.
+macro(append_if_missing list item)
+  list(FIND "${list}" "${item}" item_index)
+  if(${item_index} EQUAL -1)
+    list(APPEND "${list}" "${item}")
+  endif()
+endmacro(append_if_missing)
+
+#-------------------------------------------------------------------------------
+# Macro
+#-------------------------------------------------------------------------------
+# Use a macro to ensure that related files are handled together. The argument is
+# a name such as PCLPassThroughFilter or PCLPCDFileReader, without the vtk
+# prefix or file extension. The directory will be parsed from the final part of
+# the word ("Filter", "Reader", etc.) converted to lower case and suffixed with
+# "s". Obviously this macro assumes that all arguments follow the same naming
+# conventions.
+macro(add_component name)
   list(APPEND ServerManagerXML "xml/${name}.xml")
 
   string(REGEX MATCH "[A-Z][a-z]+$" filter_type "${name}")
-  string(TOLOWER "${filter_type}" filter_type)
+  string(TOLOWER "${filter_type}s" directory)
 
-  list(APPEND ServerManagerSources "${filter_type}s/vtk${name}.cxx")
-endmacro(add_filter)
+  # Ensure that the include directory is included.
+  append_if_missing(ServerManagerIncludeDirs "${directory}")
+  # Ensure that the parent class source is included, e.g. vtkPCLFilter.cxx for
+  # all filter types.
+  append_if_missing(ServerManagerSources "${directory}/vtkPCL${filter_type}.cxx")
 
-# Add the filters.
-add_filter(PCLDummyFilter)
-add_filter(PCLPassThroughFilter)
-add_filter(PCLVoxelGridFilter)
-add_filter(PCLStatisticalOutlierRemovalFilter)
-add_filter(PCLPCDFileReader)
-add_filter(PCLPCDFileWriter)
+  list(APPEND ServerManagerSources "${directory}/vtk${name}.cxx")
+endmacro(add_component)
 
+#-------------------------------------------------------------------------------
+# Add the plugin components (filters, readers, etc.) The add_component macro
+# will add the XML and source files, and ensure that the include directory and
+# the base class's source files have already been added.
+add_component(PCLDummyFilter)
+add_component(PCLPassThroughFilter)
+add_component(PCLVoxelGridFilter)
+add_component(PCLStatisticalOutlierRemovalFilter)
+add_component(PCLPCDFileReader)
+add_component(PCLPCDFileWriter)
 
+#-------------------------------------------------------------------------------
+# Function
+#-------------------------------------------------------------------------------
+# Print the name of a list followed its sorted members on separate indented
+# lines.
+function(print_list list_name)
+  message(STATUS "${list_name}")
+  set(tmp_list "${${list_name}}")
+  list(SORT tmp_list)
+  foreach(item ${tmp_list})
+    message(STATUS "  ${item}")
+  endforeach()
+endfunction(print_list)
+
+#-------------------------------------------------------------------------------
+# Print some status information.
+print_list(ServerManagerXML)
+print_list(ServerManagerSources)
+print_list(ServerManagerIncludeDirs)
+
+#-------------------------------------------------------------------------------
 set(plugin_name PCLFilters)
 set(plugin_deps ${VTK_LIBRARIES} ${PCL_LIBRARIES})
 
