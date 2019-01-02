@@ -426,13 +426,8 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
  * @return    The PolyData instance.
  */
 template <typename CloudT>
-// Ideally the input parameter should be "CloudT::ConstPtr" or
-// "pcl::PointCloud<PointType>::ConstPtr" with "PointType" as the template
-// parameter, but that raises compilation errors (it's misrecognized as a
-// templated variable). The workaround is to use the explicit type of
-// PointCloud<PointType>::ConstPtr as defined in pcl/point_cloud.h.
 void InternalPolyDataFromPointCloud(
-  boost::shared_ptr<CloudT const> cloud,
+  typename CloudT::ConstPtr & cloud,
   vtkPolyData * polyData
 )
 {
@@ -485,7 +480,7 @@ template <typename CloudT>
 // See notes for InternalPolyDataFromPointCloud about template parameters.
 void InternalPointCloudFromPolyData(
   vtkPolyData * polyData,
-  boost::shared_ptr<CloudT> & cloud
+  typename CloudT::Ptr & cloud
 )
 {
   const vtkIdType numberOfPoints = polyData->GetNumberOfPoints();
@@ -514,7 +509,7 @@ void InternalPointCloudFromPolyData(
     vtkPolyData * polyData                                                       \
   )                                                                              \
   {                                                                              \
-    return InternalPolyDataFromPointCloud(cloud, polyData);                      \
+    InternalPolyDataFromPointCloud<pcl::PointCloud<PointType>>(cloud, polyData);                      \
   }                                                                              \
   void vtkPCLConversions::PointCloudFromPolyData(                                \
     vtkPolyData * polyData,                                                      \

@@ -19,7 +19,6 @@
 #ifndef __vtkPCLConversions_h
 #define __vtkPCLConversions_h
 
-
 #include <vtkObject.h>
 #include <vtkSmartPointer.h>
 
