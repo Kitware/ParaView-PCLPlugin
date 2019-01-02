@@ -56,7 +56,8 @@ endmacro(append_if_missing)
 # the word ("Filter", "Reader", etc.) converted to lower case and suffixed with
 # "s". Obviously this macro assumes that all arguments follow the same naming
 # conventions.
-macro(add_component name)
+macro(add_module name)
+  message(STATUS "Add module ${name}.")
   list(APPEND ServerManagerXML "xml/${name}.xml")
 
   string(REGEX MATCH "[A-Z][a-z]+$" filter_type "${name}")
@@ -69,24 +70,23 @@ macro(add_component name)
   append_if_missing(ServerManagerSources "${directory}/vtkPCL${filter_type}.cxx")
 
   list(APPEND ServerManagerSources "${directory}/vtk${name}.cxx")
-endmacro(add_component)
+endmacro(add_module)
 
 #-------------------------------------------------------------------------------
-# Add the plugin components (filters, readers, etc.) The add_component macro
-# will add the XML and source files, and ensure that the include directory and
-# the base class's source files have already been added.
+# Add the plugin modules (filters, readers, etc.) The add_module macro will add
+# the XML and source files, and ensure that the include directory and the base
+# class's source files have already been added.
 
-# add_component(PCLDummyFilter)
-add_component(PCLPassThroughFilter)
-add_component(PCLVoxelGridFilter)
-add_component(PCLStatisticalOutlierRemovalFilter)
-add_component(PCLPCDFileReader)
-add_component(PCLPCDFileWriter)
+# add_module(PCLDummyFilter)
+add_module(PCLPassThroughFilter)
+add_module(PCLVoxelGridFilter)
+add_module(PCLStatisticalOutlierRemovalFilter)
+add_module(PCLPCDFileReader)
+add_module(PCLPCDFileWriter)
 
 if(ENABLE_OPENNI)
   if(OpenNI_FOUND OR OpenNI2_FOUND)
-    message(FATAL_ERROR "Enabling OpenNI.")
-    add_component(PCLOpenNISource)
+    add_module(PCLOpenNISource)
   else()
     message(WARNING "OpenNI was not found.")
   endif()

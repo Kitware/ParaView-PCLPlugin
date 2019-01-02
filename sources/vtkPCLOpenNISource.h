@@ -42,8 +42,10 @@ private:
 private:
   bool WithColor;
 
-  class vtkPCLOpenNISource::GrabberWrapperBase;
-  vtkPCLOpenNISource::GrabberWrapperBase * MyGrabberWrapper;
+  class GrabberWrapperBase;
+  template <typename PointType>
+  class GrabberWrapper;
+  GrabberWrapperBase * MyGrabberWrapper;
 
 
 public:
@@ -59,7 +61,7 @@ public:
 //------------------------------------------------------------------------------
 protected:
   int LoadPCLSource(
-    vtkPolyData * output
+    vtkPolyData * polyData
   ) override;
 };
 

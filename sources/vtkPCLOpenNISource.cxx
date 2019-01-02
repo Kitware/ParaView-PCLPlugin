@@ -40,20 +40,19 @@
  */
 class vtkPCLOpenNISource::GrabberWrapperBase
 {
-private:
+protected:
   pcl::Grabber * Grabber;
   boost::mutex Mutex;
   bool DataIsNew;
 
 public:
-  GrabberWrapper()
+  GrabberWrapperBase()
+    : Grabber { new pcl::OpenNIGrabber() }
+    , DataIsNew { false }
   {
-    this->Grabber = new pcl::OpenNIGrabber();
-    this->RegisterCallback();
-    this->DataIsNew = false;
   }
 
-  ~GrabberWrapper()
+  ~GrabberWrapperBase()
   {
     delete this->Grabber;
   }
@@ -66,20 +65,22 @@ public:
 
   bool HasNewData()
   {
-    boost::lock_guard<boost::mutex> lock(this->mutex);
+    boost::lock_guard<boost::mutex> lock(this->Mutex);
     return this->DataIsNew;
   }
 
   void Start()
   {
     this->Grabber->start();
+    this->RegisterCallback();
+    this->DataIsNew = false;
   }
 
   void Stop()
   {
     this->Grabber->stop();
   }
-}
+};
 
 //------------------------------------------------------------------------------
 /*!
@@ -94,6 +95,7 @@ class vtkPCLOpenNISource::GrabberWrapper
 public:
   //! @brief The point cloud type.
   typedef pcl::PointCloud<PointType> CloudT;
+  typedef typename CloudT::ConstPtr CloudPtrT;
 
 private:
   /*!
@@ -102,30 +104,30 @@ private:
    * The point cloud is stored instead of a polydata so that conversions are
    * only performed when a new PolyData instance is actually requested.
    */
-  CloudT::ConstPtr Cloud;
+  CloudPtrT Cloud;
 
 protected:
   void RegisterCallback() override
   {
-    boost::function<void (CloudT::ConstPtr const &)> callback =
+    boost::function<void (CloudPtrT &)> callback =
       boost::bind(
         &vtkPCLOpenNISource::GrabberWrapper<PointType>::HandleIncomingCloud,
         this,
         _1
       );
-    this->Grabber.registerCallback(callback);
+    this->Grabber->registerCallback(callback);
   }
 
-  void HandleIncomingCloud(CloudT::ConstPtr & cloud)
+  void HandleIncomingCloud(CloudPtrT & cloud)
   {
-    boost::lock_guard<boost::mutex> lock(this->mutex);
+    boost::lock_guard<boost::mutex> lock(this->Mutex);
     this->Cloud = cloud;
     this->DataIsNew = true;
   }
 
   vtkSmartPointer<vtkPolyData> GetLatestPolyData() override
   {
-    boost::lock_guard<boost::mutex> lock(this->mutex);
+    boost::lock_guard<boost::mutex> lock(this->Mutex);
     vtkSmartPointer<vtkPolyData> polyData;
     vtkPCLConversions::PolyDataFromPointCloud(this->Cloud, polyData);
     this->DataIsNew = false;
@@ -186,10 +188,10 @@ void vtkPCLOpenNISource::SetWithColor(bool withColor)
 
 //------------------------------------------------------------------------------
 int vtkPCLOpenNISource::LoadPCLSource(
-  pcl::PointCloud<pcl::PointXYZ>::Ptr outputCloud
+  vtkPolyData * polyData
 )
 {
-  outputCloud->ShallowCopy(this->MyGrabberWrapper->GetLatestPolyData())
+  polyData->ShallowCopy(this->MyGrabberWrapper->GetLatestPolyData());
   return 1;
 }
 
@@ -198,25 +200,25 @@ int vtkPCLOpenNISource::LoadPCLSource(
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StartGrabber()
 {
-  this->MyGrabber->Start();
+  this->MyGrabberWrapper->Start();
 }
 
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StopGrabber()
 {
-  this->MyGrabber->Stop();
+  this->MyGrabberWrapper->Stop();
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLOpenNISource::HasNewData()
+bool vtkPCLOpenNISource::HasNewData()
 {
-  return this->MyGrabber->HasNewData();
+  return this->MyGrabberWrapper->HasNewData();
 }
 
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::Poll()
 {
-  if (this->MyGrabber->HasNewData())
+  if (this->MyGrabberWrapper->HasNewData())
   {
     this->Modified();
   }
