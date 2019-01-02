@@ -71,8 +71,8 @@ public:
 
   void Start()
   {
-    this->Grabber->start();
     this->RegisterCallback();
+    this->Grabber->start();
     this->DataIsNew = false;
   }
 
@@ -106,10 +106,23 @@ private:
    */
   CloudPtrT Cloud;
 
+public:
+  GrabberWrapper()
+    : Cloud { nullptr }
+  {
+  }
+
 protected:
+  void HandleIncomingCloud(CloudPtrT const & cloud)
+  {
+    boost::lock_guard<boost::mutex> lock(this->Mutex);
+    this->Cloud = cloud;
+    this->DataIsNew = true;
+  }
+
   void RegisterCallback() override
   {
-    boost::function<void (CloudPtrT &)> callback =
+    boost::function<void (CloudPtrT const &)> callback =
       boost::bind(
         &vtkPCLOpenNISource::GrabberWrapper<PointType>::HandleIncomingCloud,
         this,
@@ -118,18 +131,14 @@ protected:
     this->Grabber->registerCallback(callback);
   }
 
-  void HandleIncomingCloud(CloudPtrT & cloud)
-  {
-    boost::lock_guard<boost::mutex> lock(this->Mutex);
-    this->Cloud = cloud;
-    this->DataIsNew = true;
-  }
-
   vtkSmartPointer<vtkPolyData> GetLatestPolyData() override
   {
     boost::lock_guard<boost::mutex> lock(this->Mutex);
-    vtkSmartPointer<vtkPolyData> polyData;
-    vtkPCLConversions::PolyDataFromPointCloud(this->Cloud, polyData);
+    vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+    if (this->Cloud != nullptr)
+    {
+      vtkPCLConversions::PolyDataFromPointCloud(this->Cloud, polyData);
+    }
     this->DataIsNew = false;
     return polyData;
   }
@@ -143,7 +152,7 @@ vtkPCLOpenNISource::vtkPCLOpenNISource()
 {
   this->MyGrabberWrapper = nullptr;
   // Invoke SetWithColor to set the grabber wrapper to ensure consistency.
-  this->SetWithColor(false);
+  this->SetWithColor(true);
 }
 
 //------------------------------------------------------------------------------
@@ -164,7 +173,7 @@ void vtkPCLOpenNISource::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::SetWithColor(bool withColor)
 {
-  if (withColor == this->WithColor)
+  if (withColor == this->WithColor && this->MyGrabberWrapper != nullptr)
   {
     return;
   }
@@ -178,21 +187,30 @@ void vtkPCLOpenNISource::SetWithColor(bool withColor)
   // added here.
   if (this->WithColor)
   {
-    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGB>;
+    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGBA>;
   }
   else
   {
     this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZ>;
   }
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
 int vtkPCLOpenNISource::LoadPCLSource(
-  vtkPolyData * polyData
+  vtkPolyData * outputPolyData
 )
 {
-  polyData->ShallowCopy(this->MyGrabberWrapper->GetLatestPolyData());
-  return 1;
+  if (this->MyGrabberWrapper != nullptr)
+  {
+    auto cloudPolyData = this->MyGrabberWrapper->GetLatestPolyData();
+    if (cloudPolyData != nullptr)
+    {
+      outputPolyData->ShallowCopy(cloudPolyData);
+      return 1;
+    }
+  }
+  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -200,25 +218,31 @@ int vtkPCLOpenNISource::LoadPCLSource(
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StartGrabber()
 {
-  this->MyGrabberWrapper->Start();
+  if (this->MyGrabberWrapper != nullptr)
+  {
+    this->MyGrabberWrapper->Start();
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StopGrabber()
 {
-  this->MyGrabberWrapper->Stop();
+  if (this->MyGrabberWrapper != nullptr)
+  {
+    this->MyGrabberWrapper->Stop();
+  }
 }
 
 //------------------------------------------------------------------------------
 bool vtkPCLOpenNISource::HasNewData()
 {
-  return this->MyGrabberWrapper->HasNewData();
+  return (this->MyGrabberWrapper != nullptr) && this->MyGrabberWrapper->HasNewData();
 }
 
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::Poll()
 {
-  if (this->MyGrabberWrapper->HasNewData())
+  if (this->HasNewData())
   {
     this->Modified();
   }
