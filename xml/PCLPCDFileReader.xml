@@ -19,6 +19,7 @@
           extensions="pcd"
           filename_patterns="*.pcd"
           file_description="Point Cloud Library (PCL) PCD file." />
+        <ShowInMenu category="PCL" />
       </Hints>
 
       <!-- End PCLPCDFileReader -->

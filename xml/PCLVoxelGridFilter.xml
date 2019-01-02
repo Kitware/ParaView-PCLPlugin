@@ -25,6 +25,10 @@
         <DoubleRangeDomain name="range" min="0" />
         <Documentation>Set the leaf size.</Documentation>
       </DoubleVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
       <!-- End PCLVoxelGridFilter -->
     </SourceProxy>
   </ProxyGroup>

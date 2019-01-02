@@ -25,6 +25,10 @@
         number_of_elements="1">
         <Documentation>The message to display when this filter is applied.</Documentation>
       </StringVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
       <!-- End PCLDummyFilter -->
     </SourceProxy>
   </ProxyGroup>

@@ -32,6 +32,10 @@
         default_values="1.0">
         <Documentation>Set the standard deviation.</Documentation>
       </DoubleVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
       <!-- End PCLStatisticalOutlierRemovalFilter -->
     </SourceProxy>
   </ProxyGroup>

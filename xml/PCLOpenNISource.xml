@@ -34,6 +34,9 @@
         <SimplerInformationHelper />
       </IntVectorProperty>
 
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
       <!-- End PCLOpenNISource -->
     </SourceProxy>
   </ProxyGroup>

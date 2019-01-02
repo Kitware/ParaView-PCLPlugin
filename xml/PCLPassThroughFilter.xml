@@ -42,6 +42,10 @@
         <BooleanDomain name="bool" />
         <Documentation>Invert the filter. If set, the filter will remove points within the limits.</Documentation>
       </IntVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
       <!-- End PCLPassThroughFilter -->
     </SourceProxy>
   </ProxyGroup>
