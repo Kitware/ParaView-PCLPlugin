@@ -42,13 +42,20 @@ class vtkPCLOpenNISource::GrabberWrapperBase
 {
 protected:
   pcl::Grabber * Grabber;
+  std::string DeviceID;
   boost::mutex Mutex;
   bool DataIsNew;
+  vtkPCLOpenNISource * Parent;
 
 public:
-  GrabberWrapperBase()
-    : Grabber { new pcl::OpenNIGrabber() }
+  GrabberWrapperBase(
+    vtkPCLOpenNISource * parent,
+    std::string deviceID = ""
+  )
+    : Grabber { new pcl::OpenNIGrabber(deviceID) }
+    , DeviceID { deviceID }
     , DataIsNew { false }
+    , Parent { parent }
   {
   }
 
@@ -80,6 +87,11 @@ public:
   {
     this->Grabber->stop();
   }
+
+  bool IsRunning()
+  {
+    return this->Grabber->isRunning();
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -107,8 +119,12 @@ private:
   CloudPtrT Cloud;
 
 public:
-  GrabberWrapper()
-    : Cloud { nullptr }
+  GrabberWrapper(
+    vtkPCLOpenNISource * parent,
+    std::string deviceID = ""
+  )
+    : vtkPCLOpenNISource::GrabberWrapperBase { parent, deviceID }
+    , Cloud { nullptr }
   {
   }
 
@@ -118,6 +134,7 @@ protected:
     boost::lock_guard<boost::mutex> lock(this->Mutex);
     this->Cloud = cloud;
     this->DataIsNew = true;
+    this->Parent->Modified();
   }
 
   void RegisterCallback() override
@@ -149,10 +166,11 @@ vtkStandardNewMacro(vtkPCLOpenNISource);
 
 //------------------------------------------------------------------------------
 vtkPCLOpenNISource::vtkPCLOpenNISource()
+  : MyGrabberWrapper { nullptr }
+  , WithColor { false }
+  , DeviceID { "" }
 {
-  this->MyGrabberWrapper = nullptr;
-  // Invoke SetWithColor to set the grabber wrapper to ensure consistency.
-  this->SetWithColor(true);
+  this->Reset();
 }
 
 //------------------------------------------------------------------------------
@@ -171,27 +189,29 @@ void vtkPCLOpenNISource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLOpenNISource::SetWithColor(bool withColor)
+void vtkPCLOpenNISource::Reset()
 {
-  if (withColor == this->WithColor && this->MyGrabberWrapper != nullptr)
-  {
-    return;
-  }
-  this->WithColor = withColor;
   // The destructor will stop the grabber if it is running.
+  bool isRunning = false;
   if (this->MyGrabberWrapper != nullptr)
   {
+    isRunning = this->IsRunning();
     delete this->MyGrabberWrapper;
   }
   // If the grabber supports other point types in the future, they should be
   // added here.
+  std::cout << "Opening " << this->DeviceID << std::endl;
   if (this->WithColor)
   {
-    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGBA>;
+    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGBA>(this, this->DeviceID);
   }
   else
   {
-    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZ>;
+    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZ>(this, this->DeviceID);
+  }
+  if (isRunning)
+  {
+    this->StartGrabber();
   }
   this->Modified();
 }
@@ -218,19 +238,34 @@ int vtkPCLOpenNISource::LoadPCLSource(
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StartGrabber()
 {
-  if (this->MyGrabberWrapper != nullptr)
+  if (! this->MyGrabberWrapper->IsRunning())
   {
-    this->MyGrabberWrapper->Start();
+    if (this->MyGrabberWrapper == nullptr)
+    {
+      this->Reset();
+    }
+    if (this->MyGrabberWrapper != nullptr)
+    {
+      this->MyGrabberWrapper->Start();
+      this->Modified();
+    }
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StopGrabber()
 {
-  if (this->MyGrabberWrapper != nullptr)
+  if (this->IsRunning())
   {
     this->MyGrabberWrapper->Stop();
+    this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+bool vtkPCLOpenNISource::IsRunning()
+{
+  return (this->MyGrabberWrapper != nullptr) && this->MyGrabberWrapper->IsRunning();
 }
 
 //------------------------------------------------------------------------------
@@ -245,6 +280,26 @@ void vtkPCLOpenNISource::Poll()
   if (this->HasNewData())
   {
     this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPCLOpenNISource::SetDeviceID(std::string deviceID)
+{
+  if (this->DeviceID != deviceID)
+  {
+    this->DeviceID = deviceID;
+    this->Reset();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPCLOpenNISource::SetWithColor(bool withColor)
+{
+  if (this->WithColor != withColor)
+  {
+    this->WithColor = withColor;
+    this->Reset();
   }
 }
 

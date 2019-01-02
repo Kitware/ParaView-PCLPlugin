@@ -40,23 +40,30 @@ private:
 
 //------------------------------------------------------------------------------
 private:
+  std::string DeviceID;
   bool WithColor;
-
+  
   class GrabberWrapperBase;
   template <typename PointType>
   class GrabberWrapper;
   GrabberWrapperBase * MyGrabberWrapper;
 
+  void Reset();
 
 public:
+  vtkGetMacro(DeviceID, std::string);
+  // vtkSetMacro(DeviceID, std::string);
+  void SetDeviceID(std::string deviceID);
+
+  vtkGetMacro(WithColor, bool);
+  // vtkSetMacro(WithColor, bool);
+  void SetWithColor(bool withColor);
+
   bool HasNewData();
   void Poll();
   void StartGrabber();
   void StopGrabber();
-
-  vtkGetMacro(WithColor, bool);
-  //! @brief Set the WithColor attribute and switch grabbers if necessary.
-  void SetWithColor(bool withColor);
+  bool IsRunning();
 
 //------------------------------------------------------------------------------
 protected:

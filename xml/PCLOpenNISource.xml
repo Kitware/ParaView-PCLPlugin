@@ -5,33 +5,56 @@
         short_help="OpenNI source from the Point Cloud Library (PCL)." >
       </Documentation>
 
+      <StringVectorProperty
+        name="DeviceID"
+        default_values=""
+        command="SetDeviceID"
+        number_of_elements="1">
+        <Documentation>Set the device ID.</Documentation>
+      </StringVectorProperty>
+
+
       <IntVectorProperty
         name="WithColor"
-        default_values="1"
+        default_values="0"
         command="SetWithColor"
         number_of_elements="1">
         <BooleanDomain name="bool" />
-        <Documentation>Set to true if the OpenNI source supports RGB color data.</Documentation>
+        <Documentation>Capture color data.</Documentation>
       </IntVectorProperty>
 
       <Property
         name="StartGrabber"
-        command="StartGrabber" />
+        command="StartGrabber">
+        <Documentation>Start the grabber.</Documentation>
+      </Property>
 
       <Property
         name="StopGrabber"
-        command="StopGrabber" />
+        command="StopGrabber">
+        <Documentation>Stop the grabber.</Documentation>
+      </Property>
+
+      <IntVectorProperty
+        name="IsRunning"
+        command="IsRunning"
+        information_only="1">
+        <SimplerIntInformationHelper />
+        <Documentation>True if the grabber is running.</Documentation>
+      </IntVectorProperty>
 
       <Property
         name="Poll"
-        command="Poll" />
+        command="Poll">
+        <Documentation>Poll for new data.</Documentation>
+      </Property>
 
       <IntVectorProperty
         name="HasNewData"
         command="HasNewData"
         information_only="1">
-        <BooleanDomain name="bool" />
-        <SimplerInformationHelper />
+        <SimplerIntInformationHelper />
+        <Documentation>True if there is new data available.</Documentation>
       </IntVectorProperty>
 
       <Hints>
