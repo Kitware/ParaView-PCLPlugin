@@ -6,15 +6,12 @@ This plugin is brings the full functionality of the [Point Cloud Library (PCL)](
 
 Dependencies are listed in the table below along with the version used during development and testing. Minimum required versions have not been determined yet.
 
-Dependency  Tested Version  Minimum Version
------------ --------------- ----------------
-ParaView    5.6.0           ?
-PCL         1.9             ?
-Eigen       3.6.3           ?
-Boost       1.68            ?
------------ --------------- ----------------
-
-# Troubleshooting
+| Dependency  | Tested Version  | Minimum Version  |
+| :---------: | :-------------: | :--------------: |
+| ParaView    | 5.6.0           | ?                |
+| PCL         | 1.9             | ?                |
+| Eigen       | 3.6.3           | ?                |
+| Boost       | 1.68            | ?                |
 
 ## PCL Configuration
 
@@ -22,6 +19,8 @@ If PCL is compiled against VTK, segfaults may occur during plugin loading. Stran
 
 * `-DWITH_VTK:BOOL=ON`
 * `-DBUILD_visualization:BOOL=OFF`
+
+To enable OpenNI support, PCL must also be compiled with `-DWITH_OPENNI:BOOL=ON` or `-DWITH_OPENNI2:BOOL=ON` and the corresponding OpenNI library must be installed.
 
 ### Segfault Details For Reference
 ~~~~~
