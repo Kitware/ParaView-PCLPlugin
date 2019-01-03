@@ -9,7 +9,9 @@
         name="DeviceID"
         default_values=""
         command="SetDeviceID"
-        number_of_elements="1">
+        number_of_elements="1"
+        panel_visibility="advanced"
+        >
         <Documentation>Set the device ID.</Documentation>
       </StringVectorProperty>
 
@@ -18,44 +20,63 @@
         name="WithColor"
         default_values="0"
         command="SetWithColor"
-        number_of_elements="1">
+        number_of_elements="1"
+        >
         <BooleanDomain name="bool" />
         <Documentation>Capture color data.</Documentation>
       </IntVectorProperty>
 
       <Property
         name="StartGrabber"
-        command="StartGrabber">
+        command="StartGrabber"
+        panel_widget="command_button"
+        >
         <Documentation>Start the grabber.</Documentation>
       </Property>
 
       <Property
         name="StopGrabber"
-        command="StopGrabber">
+        command="StopGrabber"
+        panel_widget="command_button"
+        >
         <Documentation>Stop the grabber.</Documentation>
       </Property>
 
-      <IntVectorProperty
-        name="IsRunning"
-        command="IsRunning"
-        information_only="1">
-        <SimplerIntInformationHelper />
-        <Documentation>True if the grabber is running.</Documentation>
-      </IntVectorProperty>
+      <!-- <IntVectorProperty -->
+      <!--   name="IsRunning" -->
+      <!--   command="IsRunning" -->
+      <!--   information_only="1" -->
+      <!--   number_of_elements="1" -->
+      <!--   > -->
+      <!--   <IntArrayInformationHelper /> -->
+      <!--   <BooleanDomain name="bool" /> -->
+      <!--   <Documentation>True if the grabber is running.</Documentation> -->
+      <!-- </IntVectorProperty> -->
+
+      <!-- <PropertyGroup label="Grabber Control"> -->
+        <!-- <Property name="StartGrabber" /> -->
+        <!-- <Property name="StopGrabber" /> -->
+        <!-- <Property name="IsRunning" /> -->
+      <!-- </PropertyGroup> -->
 
       <Property
         name="Poll"
-        command="Poll">
+        command="Poll"
+        panel_widget="command_button"
+        >
         <Documentation>Poll for new data.</Documentation>
       </Property>
 
-      <IntVectorProperty
-        name="HasNewData"
-        command="HasNewData"
-        information_only="1">
-        <SimplerIntInformationHelper />
-        <Documentation>True if there is new data available.</Documentation>
-      </IntVectorProperty>
+      <!-- <IntVectorProperty -->
+      <!--   name="HasNewData" -->
+      <!--   command="HasNewData" -->
+      <!--   information_only="1" -->
+      <!--   number_of_elements="1" -->
+      <!--   > -->
+      <!--   [> <IntArrayInformationHelper /> <] -->
+      <!--   <BooleanDomain name="bool" /> -->
+      <!--   <Documentation>True if there is new data available.</Documentation> -->
+      <!-- </IntVectorProperty> -->
 
       <Hints>
         <ShowInMenu category="PCL" />

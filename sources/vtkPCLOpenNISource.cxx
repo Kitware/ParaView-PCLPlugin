@@ -61,6 +61,7 @@ public:
 
   ~GrabberWrapperBase()
   {
+    this->Grabber->stop();
     delete this->Grabber;
   }
 
@@ -178,6 +179,7 @@ vtkPCLOpenNISource::~vtkPCLOpenNISource()
 {
   if (this->MyGrabberWrapper != nullptr)
   {
+    this->MyGrabberWrapper->Stop();
     delete this->MyGrabberWrapper;
   }
 }
@@ -196,11 +198,14 @@ void vtkPCLOpenNISource::Reset()
   if (this->MyGrabberWrapper != nullptr)
   {
     isRunning = this->IsRunning();
+    if (isRunning)
+    {
+      this->MyGrabberWrapper->Stop();
+    }
     delete this->MyGrabberWrapper;
   }
   // If the grabber supports other point types in the future, they should be
   // added here.
-  std::cout << "Opening " << this->DeviceID << std::endl;
   if (this->WithColor)
   {
     this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGBA>(this, this->DeviceID);
@@ -238,8 +243,9 @@ int vtkPCLOpenNISource::LoadPCLSource(
 //------------------------------------------------------------------------------
 void vtkPCLOpenNISource::StartGrabber()
 {
-  if (! this->MyGrabberWrapper->IsRunning())
+  if (! this->IsRunning())
   {
+    std::cout << "starting grabber" << std::endl;
     if (this->MyGrabberWrapper == nullptr)
     {
       this->Reset();

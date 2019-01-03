@@ -30,7 +30,8 @@
         name="Limits"
         command="SetLimits"
         number_of_elements="2"
-        default_values="0.0 1.0">
+        default_values="0.0 1.0"
+        >
         <Documentation>Set the limits of the filter.</Documentation>
       </DoubleVectorProperty>
 
