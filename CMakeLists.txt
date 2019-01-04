@@ -34,18 +34,9 @@ set(ServerManagerIncludeDirs
 set(ServerManagerSources
   common/vtkPCLConversions.cxx
   )
-set(ServerManagerXML)
-
-#-------------------------------------------------------------------------------
-# Macro
-#-------------------------------------------------------------------------------
-# Append an item to a list if not already in the list.
-macro(append_if_missing list item)
-  list(FIND "${list}" "${item}" item_index)
-  if(${item_index} EQUAL -1)
-    list(APPEND "${list}" "${item}")
-  endif()
-endmacro(append_if_missing)
+set(ServerManagerXML
+  xml/PCLCommon.xml
+  )
 
 #-------------------------------------------------------------------------------
 # Macro
@@ -56,25 +47,50 @@ endmacro(append_if_missing)
 # the word ("Filter", "Reader", etc.) converted to lower case and suffixed with
 # "s". Obviously this macro assumes that all arguments follow the same naming
 # conventions.
+#
+# Additional xml and source files can be passed to this function. They will be
+# added ServerManagerXML and ServerManagerSources according to their extension
+# (.xml, .cxx).
 macro(add_module name)
   message(STATUS "Add module ${name}.")
+
+  # Add the ServerManager xml file.
   list(APPEND ServerManagerXML "xml/${name}.xml")
 
+  # The final part of the name determines the type, include directory and parent
+  # class. For example, all modules ending in "Filter" are expected to be in the
+  # "filter" directory along with their required headers and to inherit from
+  # "vtkPCLFilter" defined in "vtkPCLFilter.cxx".
   string(REGEX MATCH "[A-Z][a-z]+[0-9]*$" filter_type "${name}")
   string(TOLOWER "${filter_type}" directory)
 
   # Ensure that the include directory is included.
-  append_if_missing(ServerManagerIncludeDirs "${directory}")
+  list(APPEND ServerManagerIncludeDirs "${directory}")
+
   # Ensure that the parent class source is included, e.g. vtkPCLFilter.cxx for
   # all filter types.
-  append_if_missing(ServerManagerSources "${directory}/vtkPCL${filter_type}.cxx")
+  list(APPEND ServerManagerSources "${directory}/vtkPCL${filter_type}.cxx")
 
+  # Add the source file. Use append_if_missing in case the class is a parent
+  # class for another filter and thus already included.
   list(APPEND ServerManagerSources "${directory}/vtk${name}.cxx")
+
+  # Append any additional xml or source files.
+  foreach(additional_arg ${ARGN})
+    get_filename_component(additional_arg_ext "${additional_arg}" EXT)
+    if("${additional_arg_ext}" STREQUAL ".xml")
+      list(APPEND ServerManagerXML "${additional_arg}")
+    elseif("${additional_arg_ext}" STREQUAL ".cxx")
+      list(APPEND ServerManagerSources "${additional_arg}")
+    else()
+      message(WARNING "unrecognized extension passed to add_module macro")
+    endif()
+  endforeach()
 endmacro(add_module)
 
 #-------------------------------------------------------------------------------
 # Add the plugin modules (filters, readers, etc.) The add_module macro will add
-# the XML and source files, and ensure that the include directory and the base
+# the xml and source files, and ensure that the include directory and the base
 # class's source files have already been added.
 
 # add_module(PCLDummyFilter)
@@ -92,6 +108,11 @@ if(ENABLE_OPENNI)
     message(WARNING "OpenNI was not found.")
   endif()
 endif()
+
+#-------------------------------------------------------------------------------
+list(REMOVE_DUPLICATES ServerManagerIncludeDirs)
+list(REMOVE_DUPLICATES ServerManagerSources)
+list(REMOVE_DUPLICATES ServerManagerXML)
 
 #-------------------------------------------------------------------------------
 # Function

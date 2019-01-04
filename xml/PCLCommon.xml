@@ -1,0 +1,60 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="PCLCommon">
+    <SourceProxy name="PCLRegistration">
+      <DoubleVectorProperty
+        name="MaxCorrespondenceDistance"
+        command="SetMaxCorrespondenceDistance"
+        number_of_elements="1"
+        default_values="0.05"
+        >
+        <Documentation>The maximum correspondence distance for aligning the cloud data.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="MaximumIterations"
+        command="SetMaximumIterations"
+        number_of_elements="1"
+        default_values="50"
+        >
+        <Documentation>The maximum number of iterations used during the alignment.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="TransformationEpsilon"
+        command="SetTransformationEpsilon"
+        number_of_elements="1"
+        default_values="1e-8"
+        >
+        <Documentation>The maximum allowable translation squared distance between two consecutive steps for the optimization to be considered as having converged.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="TransformationRotationEpsilon"
+        command="SetTransformationRotationEpsilon"
+        number_of_elements="1"
+        default_values="1e-8"
+        >
+        <Documentation>The maximum allowable rotation difference between two consecutive steps for the optimization to be considered as having converged.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="EuclideanFitnessEpsilon"
+        command="SetEuclideanFitnessEpsilon"
+        number_of_elements="1"
+        default_values="0.05"
+        >
+        <Documentation>The maximum allowed Euclidean error between two consecutive steps for the optimization to be considered as having converged.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Convergence Criteria">
+        <Property name="MaxCorrespondenceDistance" />
+        <Property name="MaximumIterations" />
+        <Property name="TransformationEpsilon" />
+        <Property name="TransformationRotationEpsilon" />
+        <Property name="EuclideanFitnessEpsilon" />
+      </PropertyGroup>
+      <!-- End PCLRegistration -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
