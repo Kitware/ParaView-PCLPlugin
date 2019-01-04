@@ -80,7 +80,6 @@ void vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
     pcl::IterativeClosestPoint<PointType, PointType> icp;
     icp.setInputCloud(inputCloud);
     icp.setInputTarget(referenceCloud);
-    // Configure convergence criteria inherited from pcl::Registration.
     this->ConfigureRegistration(& icp);
     icp.align((* outputCloud));
     this->Transformation = icp.getFinalTransformation();

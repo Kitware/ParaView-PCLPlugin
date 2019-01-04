@@ -18,6 +18,7 @@
 #ifndef vtkPCLIterativeClosestPointFilter2_h
 #define vtkPCLIterativeClosestPointFilter2_h
 
+#include "vtkPCLFilter2.h"
 #include "vtkPCLRegistrationFilter2.h"
 
 #include <Eigen/Dense>
@@ -41,6 +42,7 @@ private:
   void operator=(const vtkPCLIterativeClosestPointFilter2&) = delete;
 
 //------------------------------------------------------------------------------
+// Filter parameters.
 private:
   Eigen::Matrix4f Transformation;
   bool HasTransformation;
