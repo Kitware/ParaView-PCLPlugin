@@ -83,6 +83,7 @@ add_module(PCLVoxelGridFilter)
 add_module(PCLStatisticalOutlierRemovalFilter)
 add_module(PCLPCDFileReader)
 add_module(PCLPCDFileWriter)
+add_module(PCLIterativeClosestPointFilter2)
 
 if(ENABLE_OPENNI)
   if(OpenNI_FOUND OR OpenNI2_FOUND)

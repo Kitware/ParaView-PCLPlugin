@@ -206,13 +206,20 @@ void vtkPCLOpenNISource::Reset()
   }
   // If the grabber supports other point types in the future, they should be
   // added here.
-  if (this->WithColor)
+  try
   {
-    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGBA>(this, this->DeviceID);
+    if (this->WithColor)
+    {
+      this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZRGBA>(this, this->DeviceID);
+    }
+    else
+    {
+      this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZ>(this, this->DeviceID);
+    }
   }
-  else
+  catch (pcl::IOException & e)
   {
-    this->MyGrabberWrapper = new vtkPCLOpenNISource::GrabberWrapper<pcl::PointXYZ>(this, this->DeviceID);
+    vtkErrorMacro(<< e.detailedMessage());
   }
   if (isRunning)
   {
