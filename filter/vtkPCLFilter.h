@@ -19,7 +19,6 @@
 #define vtkPCLFilter_h
 
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkObjectFactory.h"
 
 #include <pcl/pcl_base.h>
 #include <pcl/point_types.h>
@@ -29,8 +28,7 @@
 class VTK_EXPORT vtkPCLFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkPCLFilter * New();
-  vtkTypeMacro(vtkPCLFilter, vtkPolyDataAlgorithm);
+  vtkAbstractTypeMacro(vtkPCLFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:

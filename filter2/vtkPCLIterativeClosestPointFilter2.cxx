@@ -28,12 +28,6 @@ vtkPCLIterativeClosestPointFilter2::vtkPCLIterativeClosestPointFilter2()
 {
   this->HasTransformation = false;
   this->ReuseTransformation = false;
-
-  this->MaxCorrespondenceDistance = 0.05;
-  this->MaximumIterations = 50;
-  this->TransformationEpsilon = 1e-8;
-  this->TransformationRotationEpsilon = 1e-8;
-  this->EuclideanFitnessEpsilon = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -86,11 +80,8 @@ void vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
     pcl::IterativeClosestPoint<PointType, PointType> icp;
     icp.setInputCloud(inputCloud);
     icp.setInputTarget(referenceCloud);
-    icp.setMaxCorrespondenceDistance(this->MaxCorrespondenceDistance);
-    icp.setMaximumIterations(this->MaximumIterations);
-    icp.setTransformationEpsilon(this->TransformationEpsilon);
-    icp.setTransformationRotationEpsilon(this->TransformationRotationEpsilon);
-    icp.setEuclideanFitnessEpsilon(this->EuclideanFitnessEpsilon);
+    // Configure convergence criteria inherited from pcl::Registration.
+    this->ConfigureRegistration(& icp);
     icp.align((* outputCloud));
     this->Transformation = icp.getFinalTransformation();
     std::cout << this->Transformation << std::endl;

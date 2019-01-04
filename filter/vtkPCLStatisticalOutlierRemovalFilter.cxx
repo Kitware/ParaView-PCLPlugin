@@ -17,6 +17,7 @@
 
 #include "vtkPCLStatisticalOutlierRemovalFilter.h"
 #include "vtkPCLConversions.h"
+#include "vtkObjectFactory.h"
 
 #include <pcl/filters/statistical_outlier_removal.h>
 

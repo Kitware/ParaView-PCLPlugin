@@ -19,7 +19,6 @@
 #define vtkPCLReader_h
 
 #include "vtkAbstractPolyDataReader.h"
-#include "vtkObjectFactory.h"
 
 #include <pcl/pcl_base.h>
 #include <pcl/point_types.h>
@@ -29,8 +28,7 @@
 class VTK_EXPORT vtkPCLReader : public vtkAbstractPolyDataReader
 {
 public:
-  static vtkPCLReader * New();
-  vtkTypeMacro(vtkPCLReader, vtkAbstractPolyDataReader);
+  vtkAbstractTypeMacro(vtkPCLReader, vtkAbstractPolyDataReader);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:

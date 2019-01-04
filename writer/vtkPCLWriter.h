@@ -19,7 +19,6 @@
 #define vtkPCLWriter_h
 
 #include "vtkWriter.h"
-#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
 #include <pcl/pcl_base.h>
@@ -30,8 +29,7 @@
 class VTK_EXPORT vtkPCLWriter : public vtkWriter
 {
 public:
-  static vtkPCLWriter * New();
-  vtkTypeMacro(vtkPCLWriter, vtkWriter);
+  vtkAbstractTypeMacro(vtkPCLWriter, vtkWriter);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:

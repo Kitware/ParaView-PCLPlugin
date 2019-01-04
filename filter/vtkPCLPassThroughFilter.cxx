@@ -17,6 +17,7 @@
 
 #include "vtkPCLPassThroughFilter.h"
 #include "vtkPCLConversions.h"
+#include "vtkObjectFactory.h"
 
 #include <pcl/filters/passthrough.h>
 

@@ -18,17 +18,17 @@
 #ifndef vtkPCLIterativeClosestPointFilter2_h
 #define vtkPCLIterativeClosestPointFilter2_h
 
-#include "vtkPCLFilter2.h"
+#include "vtkPCLRegistrationFilter2.h"
 
 #include <Eigen/Dense>
 
-class VTK_EXPORT vtkPCLIterativeClosestPointFilter2 : public vtkPCLFilter2
+class VTK_EXPORT vtkPCLIterativeClosestPointFilter2 : public vtkPCLRegistrationFilter2
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
   static vtkPCLIterativeClosestPointFilter2 * New();
-  vtkTypeMacro(vtkPCLIterativeClosestPointFilter2, vtkPCLFilter2);
+  vtkTypeMacro(vtkPCLIterativeClosestPointFilter2, vtkPCLRegistrationFilter2);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
@@ -41,36 +41,14 @@ private:
   void operator=(const vtkPCLIterativeClosestPointFilter2&) = delete;
 
 //------------------------------------------------------------------------------
-// Filter parameters.
 private:
   Eigen::Matrix4f Transformation;
   bool HasTransformation;
   bool ReuseTransformation;
 
-  double MaxCorrespondenceDistance;
-  unsigned int MaximumIterations;
-  double TransformationEpsilon;
-  double TransformationRotationEpsilon;
-  double EuclideanFitnessEpsilon;
-
 public:
   vtkGetMacro(ReuseTransformation, bool);
   vtkSetMacro(ReuseTransformation, bool);
-
-  vtkGetMacro(MaxCorrespondenceDistance, double);
-  vtkSetMacro(MaxCorrespondenceDistance, double);
-
-  vtkGetMacro(MaximumIterations, unsigned int);
-  vtkSetMacro(MaximumIterations, unsigned int);
-
-  vtkGetMacro(TransformationEpsilon, double);
-  vtkSetMacro(TransformationEpsilon, double);
-
-  vtkGetMacro(TransformationRotationEpsilon, double);
-  vtkSetMacro(TransformationRotationEpsilon, double);
-
-  vtkGetMacro(EuclideanFitnessEpsilon, double);
-  vtkSetMacro(EuclideanFitnessEpsilon, double);
 
   void Reset()
   {

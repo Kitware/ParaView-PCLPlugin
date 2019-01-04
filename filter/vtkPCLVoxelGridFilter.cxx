@@ -17,6 +17,7 @@
 
 #include "vtkPCLVoxelGridFilter.h"
 #include "vtkPCLConversions.h"
+#include "vtkObjectFactory.h"
 
 #include <pcl/filters/voxel_grid.h>
 
