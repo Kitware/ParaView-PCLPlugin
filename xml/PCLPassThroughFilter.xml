@@ -1,6 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="PCLPassThroughFilter" class="vtkPCLPassThroughFilter" label="PCL Pass Through Filter">
+    <SourceProxy
+      name="PCLPassThroughFilter"
+      class="vtkPCLPassThroughFilter"
+      label="PCL Pass Through Filter"
+      >
       <Documentation
         short_help="PassThrough filter from the Point Cloud Library (PCL)." >
       </Documentation>

@@ -20,7 +20,10 @@
 
 #include "vtkPCLFilter2.h"
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <pcl/registration/registration.h>
+#include <Eigen/Dense>
 
 class VTK_EXPORT vtkPCLRegistrationFilter2 : public vtkPCLFilter2
 {
@@ -40,13 +43,19 @@ private:
   void operator=(const vtkPCLRegistrationFilter2&) = delete;
 
 //------------------------------------------------------------------------------
-// Filter parameters.
-private:
+protected:
+  // Registration convergence criteria.
   double MaxCorrespondenceDistance;
   unsigned int MaximumIterations;
   double TransformationEpsilon;
   double TransformationRotationEpsilon;
   double EuclideanFitnessEpsilon;
+
+protected:
+  // Transformation caching.
+  Eigen::Matrix4f TransformationMatrix;
+  bool HasTransformation;
+  bool ReuseTransformation;
 
 public:
   vtkGetMacro(MaxCorrespondenceDistance, double);
@@ -63,17 +72,57 @@ public:
 
   vtkGetMacro(EuclideanFitnessEpsilon, double);
   vtkSetMacro(EuclideanFitnessEpsilon, double);
+  
+  vtkGetMacro(ReuseTransformation, bool);
+  vtkSetMacro(ReuseTransformation, bool);
 
-  template <typename PointSource, typename PointTarget, typename Scalar>
-  void ConfigureRegistration(pcl::Registration<PointSource, PointTarget, Scalar> * reg)
+  void Reset()
   {
-    reg->setMaxCorrespondenceDistance(this->MaxCorrespondenceDistance);
-    reg->setMaximumIterations(this->MaximumIterations);
-    reg->setTransformationEpsilon(this->TransformationEpsilon);
-    reg->setTransformationRotationEpsilon(this->TransformationRotationEpsilon);
-    reg->setEuclideanFitnessEpsilon(this->EuclideanFitnessEpsilon);
+    this->HasTransformation = false;
+    this->Modified();
   }
+
+  /*!
+   * @brief      Apply a cached transformation if it exists and if the option to
+   *             re- use it is set to true.
+   * @tparam     PointT      The point type of the input and output clouds.
+   * @param[in]  inputCloud  The cloud to transform.
+   * @param[out] outputCloud The result of transforming the input cloud.
+   * @return     True if the transform was applied, false if not.
+   */
+  template <typename PointT>
+  bool MaybeApplyCachedTransformation(
+    pcl::PointCloud<PointT> & inputCloud,
+    pcl::PointCloud<PointT> & outputCloud
+  );
+
+  /*!
+   * @brief      Apply settings common to all registration filters and align the
+   *             input cloud.
+   * @tparam     PointSource The point type of the input and output clouds.
+   * @tparam     PointTarget The point type of the alignment's target cloud.
+   * @tparam     Scalar      The PCL Registration class's Scalar parameter.
+   * @param[in]  reg         An instance of a PCL Registration subclass. The
+   *                         input and target clouds must be set before invoking
+   *                         this method, along with any other configuration
+   *                         such as their respective surface normals and/or
+   *                         features.
+   * @param[out] outputCloud The result of aligning the input cloud.
+   *
+   * After applying common configuration settings such as the maximum number of
+   * iterations, the alignment will be run and the results will be inserted into
+   * the output cloud. The transformation matrix will also be cached so that it
+   * can be re-applied with MaybeApplyCachedTransformation when
+   * ReuseTransformation is true.
+   */
+  template <typename PointSource, typename PointTarget, typename Scalar>
+  void ConfigureAndAlign(
+    pcl::Registration<PointSource, PointTarget, Scalar> & reg,
+    pcl::PointCloud<PointSource> & outputCloud
+  );
 };
+
+#include "vtkPCLRegistrationFilter2.txx"
 
 #endif // vtkPCLRegistrationFilter2_h
 

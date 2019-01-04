@@ -1,6 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="PCLDummyFilter" class="vtkPCLDummyFilter" label="PCL Dummy Filter">
+    <SourceProxy
+      name="PCLDummyFilter"
+      class="vtkPCLDummyFilter"
+      label="PCL Dummy Filter"
+      >
       <Documentation
         short_help="Dummy filter from the Point Cloud Library (PCL)." >
       </Documentation>

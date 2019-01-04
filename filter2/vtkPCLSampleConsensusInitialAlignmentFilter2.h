@@ -15,47 +15,66 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLIterativeClosestPointFilter2_h
-#define vtkPCLIterativeClosestPointFilter2_h
+#ifndef vtkPCLSampleConsensusInitialAlignmentFilter2_h
+#define vtkPCLSampleConsensusInitialAlignmentFilter2_h
 
 #include "vtkPCLFilter2.h"
 #include "vtkPCLRegistrationFilter2.h"
 
-class VTK_EXPORT vtkPCLIterativeClosestPointFilter2 : public vtkPCLRegistrationFilter2
+class VTK_EXPORT vtkPCLSampleConsensusInitialAlignmentFilter2 : public vtkPCLRegistrationFilter2
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLIterativeClosestPointFilter2 * New();
-  vtkTypeMacro(vtkPCLIterativeClosestPointFilter2, vtkPCLRegistrationFilter2);
+  static vtkPCLSampleConsensusInitialAlignmentFilter2 * New();
+  vtkTypeMacro(vtkPCLSampleConsensusInitialAlignmentFilter2, vtkPCLRegistrationFilter2);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLIterativeClosestPointFilter2();
-  ~vtkPCLIterativeClosestPointFilter2();
+  vtkPCLSampleConsensusInitialAlignmentFilter2();
+  ~vtkPCLSampleConsensusInitialAlignmentFilter2();
 
 private:
-  vtkPCLIterativeClosestPointFilter2(const vtkPCLIterativeClosestPointFilter2&) = delete;
-  void operator=(const vtkPCLIterativeClosestPointFilter2&) = delete;
+  vtkPCLSampleConsensusInitialAlignmentFilter2(const vtkPCLSampleConsensusInitialAlignmentFilter2&) = delete;
+  void operator=(const vtkPCLSampleConsensusInitialAlignmentFilter2&) = delete;
 
 //------------------------------------------------------------------------------
+// Parameters specific to this filter.
+private:
+  float MinSampleDistance;
+  float NormalRadius;
+  float FeatureRadius;
+
 public:
+  vtkGetMacro(MinSampleDistance, float);
+  vtkSetMacro(MinSampleDistance, float);
+
+  vtkGetMacro(NormalRadius, float);
+  vtkSetMacro(NormalRadius, float);
+
+  vtkGetMacro(FeatureRadius, float);
+  vtkSetMacro(FeatureRadius, float);
+
 //------------------------------------------------------------------------------
 private:
   int ApplyPCLFilter2(
     vtkPolyData * input,
-    vtkPolyData * target,
+    vtkPolyData * reference,
     vtkPolyData * output
   ) override;
 
-  template <typename PointType>
+  template <
+    typename PointType=pcl::PointXYZ, 
+    typename NormalType=pcl::Normal, 
+    typename FeatureType=pcl::FPFHSignature33
+  >
   void InternalApplyPCLFilter2(
     vtkPolyData * input,
-    vtkPolyData * target,
+    vtkPolyData * reference,
     vtkPolyData * output
   );
 
 };
-#endif // vtkPCLIterativeClosestPointFilter2_h
+#endif // vtkPCLSampleConsensusInitialAlignmentFilter2_h
 

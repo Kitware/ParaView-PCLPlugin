@@ -11,51 +11,6 @@
         short_help="IterativeClosestPoint filter from the Point Cloud Library (PCL)." >
       </Documentation>
 
-      <InputProperty
-        name="Input"
-        port_index="0"
-        command="SetInputConnection">
-        <ProxyGroupDomain name="groups">
-          <Group name="sources"/>
-          <Group name="filters"/>
-        </ProxyGroupDomain>
-        <DataTypeDomain name="input_type">
-          <DataType value="vtkPolyData"/>
-        </DataTypeDomain>
-      </InputProperty>
-
-      <InputProperty
-        name="Reference"
-        port_index="1"
-        command="SetInputConnection">
-        <ProxyGroupDomain name="groups">
-          <Group name="sources"/>
-          <Group name="filters"/>
-        </ProxyGroupDomain>
-        <DataTypeDomain name="input_type">
-          <DataType value="vtkPolyData"/>
-        </DataTypeDomain>
-      </InputProperty>
-
-      <IntVectorProperty
-        name="ReuseTransformation"
-        command="SetReuseTransformation"
-        number_of_elements="1"
-        default_values="0"
-        >
-        <BooleanDomain name="bool" />
-        <Documentation>If true, re-use the previously calculated alignment transformation.</Documentation>
-      </IntVectorProperty>
-
-      <Property
-        name="Reset"
-        command="Reset"
-        panel_widget="command_button"
-        >
-        <Documentation>Reset the transformation.</Documentation>
-      </Property>
-
-
       <Hints>
         <ShowInMenu category="PCL" />
       </Hints>

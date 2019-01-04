@@ -50,7 +50,7 @@ set(ServerManagerXML
 #
 # Additional xml and source files can be passed to this function. They will be
 # added ServerManagerXML and ServerManagerSources according to their extension
-# (.xml, .cxx).
+# (.xml, .cxx, .txx).
 macro(add_module name)
   message(STATUS "Add module ${name}.")
 
@@ -67,7 +67,7 @@ macro(add_module name)
   # Ensure that the include directory is included.
   list(APPEND ServerManagerIncludeDirs "${directory}")
 
-  # Ensure that the parent class source is included, e.g. vtkPCLFilter.cxx for
+  # Ensure that the parent class source is included (e.g. vtkPCLFilter.cxx) for
   # all filter types.
   list(APPEND ServerManagerSources "${directory}/vtkPCL${filter_type}.cxx")
 
@@ -80,7 +80,7 @@ macro(add_module name)
     get_filename_component(additional_arg_ext "${additional_arg}" EXT)
     if("${additional_arg_ext}" STREQUAL ".xml")
       list(APPEND ServerManagerXML "${additional_arg}")
-    elseif("${additional_arg_ext}" STREQUAL ".cxx")
+    elseif("${additional_arg_ext}" STREQUAL ".cxx" OR "${additional_arg_ext}" STREQUAL ".txx")
       list(APPEND ServerManagerSources "${additional_arg}")
     else()
       message(WARNING "unrecognized extension passed to add_module macro")
@@ -89,9 +89,12 @@ macro(add_module name)
 endmacro(add_module)
 
 #-------------------------------------------------------------------------------
-# Add the plugin modules (filters, readers, etc.) The add_module macro will add
-# the xml and source files, and ensure that the include directory and the base
-# class's source files have already been added.
+# Add the plugin modules (filters, readers, etc.) The add_module macro accepts
+# the module name (e.g. PCLPassThroughFilter), adds the xml and source files,
+# and ensures that the include directory and the base class's source files have
+# already been added. Additional xml and/or source files may be passed after the
+# name. This is necessary for txx files to ensure that the expected
+# client-server files are generated.
 
 # add_module(PCLDummyFilter)
 add_module(PCLPassThroughFilter)
@@ -99,7 +102,8 @@ add_module(PCLVoxelGridFilter)
 add_module(PCLStatisticalOutlierRemovalFilter)
 add_module(PCLPCDFileReader)
 add_module(PCLPCDFileWriter)
-add_module(PCLIterativeClosestPointFilter2 filter2/vtkPCLRegistrationFilter2.cxx)
+add_module(PCLIterativeClosestPointFilter2)
+add_module(PCLSampleConsensusInitialAlignmentFilter2 filter2/vtkPCLRegistrationFilter2.txx)
 
 if(ENABLE_OPENNI)
   if(OpenNI_FOUND OR OpenNI2_FOUND)

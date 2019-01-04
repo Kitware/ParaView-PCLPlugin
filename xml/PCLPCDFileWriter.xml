@@ -1,6 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="writers">
-    <WriterProxy name="PCLPCDFileWriter" class="vtkPCLPCDFileWriter" label="PCL PCD File Writer">
+    <WriterProxy
+      name="PCLPCDFileWriter"
+      class="vtkPCLPCDFileWriter"
+      label="PCL PCD File Writer"
+      >
       <Documentation
         short_help="PCD file writer from the Point Cloud Library (PCL)." />
 

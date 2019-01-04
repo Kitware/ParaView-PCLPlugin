@@ -1,6 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="PCLVoxelGridFilter" class="vtkPCLVoxelGridFilter" label="PCL Voxel Grid Filter">
+    <SourceProxy
+      name="PCLVoxelGridFilter"
+      class="vtkPCLVoxelGridFilter"
+      label="PCL Voxel Grid Filter"
+      >
       <Documentation
         short_help="VoxelGrid filter from the Point Cloud Library (PCL)." >
       </Documentation>

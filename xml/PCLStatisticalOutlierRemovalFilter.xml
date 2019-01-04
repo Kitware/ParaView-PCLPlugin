@@ -1,6 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
-    <SourceProxy name="PCLStatisticalOutlierRemovalFilter" class="vtkPCLStatisticalOutlierRemovalFilter" label="PCL Statistical Outlier Removal Filter">
+    <SourceProxy
+      name="PCLStatisticalOutlierRemovalFilter"
+      class="vtkPCLStatisticalOutlierRemovalFilter"
+      label="PCL Statistical Outlier Removal Filter"
+      >
       <Documentation
         short_help="StatisticalOutlierRemoval filter from the Point Cloud Library (PCL)." >
       </Documentation>

@@ -1,6 +1,35 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="PCLCommon">
     <SourceProxy name="PCLRegistration">
+      
+      <InputProperty
+        name="Input"
+        port_index="0"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty
+        name="Target"
+        port_index="1"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+
       <DoubleVectorProperty
         name="MaxCorrespondenceDistance"
         command="SetMaxCorrespondenceDistance"
@@ -46,13 +75,37 @@
         <Documentation>The maximum allowed Euclidean error between two consecutive steps for the optimization to be considered as having converged.</Documentation>
       </DoubleVectorProperty>
 
-      <PropertyGroup label="Convergence Criteria">
+      <PropertyGroup label="Registration Convergence Criteria">
         <Property name="MaxCorrespondenceDistance" />
         <Property name="MaximumIterations" />
         <Property name="TransformationEpsilon" />
         <Property name="TransformationRotationEpsilon" />
         <Property name="EuclideanFitnessEpsilon" />
       </PropertyGroup>
+
+      <IntVectorProperty
+        name="ReuseTransformation"
+        command="SetReuseTransformation"
+        number_of_elements="1"
+        default_values="0"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>If true, re-use the previously calculated alignment transformation.</Documentation>
+      </IntVectorProperty>
+
+      <Property
+        name="Reset"
+        command="Reset"
+        panel_widget="command_button"
+        >
+        <Documentation>Reset the transformation.</Documentation>
+      </Property>
+
+      <PropertyGroup label="Transformation Caching">
+        <Property name="ReuseTransformation" />
+        <Property name="Reset" />
+      </PropertyGroup>
+
       <!-- End PCLRegistration -->
     </SourceProxy>
   </ProxyGroup>

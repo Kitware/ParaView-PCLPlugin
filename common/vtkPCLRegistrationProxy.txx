@@ -15,6 +15,9 @@
 // limitations under the License.
 //=============================================================================
 
+#ifndef vtkPCLRegistrationProxy_txx
+#define vtkPCLRegistrationProxy_txx
+
 #include "vtkPCLRegistrationProxy.h"
 
 template <typename BaseClass>
@@ -37,4 +40,6 @@ template <typename BaseClass>
 vtkPCLRegistrationProxy<BaseClass>::~vtkPCLRegistrationProxy()
 {
 }
+
+#endif // vtkPCLRegistrationProxy_txx
 

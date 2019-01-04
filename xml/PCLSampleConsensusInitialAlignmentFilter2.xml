@@ -1,0 +1,52 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLSampleConsensusInitialAlignmentFilter2" 
+      class="vtkPCLSampleConsensusInitialAlignmentFilter2" 
+      label="PCL Sample Consensus Initial Alignment Filter"
+      base_proxygroup="PCLCommon"
+      base_proxyname="PCLRegistration"
+      >
+      <Documentation
+        short_help="SampleConsensusInitialAlignment filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <DoubleVectorProperty
+        name="MinSampleDistance"
+        command="SetMinSampleDistance"
+        number_of_elements="1"
+        default_values="0.05"
+        >
+        <Documentation>The maximum correspondence distance for aligning the cloud data.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="NormalRadius"
+        command="SetNormalRadius"
+        number_of_elements="1"
+        default_values="0.02"
+        >
+        <Documentation>The radius for determining normals.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="FeatureRadius"
+        command="SetFeatureRadius"
+        number_of_elements="1"
+        default_values="0.02"
+        >
+        <Documentation>The radius for determining features.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Other Parameters">
+        <Property name="MinSampleDistance" />
+      </PropertyGroup>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLSampleConsensusInitialAlignmentFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

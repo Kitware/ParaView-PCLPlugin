@@ -18,16 +18,19 @@
 #include "vtkPCLIterativeClosestPointFilter2.h"
 #include "vtkPCLConversions.h"
 
+#include "vtkObjectFactory.h"
+
 #include <pcl/common/transforms.h>
 #include <pcl/registration/icp.h>
 
+
+
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLIterativeClosestPointFilter2);
 
 //------------------------------------------------------------------------------
 vtkPCLIterativeClosestPointFilter2::vtkPCLIterativeClosestPointFilter2()
 {
-  this->HasTransformation = false;
-  this->ReuseTransformation = false;
 }
 
 //------------------------------------------------------------------------------
@@ -44,12 +47,12 @@ void vtkPCLIterativeClosestPointFilter2::PrintSelf(ostream& os, vtkIndent indent
 //------------------------------------------------------------------------------
 int vtkPCLIterativeClosestPointFilter2::ApplyPCLFilter2(
   vtkPolyData * input,
-  vtkPolyData * reference,
+  vtkPolyData * target,
   vtkPolyData * output
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  PCLP_INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter2, input, reference, output)
+  PCLP_INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter2, input, target, output)
   return 1;
 }
 
@@ -57,7 +60,7 @@ int vtkPCLIterativeClosestPointFilter2::ApplyPCLFilter2(
 template <typename PointType>
 void vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
   vtkPolyData * input,
-  vtkPolyData * reference,
+  vtkPolyData * target,
   vtkPolyData * output
 )
 {
@@ -67,25 +70,20 @@ void vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
 
   vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
 
-  if (this->HasTransformation && this->ReuseTransformation)
+  // Perform the alignment if a cached transformation was not applied.
+  if (! this->MaybeApplyCachedTransformation((* inputCloud), (* outputCloud)))
   {
-    pcl::transformPointCloud<PointType>((* inputCloud), (* outputCloud), this->Transformation);
-  }
-  else
-  {
-    
-    typename CloudT::Ptr referenceCloud(new CloudT);
-    vtkPCLConversions::PointCloudFromPolyData(reference, referenceCloud);
+    // Set the input and target clouds for the Iterative Closest Point (ICP)
+    // filter.
+    typename CloudT::Ptr targetCloud(new CloudT);
+    vtkPCLConversions::PointCloudFromPolyData(target, targetCloud);
 
     pcl::IterativeClosestPoint<PointType, PointType> icp;
     icp.setInputCloud(inputCloud);
-    icp.setInputTarget(referenceCloud);
-    this->ConfigureRegistration(& icp);
-    icp.align((* outputCloud));
-    this->Transformation = icp.getFinalTransformation();
-    std::cout << this->Transformation << std::endl;
-    this->HasTransformation = true;
-    outputCloud = referenceCloud;
+    icp.setInputTarget(targetCloud);
+
+    // Set common registration options and align.
+    this->ConfigureAndAlign<PointType,PointType>(icp, (* outputCloud));
   }
 
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);

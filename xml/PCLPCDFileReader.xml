@@ -1,6 +1,9 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
-    <SourceProxy name="PCLPCDFileReader" class="vtkPCLPCDFileReader" label="PCL PCD File Reader">
+    <SourceProxy
+      name="PCLPCDFileReader"
+      class="vtkPCLPCDFileReader"
+      :label="PCL PCD File Reader">
       <Documentation
         short_help="PCD file loader from the Point Cloud Library (PCL)." />
 

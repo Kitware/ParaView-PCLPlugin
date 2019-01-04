@@ -1,6 +1,10 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="sources">
-    <SourceProxy name="PCLOpenNISource" class="vtkPCLOpenNISource" label="PCL OpenNI Source">
+    <SourceProxy
+      name="PCLOpenNISource"
+      class="vtkPCLOpenNISource"
+      label="PCL OpenNI Source"
+      >
       <Documentation
         short_help="OpenNI source from the Point Cloud Library (PCL)." >
       </Documentation>
