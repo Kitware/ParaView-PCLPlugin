@@ -245,7 +245,6 @@ void vtkPCLOpenNISource::StartGrabber()
 {
   if (! this->IsRunning())
   {
-    std::cout << "starting grabber" << std::endl;
     if (this->MyGrabberWrapper == nullptr)
     {
       this->Reset();

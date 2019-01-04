@@ -25,8 +25,6 @@ vtkStandardNewMacro(vtkPCLPassThroughFilter);
 //------------------------------------------------------------------------------
 vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
   this->SetFieldName("x");
   this->Limits[0] = 0.0;
   this->Limits[1] = 1.0;

@@ -60,8 +60,8 @@ macro(add_module name)
   message(STATUS "Add module ${name}.")
   list(APPEND ServerManagerXML "xml/${name}.xml")
 
-  string(REGEX MATCH "[A-Z][a-z]+$" filter_type "${name}")
-  string(TOLOWER "${filter_type}s" directory)
+  string(REGEX MATCH "[A-Z][a-z]+[0-9]*$" filter_type "${name}")
+  string(TOLOWER "${filter_type}" directory)
 
   # Ensure that the include directory is included.
   append_if_missing(ServerManagerIncludeDirs "${directory}")
