@@ -38,6 +38,15 @@
         <Documentation>The radius for determining features.</Documentation>
       </DoubleVectorProperty>
 
+      <DoubleVectorProperty
+        name="DistanceThreshold"
+        command="SetDistanceThreshold"
+        number_of_elements="1"
+        default_values="0.02"
+        >
+        <Documentation>The distance threshold for the RANSAC model.</Documentation>
+      </DoubleVectorProperty>
+
       <PropertyGroup label="Other Parameters">
         <Property name="MinSampleDistance" />
       </PropertyGroup>

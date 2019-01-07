@@ -1,0 +1,131 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLRigidAlignmentFilter2" 
+      class="vtkPCLRigidAlignmentFilter2" 
+      label="PCL-based Rigid Alignment Filter"
+      >
+      <Documentation
+        short_help="RANSAC-based rigid alignment filter based on Fast Point Feature Histogram (FPFH) descriptors." >
+      </Documentation>
+
+
+      <InputProperty
+        name="Input"
+        port_index="0"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty
+        name="Target"
+        port_index="1"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+      <DoubleVectorProperty
+        name="NormalRadius"
+        command="SetNormalRadius"
+        number_of_elements="1"
+        default_values="0.02"
+        >
+        <Documentation>The radius for determining normals.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="FeatureRadius"
+        command="SetFeatureRadius"
+        number_of_elements="1"
+        default_values="0.02"
+        >
+        <Documentation>The radius for determining features.</Documentation>
+      </DoubleVectorProperty>
+
+
+      <PropertyGroup label="Feature Parameters">
+        <Property name="NormalRadius" />
+        <Property name="FeatureRadius" />
+      </PropertyGroup>
+
+
+
+      <DoubleVectorProperty
+        name="DistanceThreshold"
+        command="SetDistanceThreshold"
+        number_of_elements="1"
+        default_values="0.05"
+        >
+        <Documentation>The distance to model threshold.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="MaxIterations"
+        command="SetMaxIterations"
+        number_of_elements="1"
+        default_values="50"
+        >
+        <Documentation>The maximum number of iterations.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Probability"
+        command="SetProbability"
+        number_of_elements="1"
+        default_values="1.0"
+        >
+        <Documentation>The desired probability of choosing at least one sample free from outliers.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Sample Consensus Parameters">
+        <Property name="DistanceThreshold" />
+        <Property name="MaxIterations" />
+        <Property name="Probability" />
+      </PropertyGroup>
+
+      <IntVectorProperty
+        name="ReuseTransformation"
+        command="SetReuseTransformation"
+        number_of_elements="1"
+        default_values="0"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>If true, re-use the previously calculated alignment transformation.</Documentation>
+      </IntVectorProperty>
+
+      <Property
+        name="Reset"
+        command="Reset"
+        panel_widget="command_button"
+        >
+        <Documentation>Reset the transformation.</Documentation>
+      </Property>
+
+      <PropertyGroup label="Transformation Caching">
+        <Property name="ReuseTransformation" />
+        <Property name="Reset" />
+      </PropertyGroup>
+
+
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLRigidAlignmentFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
