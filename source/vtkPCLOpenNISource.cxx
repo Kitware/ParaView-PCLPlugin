@@ -52,7 +52,7 @@ public:
     vtkPCLOpenNISource * parent,
     std::string deviceID = ""
   )
-    : Grabber { new pcl::OpenNIGrabber(deviceID) }
+    : Grabber { nullptr }
     , DeviceID { deviceID }
     , DataIsNew { false }
     , Parent { parent }
@@ -61,8 +61,11 @@ public:
 
   ~GrabberWrapperBase()
   {
-    this->Grabber->stop();
-    delete this->Grabber;
+    if (this->Grabber != nullptr)
+    {
+      this->Grabber->stop();
+      delete this->Grabber;
+    }
   }
 
   virtual
@@ -77,8 +80,13 @@ public:
     return this->DataIsNew;
   }
 
+
   void Start()
   {
+    if (this->Grabber == nullptr)
+    {
+      this->Grabber = new pcl::OpenNIGrabber(this->DeviceID);
+    }
     this->RegisterCallback();
     this->Grabber->start();
     this->DataIsNew = false;
@@ -91,7 +99,7 @@ public:
 
   bool IsRunning()
   {
-    return this->Grabber->isRunning();
+    return (this->Grabber != nullptr) && this->Grabber->isRunning();
   }
 };
 
@@ -197,11 +205,7 @@ void vtkPCLOpenNISource::Reset()
   bool isRunning = false;
   if (this->MyGrabberWrapper != nullptr)
   {
-    isRunning = this->IsRunning();
-    if (isRunning)
-    {
-      this->MyGrabberWrapper->Stop();
-    }
+    isRunning = this->MyGrabberWrapper->IsRunning();
     delete this->MyGrabberWrapper;
   }
   // If the grabber supports other point types in the future, they should be
