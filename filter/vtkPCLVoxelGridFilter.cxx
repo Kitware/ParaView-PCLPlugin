@@ -49,13 +49,15 @@ int vtkPCLVoxelGridFilter::ApplyPCLFilter(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  PCLP_INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter, input, output)
-  return 1;
+#define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
+  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+#undef _statement
+  return 0;
 }
 
 //------------------------------------------------------------------------------
 template <typename PointType>
-void vtkPCLVoxelGridFilter::InternalApplyPCLFilter(
+int vtkPCLVoxelGridFilter::InternalApplyPCLFilter(
   vtkPolyData * input,
   vtkPolyData * output
 )
@@ -72,5 +74,6 @@ void vtkPCLVoxelGridFilter::InternalApplyPCLFilter(
   filter.filter(* outputCloud);
 
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
+  return 1;
 }
 

@@ -78,7 +78,7 @@ struct FeatureExtractor
       norm_est.setInputCloud (this->Cloud);
       norm_est.setSearchMethod (this->SearchMethod);
       norm_est.setRadiusSearch (this->NormalRadius);
-      norm_est.compute (*(this->Normals));
+      norm_est.compute(*(this->Normals));
     }
 
     void
@@ -89,7 +89,7 @@ struct FeatureExtractor
       fpfh_est.setInputNormals(this->Normals);
       fpfh_est.setSearchMethod(this->SearchMethod);
       fpfh_est.setRadiusSearch(this->FeatureRadius);
-      fpfh_est.compute (*(this->Features));
+      fpfh_est.compute(*(this->Features));
     }
 };
 

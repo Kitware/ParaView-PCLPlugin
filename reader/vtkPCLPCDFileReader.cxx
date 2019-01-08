@@ -79,9 +79,12 @@ int vtkPCLPCDFileReader::LoadPCLReader(
       fields.insert(field.name);
     }
 	}
-
-  int index = vtkPCLConversions::GetPointTypeIndex(fields);
-  PCLP_INVOKE_WITH_POINT_TYPE(index, return this->InternalLoadPCLReader, output)
+  // Not sure why the explicit template parameter is required here but a runtime
+  // symbol lookup error occurs without it.
+  int index = vtkPCLConversions::GetPointTypeIndex<decltype(fields) const &>(fields);
+#define _statement(PointType) return this->InternalLoadPCLReader<PointType>(output);
+  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+#undef _statement
   return 0;
 }
 

@@ -52,13 +52,15 @@ int vtkPCLIterativeClosestPointFilter2::ApplyPCLFilter2(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  PCLP_INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter2, input, target, output)
-  return 1;
+#define _statement(PointType) return this->InternalApplyPCLFilter2<PointType>(input, target, output);
+  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+#undef _statement
+  return 0;
 }
 
 //------------------------------------------------------------------------------
 template <typename PointType>
-void vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
+int vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
   vtkPolyData * input,
   vtkPolyData * target,
   vtkPolyData * output
@@ -87,5 +89,6 @@ void vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
   }
 
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
+  return 1;
 }
 

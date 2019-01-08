@@ -36,6 +36,7 @@
 #include <pcl/impl/point_types.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 
+
 //------------------------------------------------------------------------------
 class vtkPolyData;
 class vtkCellArray;
@@ -75,23 +76,39 @@ public:
    * @brief     Get the index of the best matching PCL point type in the
    *            PCL_XYZ_POINT_TYPES sequence defined in
    *            pcl/impl/point_types.hpp.
-   * @param[in] polyData A PolyData instance that will be inspected to determine
-   *                     which PCL point type best matches the attribute arrays
-   *                     that it contains.
+   * @tparam    T           The type of the argument to pass to the
+   *                        ConvPoint::GetScore().
+   * @param[in] getScoreArg The argument to pass to the ConvPoint::GetScore().
    * @return    The index of the PCL point type in the PCL_XYZ_POINT_TYPES
    *            sequence.
    *
    * The returned index is only intended to be used as an argument to the
    * INVOKE_WITH_POINT_TYPE macro.
    */
-  static int GetPointTypeIndex(vtkPolyData * polyData);
+  template <typename T>
+  static 
+  int GetPointTypeIndex(T getScoreArg);
+
   /*!
-   * @copydoc   GetPointTypeIndex(vtkPolyData *)
-   * @param[in] fieldNames A set of names of attribute fields such as those
-   *                       parsed from a PCD file that can be used to determine
-   *                       the best corresponding PCL point type.
+  * @copydoc   GetPointTypeIndex(T getScoreArg)
+  * @param[in] requiredFieldNames Required field names. Points without these
+  *                               names will be excluded from matching.
+  */
+  template <typename T>
+  static
+  int GetPointTypeIndex(
+    T getScoreArg,
+    std::set<std::string> const & requiredFieldNames
+  );
+
+  /*!
+   * @brief Fill a set of strings with the field names for the given point type.
+   * @tparam PointType The PCL point type.
+   * @param[out] fieldNames The set to fill with the field names.
    */
-  static int GetPointTypeIndex(std::set<std::string> & fieldNames);
+  template <typename PointType>
+  static
+  void GetFieldNames(std::set<std::string> & fieldNames);
 
   /*!
    * @brief     Create vertex cells.
@@ -108,7 +125,6 @@ public:
   // static vtkSmartPointer<vtkIntArray> NewLabelsArray(const std::vector<pcl::PointIndices>& indices, vtkIdType length);
   // static void PerformPointCloudConversionBenchmark(vtkPolyData* polyData);
 };
-
 
 #endif // __vtkPCLConversions_h
 

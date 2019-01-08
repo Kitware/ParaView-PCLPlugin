@@ -59,9 +59,10 @@ int vtkPCLRigidAlignmentFilter2::ApplyPCLFilter2(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  int ret = 0;
-  PCLP_INVOKE_WITH_POINT_TYPE(index, ret = this->InternalApplyPCLFilter2, input, target, output)
-  return ret;
+#define _statement(PointType) return this->InternalApplyPCLFilter2<PointType>(input, target, output);
+  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+#undef _statement
+  return 0;
 }
 
 //------------------------------------------------------------------------------

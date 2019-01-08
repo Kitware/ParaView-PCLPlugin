@@ -69,7 +69,7 @@ private:
     typename NormalType=pcl::Normal, 
     typename FeatureType=pcl::FPFHSignature33
   >
-  void InternalApplyPCLFilter2(
+  int InternalApplyPCLFilter2(
     vtkPolyData * input,
     vtkPolyData * reference,
     vtkPolyData * output

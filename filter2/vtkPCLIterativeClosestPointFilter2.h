@@ -50,7 +50,7 @@ private:
   ) override;
 
   template <typename PointType>
-  void InternalApplyPCLFilter2(
+  int InternalApplyPCLFilter2(
     vtkPolyData * input,
     vtkPolyData * target,
     vtkPolyData * output

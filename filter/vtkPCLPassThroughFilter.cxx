@@ -50,13 +50,15 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-  PCLP_INVOKE_WITH_POINT_TYPE(index, this->InternalApplyPCLFilter, input, output)
-  return 1;
+#define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
+  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+#undef _statement
+  return 0;
 }
 
 //------------------------------------------------------------------------------
 template <typename PointType>
-void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
+int vtkPCLPassThroughFilter::InternalApplyPCLFilter(
   vtkPolyData * input,
   vtkPolyData * output
 )
@@ -75,5 +77,6 @@ void vtkPCLPassThroughFilter::InternalApplyPCLFilter(
   filter.filter(* outputCloud);
 
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
+  return 1;
 }
 
