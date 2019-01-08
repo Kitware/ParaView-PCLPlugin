@@ -16,7 +16,7 @@
         number_of_elements="1"
         panel_visibility="advanced"
         >
-        <Documentation>Set the device ID.</Documentation>
+        <Documentation>Set the device ID, which might be a serial number, bus@address or the index of the device. Consult the documentation for pcl::OpenNIGrabber for details. Leave blank to select the default device.</Documentation>
       </StringVectorProperty>
 
 
@@ -58,9 +58,9 @@
       <!-- </IntVectorProperty> -->
 
       <!-- <PropertyGroup label="Grabber Control"> -->
-        <!-- <Property name="StartGrabber" /> -->
-        <!-- <Property name="StopGrabber" /> -->
-        <!-- <Property name="IsRunning" /> -->
+      <!--   <Property name="StartGrabber" /> -->
+      <!--   <Property name="StopGrabber" /> -->
+      <!--   <Property name="IsRunning" /> -->
       <!-- </PropertyGroup> -->
 
       <Property

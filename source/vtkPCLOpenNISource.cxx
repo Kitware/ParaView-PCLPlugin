@@ -85,7 +85,14 @@ public:
   {
     if (this->Grabber == nullptr)
     {
-      this->Grabber = new pcl::OpenNIGrabber(this->DeviceID);
+      try
+      {
+        this->Grabber = new pcl::OpenNIGrabber(this->DeviceID);
+      }
+      catch(pcl::IOException e)
+      {
+        return;
+      }
     }
     this->RegisterCallback();
     this->Grabber->start();
