@@ -60,11 +60,12 @@
   set.insert(BOOST_PP_STRINGIZE(element));
 
 //------------------------------------------------------------------------------
-//! @brief Return default score if an element is not in the set.
-#define _PCLP_RETURN_DEFAULT_SCORE_IF_NOT_IN_SET(r, set, i, name) \
-  if (! _PCLP_IS_IN_SET(set, BOOST_PP_STRINGIZE(name)))           \
+//! @brief If "missing" is false, sets "missing" to true if the name is not in
+//!        the set.
+#define _PCLP_MISSING_IF_NOT_IN_SET(r, set, i, name)              \
+  if (! missing)                                                  \
   {                                                               \
-    return (negativeIfMissing ? - 1 : 0);                         \
+    missing = (! _PCLP_IS_IN_SET(set, BOOST_PP_STRINGIZE(name))); \
   }
 
 //------------------------------------------------------------------------------
@@ -300,32 +301,34 @@ struct ConvXYZ
     static                                                                                        \
     int GetScore(vtkPolyData * polyData, bool negativeIfMissing = true)                           \
     {                                                                                             \
-      int score = (negativeIfMissing ? -1 : 0);                                                   \
-      if (polyData->GetPointData()->GetAbstractArray(BOOST_PP_STRINGIZE(name)) != nullptr)        \
+      int count =                                                                                 \
+        (polyData->GetPointData()->GetAbstractArray(BOOST_PP_STRINGIZE(name)) != nullptr)         \
+        ? BOOST_PP_SEQ_SIZE(attrs) : 0;                                                           \
+      if (count == 0 && negativeIfMissing)                                                        \
       {                                                                                           \
-        score = BOOST_PP_CAT(Conv, parent)<PointType>::GetScore(polyData, negativeIfMissing);     \
-        if (score >= 0)                                                                           \
-        {                                                                                         \
-          score += BOOST_PP_SEQ_SIZE(attrs);                                                      \
-        }                                                                                         \
+        return -1;                                                                                \
       }                                                                                           \
-      return score;                                                                               \
+      int score = BOOST_PP_CAT(Conv, parent)<PointType>::GetScore(polyData, negativeIfMissing);   \
+      return (score < 0) ? score : score + count;                                                 \
     }                                                                                             \
                                                                                                   \
     static                                                                                        \
     int GetScore(std::set<std::string> const & fieldNames, bool negativeIfMissing = true)         \
     {                                                                                             \
+      /* Count matching attributes. */                                                            \
+      bool missing = false;                                                                       \
       BOOST_PP_SEQ_FOR_EACH_I(                                                                    \
-        _PCLP_RETURN_DEFAULT_SCORE_IF_NOT_IN_SET,                                                 \
+        _PCLP_MISSING_IF_NOT_IN_SET,                                                              \
         fieldNames,                                                                               \
         attrs                                                                                     \
       )                                                                                           \
-      int score = BOOST_PP_CAT(Conv, parent)<PointType>::GetScore(fieldNames, negativeIfMissing); \
-      if (score >= 0)                                                                             \
+      int count = missing ? 0 : BOOST_PP_SEQ_SIZE(attrs);                                         \
+      if (count == 0 && negativeIfMissing)                                                        \
       {                                                                                           \
-        score += BOOST_PP_SEQ_SIZE(attrs);                                                        \
+        return -1;                                                                                \
       }                                                                                           \
-      return score;                                                                               \
+      int score = BOOST_PP_CAT(Conv, parent)<PointType>::GetScore(fieldNames, negativeIfMissing); \
+      return (score < 0) ? score : score + count;                                                 \
     }                                                                                             \
                                                                                                   \
     virtual                                                                                       \
