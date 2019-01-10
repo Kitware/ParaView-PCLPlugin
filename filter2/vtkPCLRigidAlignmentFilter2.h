@@ -76,6 +76,13 @@ public:
   vtkGetMacro(ReuseTransformation, bool);
   vtkSetMacro(ReuseTransformation, bool);
 
+
+  void Reset()
+  {
+    this->HasTransformation = false;
+    this->Modified();
+  }
+
 //------------------------------------------------------------------------------
 private:
   int ApplyPCLFilter2(
