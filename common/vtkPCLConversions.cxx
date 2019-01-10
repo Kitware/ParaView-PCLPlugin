@@ -144,7 +144,7 @@ struct ConvXYZ
     return (polyData->GetPoints() == nullptr) ? (negativeIfMissing ? - 1 : 0) : 3;
   }
 
-  //! @brief Same as GetScore but for a set field names.
+  //! @brief Same as GetScore but for a set of field names.
   static
   int GetScore(
     std::set<std::string> const & fieldNames, 
