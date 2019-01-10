@@ -19,8 +19,8 @@
 #define _PCLP_FeatureExtractor_h
 
 #include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/features/normal_3d.h>
-#include <pcl/features/fpfh.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/features/fpfh_omp.h>
 #include <pcl/registration/ia_ransac.h>
 
 
@@ -49,8 +49,8 @@ struct FeatureExtractor
     typename NormalCloudT::Ptr   Normals;
     typename FeatureCloudT::Ptr  Features;
     typename SearchT::Ptr        SearchMethod;
-		float               NormalRadius;
-    float               FeatureRadius;
+		float NormalRadius;
+    float FeatureRadius;
 
     FeatureExtractor(
       typename XYZCloudT::ConstPtr inputCloud,
@@ -74,9 +74,9 @@ struct FeatureExtractor
     void
     computeSurfaceNormals()
     {
-      pcl::NormalEstimation<PointT, NormalT> norm_est;
+      pcl::NormalEstimationOMP<PointT, NormalT> norm_est;
       norm_est.setInputCloud (this->Cloud);
-      norm_est.setSearchMethod (this->SearchMethod);
+      // norm_est.setSearchMethod (this->SearchMethod);
       norm_est.setRadiusSearch (this->NormalRadius);
       norm_est.compute(*(this->Normals));
     }
@@ -84,10 +84,10 @@ struct FeatureExtractor
     void
     computeLocalFeatures()
     {
-      pcl::FPFHEstimation<PointT, NormalT, FeatureT> fpfh_est;
+      pcl::FPFHEstimationOMP<PointT, NormalT, FeatureT> fpfh_est;
       fpfh_est.setInputCloud(this->Cloud);
       fpfh_est.setInputNormals(this->Normals);
-      fpfh_est.setSearchMethod(this->SearchMethod);
+      // fpfh_est.setSearchMethod(this->SearchMethod);
       fpfh_est.setRadiusSearch(this->FeatureRadius);
       fpfh_est.compute(*(this->Features));
     }
