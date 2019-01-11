@@ -15,6 +15,97 @@
 // limitations under the License.
 //==============================================================================
 
+/*!
+ * @file
+ * This unit provides methods to convert all PCL point clouds back and forth to
+ * PolyData instances so that they may transit the ParaView data pipeline
+ * without loss of data. All PCL point types defined in the PCL_POINT_TYPES
+ * macro sequence in pcl/impl/point_types.hpp are supported. This relies on some
+ * macro magic and a SFINAE trick to preserve attributes across conversions.
+ * While the use of these functions in filters and sources typically only
+ * requires a few boilerplate lines, the implementation here is non-trivial and
+ * requires explanation.
+ *
+ * The different PCL point types are independent structs with different
+ * attributes (member variables). In order to pass a point cloud of a given type
+ * between filters/sources/etc. in ParaView, each point must be converted to a
+ * VTK data type along with all of its attributes. A simple generic template is
+ * not possible in this case given the variety of attribute sets and
+ * specialization for each point type would require separate functions for the
+ * (at the time or writing) 47 PCL point types.
+ *
+ * Although the point types remain independent, several share attributes of the
+ * same name, often in sets. For example, there are a number of point types with
+ * spatial "x", "y" and "z" attributes. Likewise for the color attributes "r",
+ * "g" and "b". The approach used here is to define the attributes that should
+ * be preserved across conversions and then use macros and templates to generate
+ * converters for each point type that preserves its specific set of attributes.
+ * Once all preservable attributes are identified, converters can be
+ * automatically generated for all of the point types with a single preprocessor
+ * sequence (and two special cases for XYZ and XY points).
+ *
+ * The SFINAE (substitution failure is not an error) trick is to declare a bare
+ * class with passthrough constructors (if necessary) and then a templated class
+ * specialization as follows:
+ *
+ *     template <typename PointType, typename = int>
+ *     struct FooBarBaz : public BaseClass<PointType>
+ *     {
+ *       ...
+ *     };
+ *     
+ *     template <typename PointType>
+ *     struct FooBarBaz<PointType, decltype(
+ *       (void) PointType::foo,
+ *       (void) PointType::bar,
+ *       (void) PointType::baz,
+ *       0
+ *     )> : public BaseClass<PointType>
+ *     {
+ *       ...
+ *     };
+ *
+ * decltype accepts an expression as an argument which in this case is a
+ * comma-separated list of point attributes that should be handled by this
+ * class. If all 3 attributes are present, then the expression is valid and
+ * becomes the type of the last argument due to the behavior of the comma
+ * operator. The second class definition will thus be instantiated as a
+ * specialization of th efirst for the point type passed in the template. If any
+ * of the given attributes are absent in the point type, the substitution will
+ * fail and the first definition will be instantiated.
+ *
+ * This trick is used in macro definitions to declare classes to handle
+ * different sets of attributes (such as r,g,b or h,s,v). By chaining together
+ * multiple attribute handlers for all possible point attributes, the compiler
+ * is able to instantiate classes for each point type that handles all of its
+ * attributes. Given that the different point types are mostly different
+ * combinations of the same attribute sets, this reduces the number of cases
+ * that need to be handled. Furthermore, Boost preprocessor macros are used to
+ * further generalize the definitions through attribute inspection so that a
+ * single macro can declare a handle for any attribute set.
+ *
+ * All point clouds are interconverted to PolyData instances. XYZ attributes are
+ * converted to points in the PolyData's point set while all other attributes
+ * are converted to arrays in either the PolyData's PointData (if the point
+ * conains XYZ data) or the PolyData's FieldData otherwise. Aside from
+ * preserving data between filters, it also allows the user to do things such as
+ * color points by their RGB and alpha values and display arrow glyphs for
+ * surface normals.
+ *
+ * For ParaView users, the PCL data is just another PolyData instance with
+ * multiple attributes which may or may not be interesting. For plugin
+ * developers, PCL point clouds can be passed from filter to filter without
+ * considering how the data is managed in transit. The flexibility of the
+ * converters allow all attributes to be preserved if desired, with several
+ * inspection methods provided to determine which point type best corresponds to
+ * the input data so that it can be automatically converted if desired. If not,
+ * the conversions can be explicitly chosen via template parameters to force
+ * conversions which may either discard data or create points with uninitialized
+ * attributes (for the initialization of which the developer is then responsible).
+ *
+ * See vtkPCLPassThroughFilter for example usage.
+ */
+
 #include "vtkPCLConversions.h"
 #include "_PCLP_DECLARE_CONV.h"
 
@@ -27,14 +118,37 @@
 #include <vtkPolyData.h>
 // #include <vtkTimerLog.h>
 
-// #include <pcl/io/pcd_io.h>
-
-#include <boost/preprocessor/seq/enum.hpp>
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/transform.hpp>
-#include <boost/preprocessor/variadic/to_seq.hpp>
-
 #include <cassert>
+
+//------------------------------------------------------------------------------
+/*!
+  * @brief         Create a single vertex cell for a point cloud if the given
+  *                PolyData instance contains points.
+  * @param[in,out] A PolyData instance to which to add cell data.
+  */
+void addVertexCells(vtkPolyData * polyData)
+{
+  vtkPointData * pointData = polyData->GetPointData();
+  if (pointData == nullptr)
+  {
+    return;
+  }
+  std::cout << "Adding verts..." << std::endl;
+  vtkIdType numberOfVerts = polyData->GetNumberOfPoints();
+  vtkNew<vtkIdTypeArray> cells;
+  cells->SetNumberOfValues(numberOfVerts * 2);
+  vtkIdType * ids = cells->GetPointer(0);
+
+  for (vtkIdType i = 0; i < numberOfVerts; ++i)
+  {
+    ids[i * 2] = 1;
+    ids[i * 2 + 1] = i;
+  }
+
+  vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
+  cellArray->SetCells(numberOfVerts, cells.GetPointer());
+  polyData->SetVerts(cellArray);
+}
 
 //------------------------------------------------------------------------------
 /*!
@@ -94,6 +208,7 @@ public:
   //! @brief ShallowCopy the internal PolyData instance to the given pointer.
   void GetPolyData(vtkPolyData * polyData)
   {
+    addVertexCells(this->PolyData);
     polyData->ShallowCopy(this->PolyData);
   }
 
@@ -157,20 +272,36 @@ public:
 };
 
 //------------------------------------------------------------------------------
+// See notes below at the redefinition of _PCLP_DC_ATTR_SEQ. This definition is
+// here to handle the special case of XY points, which must be the base class of
+// ConvXYZ in the case that the z attribute is missing. If this were declared
+// below in the full chain then all XYZ points would contain a duplicate vector
+// of XY points. With the definition here, point types with x, y and z
+// attributes will instantiate the full definition of ConvXYZ with ConvBase as
+// its parent, whereas those with only x and y will instantiate the bare
+// definition with ConvXY as its parent.
+#undef _PCLP_DC_ATTR_SEQ
+#define _PCLP_DC_ATTR_SEQ \
+  ((Base))                \
+  ((XY)(x)(y))
+
+BOOST_PP_FOR(_PCLP_DC_STATE, _PCLP_DC_PRED, _PCLP_DC_OP, _PCLP_DC_MACRO)
+
+//------------------------------------------------------------------------------
 /*!
  * @brief Common base-class for all XYZ PCL point types.
  *
  * All XYZ PCL point clouds (i.e. those with PCL point types in
- * PCL_XYZ_POINT_TYES) are interconverted to vtkPolyData instances. All others
- * are interconverted to vtkFieldData instances.
+ * PCL_XYZ_POINT_TYPES) will store their attributes in the PolyData's PointData
+ * while non-XYZ point types will store theirs in the FieldData.
  *
  * This uses the same SFINAE trick as the classes declared with
  * _PCLP_DECLARE_CONV, i.e. point types with x, y and z attributes will
  * instantiate the full declaration below while those without will instantiate
- * the empty declaration.
+ * the bare declaration.
  */
 template <typename PointType, typename = int>
-struct ConvXYZ : public ConvBase<PointType>
+struct ConvXYZ : public ConvXY<PointType>
 {
   ConvXYZ() {};
   ConvXYZ(vtkPolyData * polyData) : ConvBase<PointType> { polyData } {}
@@ -178,7 +309,7 @@ struct ConvXYZ : public ConvBase<PointType>
 
 template <typename PointType>
 struct ConvXYZ<
-  PointType, 
+  PointType,
   decltype(
     (void) PointType::x,
     (void) PointType::y,
@@ -250,7 +381,7 @@ public:
 
   static
   int GetScore(
-    vtkPolyData * polyData, 
+    vtkPolyData * polyData,
     bool negativeIfMissing = true
   )
   {
@@ -265,7 +396,7 @@ public:
 
   static
   int GetScore(
-    std::set<std::string> const & fieldNames, 
+    std::set<std::string> const & fieldNames,
     bool negativeIfMissing = true
   )
   {
@@ -295,19 +426,32 @@ public:
 // class ("XYZ" for "ConvXYZ"). Each element in the sequence after it is itself
 // a sequence, the first element of which is the name to use for the class (it
 // will be prefixed with "Conv") and the remaining elements of which are the
-// names of the point attributes to handle. The name (without the "Conv" prefix)
-// will also be used as the name of the array in the PolyData to transfer these
-// attributes alongside the point data.
+// names of the point attributes to handle together (i.e. those that are
+// inseparable such as r,g,b or r_min,r_max). The name (without the "Conv"
+// prefix) will also be used as the name of the array in the PolyData to
+// transfer these attributes alongside the point data.
 //
-// The sequence below should include all the fields defined in
-// pcl/impl/point_types.hpp. The very first sequence determines the base class
-// (ConvXYZ). Subsequent sequences will use the first element of the preceding
-// sequence as its own base class. For example, in this case ConvNormal inherits
-// from ConvXYZ and ConvRGB inherits from ConvNormal. The order thus determines
-// the class hierarchy but should have no effect on the conversion itself. To
-// facilitate keeping this list up-to-date, it is recommended that the order
-// follow the order of the PCL definitions so that the header can be easily
-// scanned for changes.
+// Aside from simple grouped attributes such as r,g,b and r_min,r_max, these
+// declarations also handle c-array attributes such as "histogram" and "values".
+// The size of the array will be used to set the size of the tuple of the
+// internal PolyData array. Note that *c-array attributes must not be grouped*.
+// For example, the different histogram and values arrays are all supported with
+//
+//     ((Histogram)(histogram))
+//     ((Values)(values))
+//
+// but these *cannot* be grouped together as ((Foo)(histogram)(values)), unlike
+// non-array types, e.g.:
+// 
+//     ((HSV)(h)(s)(v))
+//     ((RGBRatios)(r_ratio)(g_ratio)(b_ratio))
+//
+// Aside from the first element which determines the base class of this
+// sub-hierarchy, the order is irrelevant and may be changed to facilitate
+// keeping the list synchronized with the attributes in
+// pcl/impl/point_types.hpp. The alias ConvPoint is set to the last class in the
+// sequence so that this sequence may be changed without further modification of
+// the code.
 //
 // The result of these declarations is a templated class hierarchy that accepts
 // the PCL point type as its sole template parameter. Each class in the
@@ -315,63 +459,68 @@ public:
 // method to deal with other attributes. For each template instantiation, the
 // compiler will inline these calls resulting in point-type-specific methods
 // that deal with all of the point's attributes in a single call.
-#define _PCLP_DC_ATTR_SEQ                  \
-  ((XYZ))                                  \
-  ((Normal)(normal_x)(normal_y)(normal_z)) \
-  ((RGB)(r)(g)(b))                         \
-  ((Alpha)(a))                             \
-  ((HSV)(h)(s)(v))                         \
-  ((Intensity)(intensity))                 \
-  ((Label)(label))                         \
-  ((Strength)(strength))                   \
-  ((Curvature)(curvature))                 \
-  ((Viewpoint)(vp_x)(vp_y)(vp_z))          \
-  ((Scale)(scale))                         \
-  ((Angle)(angle))                         \
-  ((Response)(response))                   \
-  ((Octave)(octave))
+//
+// In order for this to handle all point types, the sequence must be kept this
+// up to date with the attributes defined in pcl/impl/point_types.hpp. The
+// list_pcl_point_attributes.py script is provided to facilitate this but is not
+// guaranteed to correctly parse all attributes and it remains a work in
+// progress. Check the PCL header directly to be sure and notify the developers
+// of this plugin of any unhandled attributes.
+//
+// A special note about the attributes f1-f10: At the time of writing, these
+// attributes appear in different feature points where their values are
+// unrelated across point types. f1-f4 appear in PPFSignature and PPFGBSignature
+// while f1-f10 appear in CPPFSignature. Ideally, f1-f4 would be grouped
+// together in a single internal array for the former two, while f1-f10 would be
+// grouped together in a single array for the latter (it would be even better if
+// there were simply a c-array in both cases, i.e. f[4] and f[10]). The
+// limitation here is that only attribute names are considered so these cases
+// cannot be distinguished directly: any point that contains f1-f10 also
+// contains f1-f4 so declaring a group for both would lead to duplication of
+// f1-f4 for all points with f1-f10. This could be handled using the method
+// above for x,y,z and x,y at the cost of added complexity, but this is not
+// necessary because the f* attributes are separable, unlike x,y,z for spatial
+// data. They are thus grouped as f1-f4 and f5-f10. This will result in two
+// internal arrays for points with f1-f10 but the relative simplicity should
+// outweigh the cost of an extra array. If not, the xyz/xy method can be used.
+#undef _PCLP_DC_ATTR_SEQ
+#define _PCLP_DC_ATTR_SEQ                                                                               \
+  ((XYZ))                                                                                               \
+  ((Alpha)(a))                                                                                          \
+  ((AlphaM)(alpha_m))                                                                                   \
+  ((Angle)(angle))                                                                                      \
+  ((BoundaryPoint)(boundary_point))                                                                     \
+  ((Curvature)(curvature))                                                                              \
+  ((Descriptor)(descriptor))                                                                            \
+  ((F1F4)(f1)(f2)(f3)(f4))                                                                              \
+  ((F5F10)(f5)(f6)(f7)(f8)(f9)(f10))                                                                    \
+  ((Gradient)(gradient))                                                                                \
+  ((HeightVariance)(height_variance))                                                                   \
+  ((HSV)(h)(s)(v))                                                                                      \
+  ((Histogram)(histogram))                                                                              \
+  ((Intensity)(intensity))                                                                              \
+  ((IntensityVariance)(intensity_variance))                                                             \
+  ((Label)(label))                                                                                      \
+  ((MomentInvariants)(j1)(j2)(j3))                                                                      \
+  ((Normal)(normal_x)(normal_y)(normal_z))                                                              \
+  ((Octave)(octave))                                                                                    \
+  ((Orientation)(orientation))                                                                          \
+  ((PrincipalRadiiRSD)(r_min)(r_max))                                                                   \
+  ((PrincipleCurvature)(principal_curvature_x)(principal_curvature_y)(principal_curvature_z)(pc1)(pc2)) \
+  ((Range)(range))                                                                                      \
+  ((Response)(response))                                                                                \
+  ((RF)(rf))                                                                                            \
+  ((RGB)(r)(g)(b))                                                                                      \
+  ((RGBRatios)(r_ratio)(g_ratio)(b_ratio))                                                              \
+  ((Scale)(scale))                                                                                      \
+  ((Strength)(strength))                                                                                \
+  ((UV)(u)(v))                                                                                          \
+  ((Values)(values))                                                                                    \
+  ((Viewpoint)(vp_x)(vp_y)(vp_z))
 
-//------------------------------------------------------------------------------
-// Macros for BOOST_PP_FOR to convert the sequence into a series of class
-// declarations.
-
-// The state, which is just a tuple of the current index and the max index.
-#define _PCLP_DC_STATE (0, BOOST_PP_DEC(BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(_PCLP_DC_ATTR_SEQ))))
-
-// The for-loop condition. Stops when the index reaches the max index.
-#define _PCLP_DC_PRED(r, state)                    \
-  BOOST_PP_NOT_EQUAL(                              \
-    BOOST_PP_TUPLE_ELEM(3, 0, state),              \
-    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 1, state)) \
-  )
-
-// The loop operation. Increments the index each loop.
-#define _PCLP_DC_OP(r, state)                       \
-  (                                                 \
-    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)), \
-    BOOST_PP_TUPLE_ELEM(3, 1, state)                \
-  )
-
-// Internal macro to invoke _PCLP_DECLARE_CONV with parent class, current class
-// and current class attributes.
-#define _PCLP_DC_MACRO_I(i,j)                                   \
-  _PCLP_DECLARE_CONV(                                           \
-    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(i, _PCLP_DC_ATTR_SEQ)), \
-    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(j, _PCLP_DC_ATTR_SEQ)), \
-    BOOST_PP_SEQ_TAIL(BOOST_PP_SEQ_ELEM(j, _PCLP_DC_ATTR_SEQ))  \
-  )
-
-// Loop macro. It's just a wrapper around _PCLP_DC_MACRO_I to invoke it with the
-// current index and the current index + 1.
-#define _PCLP_DC_MACRO(r, state)                   \
-  _PCLP_DC_MACRO_I(                                \
-    BOOST_PP_TUPLE_ELEM(3, 0, state),              \
-    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)) \
-  )
-
-// The for loop to declare the hierarchy.
 BOOST_PP_FOR(_PCLP_DC_STATE, _PCLP_DC_PRED, _PCLP_DC_OP, _PCLP_DC_MACRO)
 
+//------------------------------------------------------------------------------
 // The last class in the sequence, with the "Conv" prefix.
 #define _PCLP_DC_LAST                                         \
     BOOST_PP_CAT(                                             \
@@ -411,7 +560,7 @@ struct ScoreTracker
 {
   int Score, HighestScore, Index;
   std::set<std::string> const * RequiredFieldNames;
-  
+
   /*!
    * @param[in] requiredFieldNames An optional set of field name strings. Point
    *                               types that do not contain all of these string
@@ -471,7 +620,7 @@ struct ScoreTracker
   {
 #define _PCLP_SCORE_POINT_TYPES(r, data, i, PointType) this->Update<PointType>(getScoreArg);
 
-    BOOST_PP_SEQ_FOR_EACH_I(_PCLP_SCORE_POINT_TYPES, _, PCL_XYZ_POINT_TYPES)
+    BOOST_PP_SEQ_FOR_EACH_I(_PCLP_SCORE_POINT_TYPES, _, PCL_POINT_TYPES)
     return this->Index;
   }
 };
@@ -685,26 +834,6 @@ BOOST_PP_SEQ_FOR_EACH_I(_PCLP_INSTANTIATE_GetPointTypeIndex, _, PCL_XYZ_POINT_TY
 
 #undef _PCLP_INSTANTIATE_GetPointTypeIndex
 
-
-//------------------------------------------------------------------------------
-// Legacy code from previous version of plugin.
-// TODO: update/remove?
-vtkSmartPointer<vtkCellArray> vtkPCLConversions::NewVertexCells(vtkIdType numberOfVerts)
-{
-  vtkNew<vtkIdTypeArray> cells;
-  cells->SetNumberOfValues(numberOfVerts * 2);
-  vtkIdType * ids = cells->GetPointer(0);
-
-  for (vtkIdType i = 0; i < numberOfVerts; ++i)
-  {
-    ids[i * 2] = 1;
-    ids[i * 2 + 1] = i;
-  }
-
-  vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
-  cellArray->SetCells(numberOfVerts, cells.GetPointer());
-  return cellArray;
-}
 
 //------------------------------------------------------------------------------
 // Legacy code to be removed?

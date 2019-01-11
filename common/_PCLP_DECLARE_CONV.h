@@ -15,6 +15,16 @@
 // limitations under the License.
 //==============================================================================
 
+#ifndef _PCLP_DECLARE_CONV_h
+#define _PCLP_DECLARE_CONV_h
+
+#include <type_traits>
+
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/transform.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
+
 //------------------------------------------------------------------------------
 // Boost-based macros for determining point attributes.
 //------------------------------------------------------------------------------
@@ -59,19 +69,25 @@
  *                   vtkFieldData array name.
  * @param[in] attrs  The preprocessor sequence of attributes recognized by this
  *                   class, e.g. "(r)(g)(b)" or
- *                   "(normal_x)(normal_y)(normal_z)".
+ *                   "(normal_x)(normal_y)(normal_z)". Array attributes should
+ *                   be passed alone, e.g. (descriptor). They will be detected
+ *                   with std::is_array and their size will set the size of the
+ *                   internal tuple.
  *
  * The converters that handle different attributes are chained together in a
  * linear class hierarchy. The compiler flattens the hierarchy for each
  * instantiation to avoid repeated function invocations. The main complexity
  * here is the use of a SFINAE template trick. The macro defines two templated
  * structs. One depends on the presence of the given attributes in the PCL point
- * type (e.g. pcl::PointXYZRGB::r). If any of the attribute are missing, the
- * empty definition will be used (and thus omitted).
+ * type (e.g. pcl::PointXYZRGB::r, pcl::PointXYZRGB::g and pcl::PointXYZRGB::b).
+ * If any of the attribute are missing, the empty definition will be used and
+ * optimized out by the compiler.
  *
- * The resulting per-PointType instantiation will thus handle only those
- * attribute sets that are present in the given point type.
- */
+ * For each point type the compiler will thus instantiate a class that handles
+ * all of the attributes of that point type. For details of which attributes are
+ * supported, refer to the documentation of the preprocessor sequence
+ * _PCLP_DC_ATTR_SEQ in vtkPCLConversions.cxx.
+ * */
 #define _PCLP_DECLARE_CONV(parent, name, attrs)                                             \
   /* Class to handle points without the given attributes. */                                \
   template <typename PointType, typename = int>                                             \
@@ -83,7 +99,7 @@
       : BOOST_PP_CAT(Conv, parent)<PointType>(polyData) {};                                 \
   };                                                                                        \
                                                                                             \
-  /* Class to handle points with attributes. */                                             \
+  /* Class to handle points with the given attributes. */                                   \
   template <typename PointType>                                                             \
   struct BOOST_PP_CAT(Conv, name)<PointType, decltype(                                      \
     BOOST_PP_SEQ_ENUM(                                                                      \
@@ -97,31 +113,45 @@
   {                                                                                         \
     typedef BOOST_PP_CAT(Conv, name)<PointType> ThisClassT;                                 \
     typedef BOOST_PP_CAT(Conv, parent)<PointType> BaseClassT;                               \
+                                                                                            \
     /* The internal array type is determined from the first attribute of the point data. */ \
-    typedef decltype(                                                                       \
-      PointType::BOOST_PP_SEQ_ELEM(                                                         \
-        0,                                                                                  \
-        attrs                                                                               \
-      )                                                                                     \
-    ) ElementType;                                                                          \
+    /* This will remove all extends if it is an array type. */                              \
+    typedef typename std::remove_all_extents<                                               \
+      decltype(PointType::BOOST_PP_SEQ_ELEM(0, attrs))                                      \
+    >::type ElementType;                                                                    \
+                                                                                            \
+    /* For template instantiation, the actual attribute type is required to */              \
+    /* avoid compilation errors due to the absence of compile-time constant */              \
+    /* if expressions.                                                      */              \
+    typedef decltype(PointType::BOOST_PP_SEQ_ELEM(0, attrs)) AttributeType;                 \
+                                                                                            \
+    /* The VTK array type. */                                                               \
     typedef vtkAOSDataArrayTemplate<ElementType> ArrayType;                                 \
+                                                                                            \
     /* The array */                                                                         \
-    vtkSmartPointer<ArrayType> BOOST_PP_CAT(name, Array);                                   \
+    vtkSmartPointer<ArrayType> Array;                                                       \
+                                                                                            \
+    /* ArraySize is either the number of attributes, or number of elements */               \
+    /* in the first (and only) attribute if it is an array.                */               \
+    static constexpr size_t ArraySize =                                                     \
+      std::is_array<decltype(PointType::BOOST_PP_SEQ_ELEM(0, attrs))>::value ?              \
+      sizeof(PointType::BOOST_PP_SEQ_ELEM(0, attrs)) / sizeof(ElementType) :                \
+      BOOST_PP_SEQ_SIZE(attrs);                                                             \
                                                                                             \
     /* Default constructor. Create a new array to hold the attributes. */                   \
     BOOST_PP_CAT(Conv, name)()                                                              \
     {                                                                                       \
-      this->BOOST_PP_CAT(name, Array) = vtkSmartPointer<ArrayType>::New();                  \
-      this->BOOST_PP_CAT(name, Array)->SetName(BOOST_PP_STRINGIZE(name));                   \
-      this->BOOST_PP_CAT(name, Array)->SetNumberOfComponents(BOOST_PP_SEQ_SIZE(attrs));     \
-      this->FieldData->AddArray(this->BOOST_PP_CAT(name, Array));                           \
+      this->Array = vtkSmartPointer<ArrayType>::New();                                      \
+      this->Array->SetName(BOOST_PP_STRINGIZE(name));                                       \
+      this->Array->SetNumberOfComponents(ThisClassT::ArraySize);                            \
+      this->FieldData->AddArray(this->Array);                                               \
     }                                                                                       \
                                                                                             \
     /* Pass through the PolyData instance and get the FieldData from the base class. */     \
     BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                                        \
       : BaseClassT { polyData }                                                             \
     {                                                                                       \
-      this->BOOST_PP_CAT(name, Array) =                                                     \
+      this->Array =                                                                         \
         ArrayType::SafeDownCast(                                                            \
           this->FieldData->GetAbstractArray(BOOST_PP_STRINGIZE(name))                       \
         );                                                                                  \
@@ -130,44 +160,8 @@
     virtual                                                                                 \
     void SetNumberOfPoints(vtkIdType numberOfPoints) override                               \
     {                                                                                       \
-      this->BOOST_PP_CAT(name, Array)->SetNumberOfTuples(numberOfPoints);                   \
+      this->Array->SetNumberOfTuples(numberOfPoints);                                       \
       this->BaseClassT::SetNumberOfPoints(numberOfPoints);                                  \
-    }                                                                                       \
-                                                                                            \
-    virtual                                                                                 \
-    void CopyFromPoint(vtkIdType i, PointType const & point) override                       \
-    {                                                                                       \
-      ElementType data[] {                                                                  \
-        BOOST_PP_SEQ_ENUM(                                                                  \
-          BOOST_PP_SEQ_TRANSFORM(                                                           \
-            _PCLP_GET_ATTR,                                                                 \
-            point,                                                                          \
-            attrs                                                                           \
-          )                                                                                 \
-        )                                                                                   \
-      };                                                                                    \
-      this->BOOST_PP_CAT(name, Array)->SetTypedTuple(i, data);                              \
-      this->BaseClassT::CopyFromPoint(i, point);                                            \
-    }                                                                                       \
-                                                                                            \
-    virtual                                                                                 \
-    void CopyToPoint(vtkIdType i, PointType & point) const override                         \
-    {                                                                                       \
-      ElementType values[BOOST_PP_SEQ_SIZE(attrs)] {0};                                     \
-      if (this->BOOST_PP_CAT(name, Array) != nullptr)                                       \
-      {                                                                                     \
-        this->BOOST_PP_CAT(name, Array)->GetTypedTuple(i, values);                          \
-      }                                                                                     \
-      BOOST_PP_SEQ_FOR_EACH_I(                                                              \
-        _PCLP_SET_FROM_ARRAY,                                                               \
-        values,                                                                             \
-        BOOST_PP_SEQ_TRANSFORM(                                                             \
-          _PCLP_GET_ATTR,                                                                   \
-          point,                                                                            \
-          attrs                                                                             \
-        )                                                                                   \
-      )                                                                                     \
-      this->BaseClassT::CopyToPoint(i, point);                                              \
     }                                                                                       \
                                                                                             \
     static                                                                                  \
@@ -213,5 +207,113 @@
       )                                                                                     \
       BaseClassT::InsertFieldNames(fieldNames);                                             \
     }                                                                                       \
+                                                                                            \
+                                                                                            \
+                                                                                            \
+    template <typename AttrT>                                                               \
+    void CopyFromPoint(AttrT & attr, vtkIdType i, PointType const & point)                  \
+    {                                                                                       \
+      AttributeType data[] {                                                                \
+        BOOST_PP_SEQ_ENUM(                                                                  \
+          BOOST_PP_SEQ_TRANSFORM(                                                           \
+            _PCLP_GET_ATTR,                                                                 \
+            point,                                                                          \
+            attrs                                                                           \
+          )                                                                                 \
+        )                                                                                   \
+      };                                                                                    \
+      this->Array->SetTypedTuple(i, data);                                                  \
+    }                                                                                       \
+                                                                                            \
+    template <typename AttrT>                                                               \
+    void CopyFromPoint(AttrT * attr, vtkIdType i, PointType const & point)                  \
+    {                                                                                       \
+      this->Array->SetTypedTuple(i, attr);                                                  \
+    }                                                                                       \
+                                                                                            \
+    void CopyFromPoint(vtkIdType i, PointType const & point) override                       \
+    {                                                                                       \
+      this->CopyFromPoint(point.BOOST_PP_SEQ_ELEM(0, attrs), i, point);                     \
+      this->BaseClassT::CopyFromPoint(i, point);                                            \
+    }                                                                                       \
+                                                                                            \
+                                                                                            \
+                                                                                            \
+    template <typename AttrT>                                                               \
+    void CopyToPoint(AttrT & attr, vtkIdType i, PointType & point) const                    \
+    {                                                                                       \
+      AttributeType values[ThisClassT::ArraySize] {0};                                      \
+      if (this->Array != nullptr)                                                           \
+      {                                                                                     \
+        this->Array->GetTypedTuple(i, values);                                              \
+      }                                                                                     \
+      BOOST_PP_SEQ_FOR_EACH_I(                                                              \
+        _PCLP_SET_FROM_ARRAY,                                                               \
+        values,                                                                             \
+        BOOST_PP_SEQ_TRANSFORM(                                                             \
+          _PCLP_GET_ATTR,                                                                   \
+          point,                                                                            \
+          attrs                                                                             \
+        )                                                                                   \
+      )                                                                                     \
+    }                                                                                       \
+                                                                                            \
+    template <typename AttrT>                                                               \
+    void CopyToPoint(AttrT * attr, vtkIdType i, PointType & point) const                    \
+    {                                                                                       \
+      this->Array->GetTypedTuple(i, attr);                                                  \
+    }                                                                                       \
+                                                                                            \
+    void CopyToPoint(vtkIdType i, PointType & point) const override                         \
+    {                                                                                       \
+      this->CopyToPoint(point.BOOST_PP_SEQ_ELEM(0, attrs), i, point);                       \
+      this->BaseClassT::CopyToPoint(i, point);                                              \
+    }                                                                                       \
   };
+
+//------------------------------------------------------------------------------
+// Macros for BOOST_PP_FOR to convert the sequence into a series of class
+// declarations.
+
+// The state, which is just a tuple of the current index and the max index.
+#define _PCLP_DC_STATE (0, BOOST_PP_DEC(BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(_PCLP_DC_ATTR_SEQ))))
+
+// The for-loop condition. Stops when the index reaches the max index.
+#define _PCLP_DC_PRED(r, state)                    \
+  BOOST_PP_NOT_EQUAL(                              \
+    BOOST_PP_TUPLE_ELEM(3, 0, state),              \
+    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 1, state)) \
+  )
+
+// The loop operation. Increments the index each loop.
+#define _PCLP_DC_OP(r, state)                       \
+  (                                                 \
+    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)), \
+    BOOST_PP_TUPLE_ELEM(3, 1, state)                \
+  )
+
+// Internal macro to invoke _PCLP_DECLARE_CONV with parent class, current class
+// and current class attributes.
+#define _PCLP_DC_MACRO_I(i,j)                                   \
+  _PCLP_DECLARE_CONV(                                           \
+    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(i, _PCLP_DC_ATTR_SEQ)), \
+    BOOST_PP_SEQ_HEAD(BOOST_PP_SEQ_ELEM(j, _PCLP_DC_ATTR_SEQ)), \
+    BOOST_PP_SEQ_TAIL(BOOST_PP_SEQ_ELEM(j, _PCLP_DC_ATTR_SEQ))  \
+  )
+
+// Loop macro. It's just a wrapper around _PCLP_DC_MACRO_I to invoke it with the
+// current index and the current index + 1.
+#define _PCLP_DC_MACRO(r, state)                   \
+  _PCLP_DC_MACRO_I(                                \
+    BOOST_PP_TUPLE_ELEM(3, 0, state),              \
+    BOOST_PP_INC(BOOST_PP_TUPLE_ELEM(3, 0, state)) \
+  )
+
+//------------------------------------------------------------------------------
+// The for loop to declare the hierarchy, which should be inserted in the source
+// file at the appropriate location. A sequence named _PCLP_DC_ATTR_SEQ
+// must have been previous defined before this is invoked.
+// BOOST_PP_FOR(_PCLP_DC_STATE, _PCLP_DC_PRED, _PCLP_DC_OP, _PCLP_DC_MACRO)
+
+#endif // _PCLP_DECLARE_CONV_h
 

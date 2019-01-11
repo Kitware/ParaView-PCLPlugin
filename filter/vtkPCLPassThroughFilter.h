@@ -39,7 +39,8 @@ private:
   void operator=(const vtkPCLPassThroughFilter&) = delete;
 
 //------------------------------------------------------------------------------
-// Filter parameters.
+// Filter parameters and their getters/setters. These are exposed through the
+// ServerManager proxy.
 private:
   char * FieldName;
   double Limits[2];
@@ -57,11 +58,31 @@ public:
 
 //------------------------------------------------------------------------------
 private:
+  /*!
+   * @brief      Apply the filter to the input data to generate the output data.
+   * @param[in]  input  The input data.
+   * @param[out] output The output data.
+   *
+   * This method has to be virtual so that it can be called by the base class.
+   * As virtual methods cannot be templated, a second method
+   * (InternalApplyPCLFilter) is therefore required to handle all of the
+   * different point types.
+   */
   int ApplyPCLFilter(
     vtkPolyData * input,
     vtkPolyData * output
   ) override;
 
+  /*!
+   * @brief Apply the filter for any point type.
+   * @param[in]  input  The input data.
+   * @param[out] output The output data.
+   *
+   * The passthrough filter can work on any point type so the application is
+   * templated. A generic template might not make sense for other filters that
+   * only handle specific types. In that case, specializations or overrides
+   * would likely make more sense.
+   */
   template <typename PointType>
   int InternalApplyPCLFilter(
     vtkPolyData * input,

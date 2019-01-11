@@ -110,16 +110,8 @@ public:
   static
   void GetFieldNames(std::set<std::string> & fieldNames);
 
-  /*!
-   * @brief     Create vertex cells.
-   * @param[in] numberOfVerts The number of vertex cells to create.
-   * @return    A smart pointer to the new vertex cell array.
-   * @todo      Revise this function. The current implementation was taken
-   *            directly from the previous version of this function without
-   *            revision.
-   */
-  static vtkSmartPointer<vtkCellArray> NewVertexCells(vtkIdType numberOfVerts);
-  
+  // TODO
+  // Remove or update this legacy code from the previous version of the plugin..
   // static vtkSmartPointer<vtkIntArray> NewLabelsArray(pcl::IndicesConstPtr indices, vtkIdType length);
   // static vtkSmartPointer<vtkIntArray> NewLabelsArray(pcl::PointIndices::ConstPtr indices, vtkIdType length);
   // static vtkSmartPointer<vtkIntArray> NewLabelsArray(const std::vector<pcl::PointIndices>& indices, vtkIdType length);
