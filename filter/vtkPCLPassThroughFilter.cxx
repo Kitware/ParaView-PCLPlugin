@@ -63,6 +63,7 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
 #define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
   
   // Generate the switch statement.
+  // TODO: Check which non-XYZ point types are supported by this filter, if any.
   PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
 
   // Undefine the statement. This is not necessary here but it is good practice
