@@ -83,7 +83,7 @@ int vtkPCLPCDFileReader::LoadPCLReader(
   // symbol lookup error occurs without it.
   int index = vtkPCLConversions::GetPointTypeIndex<decltype(fields) const &>(fields);
 #define _statement(PointType) return this->InternalLoadPCLReader<PointType>(output);
-  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_ANY_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;
 }
