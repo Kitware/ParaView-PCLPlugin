@@ -1,0 +1,41 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLFPFHEstimationFilter"
+      class="vtkPCLFPFHEstimationFilter"
+      label="PCL FPFH Estimation Filter"
+      >
+      <Documentation
+        short_help="FPFHEstimation filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+      <DoubleVectorProperty
+        name="Radius"
+        command="SetRadius"
+        number_of_elements="1"
+        default_values="0.05"
+        >
+        <Documentation>The radius within which neighboring points will be considered.</Documentation>
+      </DoubleVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLFPFHEstimationFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
