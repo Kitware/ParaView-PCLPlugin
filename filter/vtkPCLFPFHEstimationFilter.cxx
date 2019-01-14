@@ -53,7 +53,7 @@ int vtkPCLFPFHEstimationFilter::ApplyPCLFilter(
   std::set<std::string> requiredFieldNames { "normal_x", "normal_y", "normal_z" };
   int index = vtkPCLConversions::GetPointTypeIndex(input, requiredFieldNames);
 #define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
-  PCLP_INVOKE_WITH_NORMAL_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_XYZ_NORMAL_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;
 }

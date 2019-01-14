@@ -98,9 +98,57 @@ BOOST_PP_SEQ_FOR_EACH_I(
 /*!
  * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
  * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
- *          PCL_NORMAL_POINT_TYPES except PointNormal.
+ *          PCL_RGB_POINT_TYPES except PointNormal.
+ */
+#define PCLP_INVOKE_WITH_RGB_POINT_TYPE(index, statement) \
+  switch (index)                                          \
+  {                                                       \
+    BOOST_PP_SEQ_FOR_EACH_I(                              \
+      _PCLP_POINT_TYPE_SWITCH_CASE,                       \
+      statement,                                          \
+      PCL_RGB_POINT_TYPES                                 \
+    )                                                     \
+  }
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
+ * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
+ *          PCL_FEATURE_POINT_TYPES except PointNormal.
+ */
+#define PCLP_INVOKE_WITH_FEATURE_POINT_TYPE(index, statement) \
+  switch (index)                                              \
+  {                                                           \
+    BOOST_PP_SEQ_FOR_EACH_I(                                  \
+      _PCLP_POINT_TYPE_SWITCH_CASE,                           \
+      statement,                                              \
+      PCL_FEATURE_POINT_TYPES                                 \
+    )                                                         \
+  }
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
+ * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
+ *          PCL_NORMAL_POINT_TYPES.
  */
 #define PCLP_INVOKE_WITH_NORMAL_POINT_TYPE(index, statement) \
+  switch (index)                                             \
+  {                                                          \
+    BOOST_PP_SEQ_FOR_EACH_I(                                 \
+      _PCLP_POINT_TYPE_SWITCH_CASE,                          \
+      statement,                                             \
+      PCL_NORMAL_POINT_TYPES                                 \
+    )                                                        \
+  }
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
+ * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
+ *          PCL_NORMAL_POINT_TYPES except PointNormal.
+ */
+#define PCLP_INVOKE_WITH_XYZ_NORMAL_POINT_TYPE(index, statement) \
   switch (index)                                             \
   {                                                          \
     BOOST_PP_SEQ_FOR_EACH_I(                                 \
