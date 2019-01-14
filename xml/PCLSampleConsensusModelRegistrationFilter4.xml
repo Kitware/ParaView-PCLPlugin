@@ -1,0 +1,132 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLSampleConsensusModelRegistrationFilter4" 
+      class="vtkPCLSampleConsensusModelRegistrationFilter4" 
+      label="PCL-based Sample Consensus Model Registration Filter"
+      >
+      <Documentation
+        short_help="RANSAC-based rigid alignment filter." >
+      </Documentation>
+
+
+      <InputProperty
+        name="SourcePoints"
+        port_index="0"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty
+        name="SourceFeatures"
+        port_index="1"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty
+        name="TargetPoints"
+        port_index="2"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <InputProperty
+        name="TargetFeatures"
+        port_index="3"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+
+      <DoubleVectorProperty
+        name="DistanceThreshold"
+        command="SetDistanceThreshold"
+        number_of_elements="1"
+        default_values="0.2"
+        >
+        <Documentation>The distance to model threshold.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="MaxIterations"
+        command="SetMaxIterations"
+        number_of_elements="1"
+        default_values="2500"
+        >
+        <Documentation>The maximum number of iterations.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Probability"
+        command="SetProbability"
+        number_of_elements="1"
+        default_values="0.99"
+        >
+        <Documentation>The desired probability of choosing at least one sample free from outliers.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup label="Sample Consensus Parameters">
+        <Property name="DistanceThreshold" />
+        <Property name="MaxIterations" />
+        <Property name="Probability" />
+      </PropertyGroup>
+
+      <IntVectorProperty
+        name="ReuseTransformation"
+        command="SetReuseTransformation"
+        number_of_elements="1"
+        default_values="0"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>If true, re-use the previously calculated alignment transformation.</Documentation>
+      </IntVectorProperty>
+
+      <Property
+        name="Reset"
+        command="Reset"
+        panel_widget="command_button"
+        >
+        <Documentation>Reset the transformation.</Documentation>
+      </Property>
+
+      <PropertyGroup label="Transformation Caching">
+        <Property name="ReuseTransformation" />
+        <Property name="Reset" />
+      </PropertyGroup>
+
+
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLSampleConsensusModelRegistrationFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
