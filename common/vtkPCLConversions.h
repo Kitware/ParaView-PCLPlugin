@@ -74,13 +74,11 @@ private:
 public:
   /*!
    * @brief     Get the index of the best matching PCL point type in the
-   *            PCL_XYZ_POINT_TYPES sequence defined in
-   *            pcl/impl/point_types.hpp.
+   *            PCL_POINT_TYPES sequence defined in pcl/impl/point_types.hpp.
    * @tparam    T           The type of the argument to pass to the
    *                        ConvPoint::GetScore().
    * @param[in] getScoreArg The argument to pass to the ConvPoint::GetScore().
-   * @return    The index of the PCL point type in the PCL_XYZ_POINT_TYPES
-   *            sequence.
+   * @return    The index of the PCL point type in the PCL_POINT_TYPES sequence.
    *
    * The returned index is only intended to be used as an argument to the
    * INVOKE_WITH_POINT_TYPE macro.

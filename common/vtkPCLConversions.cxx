@@ -122,7 +122,7 @@
 
 //------------------------------------------------------------------------------
 /*!
-  * @brief         Create a single vertex cell for a point cloud if the given
+  * @brief         Create a single vertex cell for each point if the given
   *                PolyData instance contains points.
   * @param[in,out] A PolyData instance to which to add cell data.
   */
@@ -133,7 +133,6 @@ void addVertexCells(vtkPolyData * polyData)
   {
     return;
   }
-  std::cout << "Adding verts..." << std::endl;
   vtkIdType numberOfVerts = polyData->GetNumberOfPoints();
   vtkNew<vtkIdTypeArray> cells;
   cells->SetNumberOfValues(numberOfVerts * 2);
@@ -203,6 +202,13 @@ public:
     : PolyData { polyData }
     , FieldData { PolyData->GetFieldData() }
   {
+  }
+
+  //! @brief Check if the point is finite (true for all non-XYZ types).
+  virtual
+  bool IsFinite(PointType const & point) const
+  {
+    return true;
   }
 
   //! @brief ShallowCopy the internal PolyData instance to the given pointer.
@@ -304,7 +310,7 @@ template <typename PointType, typename = int>
 struct ConvXYZ : public ConvXY<PointType>
 {
   ConvXYZ() {};
-  ConvXYZ(vtkPolyData * polyData) : ConvBase<PointType> { polyData } {}
+  ConvXYZ(vtkPolyData * polyData) : ConvXY<PointType> { polyData } {}
 };
 
 template <typename PointType>
@@ -339,6 +345,13 @@ public:
     , Points { this->PolyData->GetPoints() }
   {
     this->FieldData = this->PolyData->GetPointData();
+  }
+
+  //! @brief Check if the point is finite.
+  virtual
+  bool IsFinite(PointType const & point) const override
+  {
+    return pcl::isFinite(point);
   }
 
   static
@@ -508,6 +521,9 @@ public:
   ((PrincipalRadiiRSD)(r_min)(r_max))                                                                   \
   ((PrincipleCurvature)(principal_curvature_x)(principal_curvature_y)(principal_curvature_z)(pc1)(pc2)) \
   ((Range)(range))                                                                                      \
+  ((XAxis)(x_axis))                                                                                     \
+  ((YAxis)(y_axis))                                                                                     \
+  ((ZAxis)(z_axis))                                                                                     \
   ((Response)(response))                                                                                \
   ((RF)(rf))                                                                                            \
   ((RGB)(r)(g)(b))                                                                                      \
@@ -684,7 +700,7 @@ void InternalPolyDataFromPointCloud(
     for (vtkIdType i = 0; i < numberOfPoints; ++i)
     {
       // Check if the point is invalid
-      if (pcl::isFinite(cloud->points[i]))
+      if (conv.IsFinite(cloud->points[i]))
       {
         conv.CopyFromPoint(j, cloud->points[i]);
         ++j;
@@ -761,7 +777,7 @@ void InternalPointCloudFromPolyData(
   {                                                                              \
     InternalPointCloudFromPolyData<pcl::PointCloud<PointType>>(polyData, cloud); \
   }
-BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_POINT_TYPES)
 
 
 
@@ -830,7 +846,7 @@ _PCLP_INSTANTIATE_GetPointTypeIndex(std::set<std::string> const &)
   }
 
 
-BOOST_PP_SEQ_FOR_EACH_I(_PCLP_INSTANTIATE_GetPointTypeIndex, _, PCL_XYZ_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH_I(_PCLP_INSTANTIATE_GetPointTypeIndex, _, PCL_POINT_TYPES)
 
 #undef _PCLP_INSTANTIATE_GetPointTypeIndex
 

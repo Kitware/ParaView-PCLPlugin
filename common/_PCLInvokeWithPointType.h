@@ -110,5 +110,20 @@ BOOST_PP_SEQ_FOR_EACH_I(
     )                                                        \
   }
 
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
+ * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types.
+ */
+#define PCLP_INVOKE_WITH_ANY_POINT_TYPE(index, statement) \
+  switch (index)                                          \
+  {                                                       \
+    BOOST_PP_SEQ_FOR_EACH_I(                              \
+      _PCLP_POINT_TYPE_SWITCH_CASE,                       \
+      statement,                                          \
+      PCL_POINT_TYPES                                     \
+    )                                                     \
+  }
+
 #endif // __PCLInvokeWithPointType_h
 

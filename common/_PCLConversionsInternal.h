@@ -35,7 +35,7 @@
 
 // Declare public conversion functions for all PCL XYZ point types.
 public:
-BOOST_PP_SEQ_FOR_EACH(_PCLP_DECLARE_CONVERTER, _, PCL_XYZ_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH(_PCLP_DECLARE_CONVERTER, _, PCL_POINT_TYPES)
 
 // Undefine the temporary macro.
 #undef _PCLP_DECLARE_CONVERTER
