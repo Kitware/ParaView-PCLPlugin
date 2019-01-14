@@ -77,7 +77,7 @@ int vtkPCLRigidAlignmentFilter2::InternalApplyPCLFilter2(
   vtkPolyData * output
 )
 {
-  // The transformation will be applied to the input cloud to preserve it's
+  // The transformation will be applied to the input cloud to preserve its
   // attributes even if the model used is purely geometric.
   typedef pcl::PointCloud<PointT> CloudT;
   typename CloudT::Ptr inputCloud(new CloudT);
