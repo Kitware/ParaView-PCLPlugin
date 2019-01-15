@@ -474,11 +474,9 @@ public:
 // that deal with all of the point's attributes in a single call.
 //
 // In order for this to handle all point types, the sequence must be kept this
-// up to date with the attributes defined in pcl/impl/point_types.hpp. The
-// list_pcl_point_attributes.py script is provided to facilitate this but is not
-// guaranteed to correctly parse all attributes and it remains a work in
-// progress. Check the PCL header directly to be sure and notify the developers
-// of this plugin of any unhandled attributes.
+// up to date with the attributes defined in pcl/impl/point_types.hpp. Check the
+// PCL header directly to be sure and please notify the developers of this
+// plugin of any unhandled attributes.
 //
 // A special note about the attributes f1-f10: At the time of writing, these
 // attributes appear in different feature points where their values are
