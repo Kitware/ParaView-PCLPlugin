@@ -1,0 +1,28 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLIntensityGradientEstimationFilter2" 
+      class="vtkPCLIntensityGradientEstimationFilter2" 
+      label="PCL Intensity Gradient Estimation Filter"
+      >
+      <Documentation
+        short_help="IntensityGradientEstimation filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <DoubleVectorProperty
+        name="RadiusSearch"
+        command="SetRadiusSearch"
+        number_of_elements="1"
+        default_values="0.1"
+        >
+        <Documentation>The search radius.</Documentation>
+      </DoubleVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLIntensityGradientEstimationFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

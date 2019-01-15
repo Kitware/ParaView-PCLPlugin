@@ -1,0 +1,31 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLPointCloudXYZRGBtoXYZIFilter"
+      class="vtkPCLPointCloudXYZRGBtoXYZIFilter"
+      label="PCL PointCloud XYZRGB to XYZI Filter"
+      >
+      <Documentation
+        short_help="PointCloudXYZRGBtoXYZI filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLPassThroughFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
