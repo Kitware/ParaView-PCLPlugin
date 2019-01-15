@@ -19,6 +19,7 @@
 #define _PCLP_DECLARE_CONV_h
 
 #include <type_traits>
+#include <sstream>
 
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -138,11 +139,23 @@
       sizeof(PointType::BOOST_PP_SEQ_ELEM(0, attrs)) / sizeof(ElementType) :                \
       BOOST_PP_SEQ_SIZE(attrs);                                                             \
                                                                                             \
+    /* Array attributes append their length to the array name for scoring. */               \
+    static std::string GetArrayName()                                                       \
+    {                                                                                       \
+      std::ostringstream name;                                                              \
+      name << BOOST_PP_STRINGIZE(name);                                                     \
+      if (std::is_array<decltype(PointType::BOOST_PP_SEQ_ELEM(0, attrs))>::value)           \
+      {                                                                                     \
+        name << ArraySize;                                                                  \
+      }                                                                                     \
+      return name.str();                                                             \
+    }                                                                                       \
+                                                                                            \
     /* Default constructor. Create a new array to hold the attributes. */                   \
     BOOST_PP_CAT(Conv, name)()                                                              \
     {                                                                                       \
       this->Array = vtkSmartPointer<ArrayType>::New();                                      \
-      this->Array->SetName(BOOST_PP_STRINGIZE(name));                                       \
+      this->Array->SetName(ThisClassT::GetArrayName().c_str());                             \
       this->Array->SetNumberOfComponents(ThisClassT::ArraySize);                            \
       this->FieldData->AddArray(this->Array);                                               \
     }                                                                                       \
@@ -153,7 +166,7 @@
     {                                                                                       \
       this->Array =                                                                         \
         ArrayType::SafeDownCast(                                                            \
-          this->FieldData->GetAbstractArray(BOOST_PP_STRINGIZE(name))                       \
+          this->FieldData->GetAbstractArray(ThisClassT::GetArrayName().c_str())             \
         );                                                                                  \
     }                                                                                       \
                                                                                             \
@@ -168,7 +181,7 @@
     int GetScore(vtkPolyData * polyData, bool negativeIfMissing = true)                     \
     {                                                                                       \
       int count =                                                                           \
-        (ThisClassT::GetArray(polyData, BOOST_PP_STRINGIZE(name)) != nullptr)               \
+        (ThisClassT::GetArray(polyData, ThisClassT::GetArrayName().c_str()) != nullptr)     \
         ? BOOST_PP_SEQ_SIZE(attrs) : 0;                                                     \
       if (count == 0 && negativeIfMissing)                                                  \
       {                                                                                     \

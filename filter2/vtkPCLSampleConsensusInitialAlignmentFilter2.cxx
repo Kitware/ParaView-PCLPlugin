@@ -54,7 +54,7 @@ int vtkPCLSampleConsensusInitialAlignmentFilter2::ApplyPCLFilter2(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-#define _statement(PointType) return this->InternalApplyPCLFilter2<PointType)(input, target, output);
+#define _statement(PointType) return this->InternalApplyPCLFilter2<PointType>(input, target, output);
   PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;

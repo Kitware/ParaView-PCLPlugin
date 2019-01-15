@@ -25,8 +25,7 @@
  * supported by this plugin. The macros defined in this file are used to
  * dispatch calls to templated functions that accept the PCL point type as its
  * first parameter. They are to be used in conjunction with
- * vtkPCLConversions::GetPointTypeIndex to invoke the correct function at
- * runtime..
+ * vtkPCLConversions::GetIndex to invoke the correct function at runtime.
  */
 
 #ifndef __PCLInvokeWithPointType_h
@@ -39,12 +38,20 @@
 // Declare a constexpr function with overrides to get the index of the different
 // PCL point types.
 template <typename T>
-constexpr int getPointTypeIndex() { return -1; };
+struct PointMeta
+{
+  static constexpr int GetIndex() { return -1; };
+  static char const * GetName() { return nullptr; };
+};
 
 // Template specializations for all PCL types.
-#define _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT(r, data, i, PointType) \
-  template <>                                                        \
-  constexpr int getPointTypeIndex<PointType>() { return i; }
+#define _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT(r, data, i, PointType)         \
+  template <>                                                                \
+  struct PointMeta<PointType>                                                \
+  {                                                                          \
+    static constexpr int GetIndex() { return i; };                           \
+    static char const * GetName() { return BOOST_PP_STRINGIZE(PointType); }; \
+  };
 
 BOOST_PP_SEQ_FOR_EACH_I(
   _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT,
@@ -60,7 +67,7 @@ BOOST_PP_SEQ_FOR_EACH_I(
  *        calls based on point type index.
  */
 #define _PCLP_POINT_TYPE_SWITCH_CASE(r, statement, i, PointType) \
-  case getPointTypeIndex<PointType>():                               \
+  case PointMeta<PointType>::GetIndex():                         \
     statement(PointType)                                         \
     break;
 

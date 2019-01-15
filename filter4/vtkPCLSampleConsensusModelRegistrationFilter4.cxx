@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkPCLSampleConsensusModelRegistrationFilter4);
 //------------------------------------------------------------------------------
 vtkPCLSampleConsensusModelRegistrationFilter4::vtkPCLSampleConsensusModelRegistrationFilter4()
 {
-  this->DistanceThreshold = 0.02;
+  this->DistanceThreshold = 0.2;
   this->MaxIterations = 2500;
   this->Probability = 0.99;
 
@@ -53,50 +53,52 @@ void vtkPCLSampleConsensusModelRegistrationFilter4::PrintSelf(ostream& os, vtkIn
 
 //------------------------------------------------------------------------------
 int vtkPCLSampleConsensusModelRegistrationFilter4::ApplyPCLFilter4(
-  vtkPolyData * pointsA,
-  vtkPolyData * featuresA,
-  vtkPolyData * pointsB,
-  vtkPolyData * featuresB,
+  vtkPolyData * sourcePointsPD,
+  vtkPolyData * sourceFeaturesPD,
+  vtkPolyData * targetPointsPD,
+  vtkPolyData * targetFeaturesPD,
   vtkPolyData * output
 )
 {
   // Determine the index of the spatial data point type.
-  int index = vtkPCLConversions::GetPointTypeIndex(pointsA);
-#define _statement(PointType) return this->InternalApplyPCLFilter4<PointType>(pointsA, featuresA, pointsB, featuresB, output);
-  PCLP_INVOKE_WITH_XYZ_NORMAL_POINT_TYPE(index, _statement)
+  int index = vtkPCLConversions::GetPointTypeIndex(sourcePointsPD);
+#define _statement(PointType) return this->InternalApplyPCLFilter4<PointType>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
+  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "no XYZ data in source points input")
   return 0;
 
-  // return this->InternalInternalApplyPCLFilter4<pcl::PointNormal,pcl::FPFHSignature33>(pointsA, featuresA, pointsB, featuresB, output);
+  // return this->InternalInternalApplyPCLFilter4<pcl::PointNormal,pcl::FPFHSignature33>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
 }
 
 //------------------------------------------------------------------------------
 template <typename PointType>
 int vtkPCLSampleConsensusModelRegistrationFilter4::InternalApplyPCLFilter4(
-  vtkPolyData * pointsA,
-  vtkPolyData * featuresA,
-  vtkPolyData * pointsB,
-  vtkPolyData * featuresB,
+  vtkPolyData * sourcePointsPD,
+  vtkPolyData * sourceFeaturesPD,
+  vtkPolyData * targetPointsPD,
+  vtkPolyData * targetFeaturesPD,
   vtkPolyData * output
 )
 {
   // Determine the index of the feature data point type.
-  int index = vtkPCLConversions::GetPointTypeIndex(featuresA);
-#define _statement(FeatureType) return this->InternalInternalApplyPCLFilter4<PointType,FeatureType>(pointsA, featuresA, pointsB, featuresB, output);
+  int index = vtkPCLConversions::GetPointTypeIndex(sourceFeaturesPD);
+#define _statement(FeatureType) return this->InternalInternalApplyPCLFilter4<PointType,FeatureType>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
   PCLP_INVOKE_WITH_FEATURE_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "no feature data in source features input")
   return 0;
   
-  // return this->InternalInternalApplyPCLFilter4<PointType,pcl::FPFHSignature33>(pointsA, featuresA, pointsB, featuresB, output);
+  // return this->InternalInternalApplyPCLFilter4<PointType,pcl::FPFHSignature33>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
 }
 
 //------------------------------------------------------------------------------
 template <typename PointType, typename FeatureType>
 int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilter4(
-  vtkPolyData * pointsA,
-  vtkPolyData * featuresA,
-  vtkPolyData * pointsB,
-  vtkPolyData * featuresB,
+  vtkPolyData * sourcePointsPD,
+  vtkPolyData * sourceFeaturesPD,
+  vtkPolyData * targetPointsPD,
+  vtkPolyData * targetFeaturesPD,
   vtkPolyData * output
 )
 {
@@ -104,8 +106,8 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilte
   typedef pcl::PointCloud<FeatureType> FCloudT;
 
   // Convert the source cloud.
-  typename PCloudT::Ptr pointsACloud(new PCloudT);
-  vtkPCLConversions::PointCloudFromPolyData(pointsA, pointsACloud);
+  typename PCloudT::Ptr sourcePointsPC(new PCloudT);
+  vtkPCLConversions::PointCloudFromPolyData(sourcePointsPD, sourcePointsPC);
 
   typename PCloudT::Ptr outputCloud(new PCloudT);
 
@@ -113,19 +115,19 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilte
   // is not requested.
   if (! (this->HasTransformation && this->ReuseTransformation))
   {
-    typename PCloudT::Ptr pointsBCloud(new PCloudT);
-    vtkPCLConversions::PointCloudFromPolyData(pointsB, pointsBCloud);
+    typename PCloudT::Ptr targetPointsPC(new PCloudT);
+    vtkPCLConversions::PointCloudFromPolyData(targetPointsPD, targetPointsPC);
 
-    typename FCloudT::Ptr featuresACloud(new FCloudT);
-    typename FCloudT::Ptr featuresBCloud(new FCloudT);
+    typename FCloudT::Ptr sourceFeaturesPC(new FCloudT);
+    vtkPCLConversions::PointCloudFromPolyData(sourceFeaturesPD, sourceFeaturesPC);
 
-    vtkPCLConversions::PointCloudFromPolyData(featuresA, featuresACloud);
-    vtkPCLConversions::PointCloudFromPolyData(featuresB, featuresBCloud);
+    typename FCloudT::Ptr targetFeaturesPC(new FCloudT);
+    vtkPCLConversions::PointCloudFromPolyData(targetFeaturesPD, targetFeaturesPC);
 
     pcl::Correspondences correspondences;
     pcl::registration::CorrespondenceEstimation<FeatureType,FeatureType> correspondenceEstimator;
-    correspondenceEstimator.setInputCloud(featuresACloud);
-    correspondenceEstimator.setInputTarget(featuresBCloud);
+    correspondenceEstimator.setInputCloud(sourceFeaturesPC);
+    correspondenceEstimator.setInputTarget(targetFeaturesPC);
     correspondenceEstimator.initCompute();
     correspondenceEstimator.determineCorrespondences(correspondences);
 
@@ -139,8 +141,8 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilte
     }
 
     typename pcl::SampleConsensusModelRegistration<PointType>::Ptr ransacModel;
-    ransacModel.reset(new pcl::SampleConsensusModelRegistration<PointType>(pointsACloud, sourceIndices));
-    ransacModel->setInputTarget(pointsBCloud, targetIndices);
+    ransacModel.reset(new pcl::SampleConsensusModelRegistration<PointType>(sourcePointsPC, sourceIndices));
+    ransacModel->setInputTarget(targetPointsPC, targetIndices);
 
     pcl::RandomSampleConsensus<PointType> ransacFilter(ransacModel);
     ransacFilter.setMaxIterations(this->MaxIterations);
@@ -148,6 +150,7 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilte
     ransacFilter.setProbability(this->Probability);
     if (! (ransacFilter.computeModel() && ransacFilter.refineModel()))
     {
+      vtkErrorMacro(<< "failed to compute random sample consensus")
       return 0;
     }
 
@@ -160,7 +163,7 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilte
     this->HasTransformation = true;
   }
 
-  pcl::transformPointCloud<PointType>((* pointsACloud), (* outputCloud), this->TransformationMatrix);
+  pcl::transformPointCloud<PointType>((* sourcePointsPC), (* outputCloud), this->TransformationMatrix);
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
   return 1;
 }

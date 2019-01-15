@@ -55,10 +55,10 @@ int vtkPCLFilter4::RequestData(
   vtkInformation * inInfoB = inputVector[1]->GetInformationObject(0);
   vtkPolyData * inputB(vtkPolyData::SafeDownCast(inInfoB->Get(vtkDataObject::DATA_OBJECT())));
 
-  vtkInformation * inInfoC = inputVector[1]->GetInformationObject(0);
+  vtkInformation * inInfoC = inputVector[2]->GetInformationObject(0);
   vtkPolyData * inputC(vtkPolyData::SafeDownCast(inInfoC->Get(vtkDataObject::DATA_OBJECT())));
 
-  vtkInformation * inInfoD = inputVector[1]->GetInformationObject(0);
+  vtkInformation * inInfoD = inputVector[3]->GetInformationObject(0);
   vtkPolyData * inputD(vtkPolyData::SafeDownCast(inInfoD->Get(vtkDataObject::DATA_OBJECT())));
 
   vtkInformation * outInfo = outputVector->GetInformationObject(0);

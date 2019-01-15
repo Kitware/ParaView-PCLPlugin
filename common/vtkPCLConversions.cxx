@@ -617,7 +617,7 @@ struct ScoreTracker
     {
       // Pass false to GetScore so that it counts the number of matched attributes
       // instead of returning -1 if any are missing.
-      this->Update(getPointTypeIndex<PointType>(), conv.GetScore(getScoreArg, false));
+      this->Update(PointMeta<PointType>::GetIndex(), conv.GetScore(getScoreArg, false));
     }
   }
 
@@ -733,14 +733,17 @@ void InternalPointCloudFromPolyData(
 {
   vtkIdType numberOfPoints =  0;
   vtkPointData * pointData = polyData->GetPointData();
-  vtkFieldData * fieldData = polyData->GetFieldData();
   if (pointData != nullptr)
   {
     numberOfPoints = polyData->GetNumberOfPoints();
   }
-  else if (fieldData != nullptr)
+  if (numberOfPoints == 0)
   {
-    numberOfPoints = fieldData->GetNumberOfTuples();
+    vtkFieldData * fieldData = polyData->GetFieldData();
+    if (fieldData != nullptr)
+    {
+      numberOfPoints = fieldData->GetNumberOfTuples();
+    }
   }
 
   cloud->width = numberOfPoints;
@@ -778,6 +781,13 @@ void InternalPointCloudFromPolyData(
 BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_POINT_TYPES)
 
 
+
+//------------------------------------------------------------------------------
+template <typename PointType>
+char const * vtkPCLConversions::GetPointTypeName()
+{
+  return PointMeta<PointType>::GetName();
+}
 
 //------------------------------------------------------------------------------
 template <typename T>
@@ -821,6 +831,8 @@ _PCLP_INSTANTIATE_GetPointTypeIndex(std::set<std::string> const &)
 //------------------------------------------------------------------------------
 // Template specialization for all PCL XYZ point types.
 #define _PCLP_INSTANTIATE_GetPointTypeIndex(r, data, i, PointType)                    \
+  template char const * vtkPCLConversions::GetPointTypeName<PointType>();             \
+                                                                                      \
   template void vtkPCLConversions::GetFieldNames<PointType>(std::set<std::string> &); \
                                                                                       \
   template <>                                                                         \
@@ -828,7 +840,7 @@ _PCLP_INSTANTIATE_GetPointTypeIndex(std::set<std::string> const &)
     PointType const & point                                                           \
   )                                                                                   \
   {                                                                                   \
-    return getPointTypeIndex<PointType>();                                            \
+    return PointMeta<PointType>::GetIndex();                                          \
   }                                                                                   \
                                                                                       \
   template <>                                                                         \

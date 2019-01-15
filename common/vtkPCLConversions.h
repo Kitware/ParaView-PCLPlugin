@@ -73,6 +73,15 @@ private:
 // Additional methods.
 public:
   /*!
+   * @brief  Return the point type as a string.
+   * @tparam PointType The PCL point type.
+   * @return The name of the point, with the "pcl::" prefix.
+   */
+  template <typename PointType>
+  static
+  char const * GetPointTypeName();
+
+  /*!
    * @brief     Get the index of the best matching PCL point type in the
    *            PCL_POINT_TYPES sequence defined in pcl/impl/point_types.hpp.
    * @tparam    T           The type of the argument to pass to the
