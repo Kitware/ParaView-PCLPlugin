@@ -1,8 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <SourceProxy
-      name="PCLIntensityGradientEstimationFilter2" 
-      class="vtkPCLIntensityGradientEstimationFilter2" 
+      name="PCLIntensityGradientEstimationFilter"
+      class="vtkPCLIntensityGradientEstimationFilter2"
       label="PCL Intensity Gradient Estimation Filter"
       >
       <Documentation

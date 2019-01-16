@@ -1,8 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <SourceProxy
-      name="PCLSampleConsensusModelRegistrationFilter4" 
-      class="vtkPCLSampleConsensusModelRegistrationFilter4" 
+      name="PCLSampleConsensusModelRegistrationFilter"
+      class="vtkPCLSampleConsensusModelRegistrationFilter4"
       label="PCL-based Sample Consensus Model Registration Filter"
       >
       <Documentation

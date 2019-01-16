@@ -1,8 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <SourceProxy
-      name="PCLRigidAlignmentFilter2" 
-      class="vtkPCLRigidAlignmentFilter2" 
+      name="PCLRigidAlignmentFilter"
+      class="vtkPCLRigidAlignmentFilter2"
       label="PCL-based Rigid Alignment Filter"
       >
       <Documentation

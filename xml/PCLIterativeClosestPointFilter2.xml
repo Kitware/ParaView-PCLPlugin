@@ -1,7 +1,7 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <SourceProxy
-      name="PCLIterativeClosestPointFilter2" 
+      name="PCLIterativeClosestPointFilter"
       class="vtkPCLIterativeClosestPointFilter2" 
       label="PCL Iterative Closest Point Filter"
       base_proxygroup="PCLCommon"

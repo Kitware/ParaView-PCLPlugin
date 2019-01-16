@@ -1,8 +1,8 @@
 <ServerManagerConfiguration>
   <ProxyGroup name="filters">
     <SourceProxy
-      name="PCLSampleConsensusInitialAlignmentFilter2" 
-      class="vtkPCLSampleConsensusInitialAlignmentFilter2" 
+      name="PCLSampleConsensusInitialAlignmentFilter"
+      class="vtkPCLSampleConsensusInitialAlignmentFilter2"
       label="PCL Sample Consensus Initial Alignment Filter"
       base_proxygroup="PCLCommon"
       base_proxyname="PCLRegistration"
