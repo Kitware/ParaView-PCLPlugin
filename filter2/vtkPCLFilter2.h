@@ -35,6 +35,13 @@ protected:
   vtkPCLFilter2();
   ~vtkPCLFilter2();
 
+  bool SecondPortOptional = false;
+
+  int FillInputPortInformation(
+    int port, 
+    vtkInformation * info
+  ) override;
+
   int RequestData(
     vtkInformation * request,
     vtkInformationVector * * inputVector,

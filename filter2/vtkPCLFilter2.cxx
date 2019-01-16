@@ -42,6 +42,24 @@ void vtkPCLFilter2::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+int vtkPCLFilter2::FillInputPortInformation(
+  int port,
+  vtkInformation * info
+)
+{
+  if (port == 0)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  }
+  else if (this->SecondPortOptional && port == 1)
+  {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkPCLFilter2::RequestData(
   vtkInformation * request,
   vtkInformationVector * * inputVector,
@@ -53,7 +71,15 @@ int vtkPCLFilter2::RequestData(
   vtkPolyData * inputA(vtkPolyData::SafeDownCast(inInfoA->Get(vtkDataObject::DATA_OBJECT())));
 
   vtkInformation * inInfoB = inputVector[1]->GetInformationObject(0);
-  vtkPolyData * inputB(vtkPolyData::SafeDownCast(inInfoB->Get(vtkDataObject::DATA_OBJECT())));
+  vtkPolyData * inputB;
+  if (this->SecondPortOptional && inInfoB == nullptr)
+  {
+    inputB = nullptr;
+  }
+  else
+  {
+    inputB = vtkPolyData::SafeDownCast(inInfoB->Get(vtkDataObject::DATA_OBJECT()));
+  }
 
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkPolyData * output(vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())));

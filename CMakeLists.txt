@@ -97,9 +97,9 @@ endmacro(add_module)
 # client-server files are generated.
 
 # add_module(PCLDummyFilter)
-add_module(PCLFPFHEstimationFilter)
+add_module(PCLFPFHEstimationFilter2)
 add_module(PCLIntensityGradientEstimationFilter2)
-add_module(PCLIterativeClosestPointFilter2)
+add_module(PCLIterativeClosestPointFilter2 filter2/vtkPCLRegistrationFilter2.txx)
 add_module(PCLNormalEstimationFilter)
 add_module(PCLPCDFileReader)
 add_module(PCLPCDFileWriter)

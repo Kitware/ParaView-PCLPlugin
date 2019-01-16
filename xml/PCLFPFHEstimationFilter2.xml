@@ -2,15 +2,16 @@
   <ProxyGroup name="filters">
     <SourceProxy
       name="PCLFPFHEstimationFilter"
-      class="vtkPCLFPFHEstimationFilter"
-      label="PCL FPFH Estimation Filter"
+      class="vtkPCLFPFHEstimationFilter2"
+      label="PCL FPFH Estimation Filter2"
       >
       <Documentation
         short_help="FPFHEstimation filter from the Point Cloud Library (PCL)." >
       </Documentation>
 
       <InputProperty
-        name="Input"
+        name="Points"
+        port_index="0"
         command="SetInputConnection">
         <ProxyGroupDomain name="groups">
           <Group name="sources"/>
@@ -19,6 +20,22 @@
         <DataTypeDomain name="input_type">
           <DataType value="vtkPolyData"/>
         </DataTypeDomain>
+        <Documentation>If the point cloud contains normals, a separate normal cloud is not required.</Documentation>
+      </InputProperty>
+
+
+      <InputProperty
+        name="Normals"
+        port_index="0"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>If the point cloud does not contain normals, a separate normal cloud is required.</Documentation>
       </InputProperty>
 
 
@@ -34,7 +51,7 @@
       <Hints>
         <ShowInMenu category="PCL" />
       </Hints>
-      <!-- End PCLFPFHEstimationFilter -->
+      <!-- End PCLFPFHEstimationFilter2 -->
     </SourceProxy>
   </ProxyGroup>
 </ServerManagerConfiguration>

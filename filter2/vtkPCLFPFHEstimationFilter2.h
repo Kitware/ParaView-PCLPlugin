@@ -15,31 +15,32 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLFPFHEstimationFilter_h
-#define vtkPCLFPFHEstimationFilter_h
+#ifndef vtkPCLFPFHEstimationFilter2_h
+#define vtkPCLFPFHEstimationFilter2_h
 
-#include "vtkPCLFilter.h"
+#include "vtkPCLFilter2.h"
 
-class VTK_EXPORT vtkPCLFPFHEstimationFilter : public vtkPCLFilter
+// The second input is optional.
+class VTK_EXPORT vtkPCLFPFHEstimationFilter2 : public vtkPCLFilter2
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLFPFHEstimationFilter * New();
-  vtkTypeMacro(vtkPCLFPFHEstimationFilter, vtkPCLFilter);
+  static vtkPCLFPFHEstimationFilter2 * New();
+  vtkTypeMacro(vtkPCLFPFHEstimationFilter2, vtkPCLFilter2);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLFPFHEstimationFilter();
-  ~vtkPCLFPFHEstimationFilter();
+  vtkPCLFPFHEstimationFilter2();
+  ~vtkPCLFPFHEstimationFilter2();
 
 private:
-  vtkPCLFPFHEstimationFilter(const vtkPCLFPFHEstimationFilter&) = delete;
-  void operator=(const vtkPCLFPFHEstimationFilter&) = delete;
+  vtkPCLFPFHEstimationFilter2(const vtkPCLFPFHEstimationFilter2&) = delete;
+  void operator=(const vtkPCLFPFHEstimationFilter2&) = delete;
 
 //------------------------------------------------------------------------------
-// Filter parameters.
+// Filter2 parameters.
 private:
   double Radius;
 
@@ -49,25 +50,24 @@ public:
 
 //------------------------------------------------------------------------------
 private:
-  int ApplyPCLFilter(
-    vtkPolyData * input,
-    vtkPolyData * output
+  int ApplyPCLFilter2(
+    vtkPolyData * points,
+    vtkPolyData * normals,
+    vtkPolyData * features
   ) override;
 
   template <typename PointType>
-  int InternalApplyPCLFilter(
-    vtkPolyData * input,
-    vtkPolyData * output
+  int InternalApplyPCLFilter2(
+    vtkPolyData * points,
+    vtkPolyData * features
   );
 
-  // The first argument is just for template parameter deduction.
-  template <typename PointType, typename FPFHPointType>
-  int EstimateFPFHs(
-    typename pcl::PointCloud<PointType>::Ptr & inputCloud,
-    vtkPolyData * input,
-    vtkPolyData * output
+  template <typename PointType, typename NormalType>
+  int InternalApplyPCLFilter2(
+    vtkPolyData * points,
+    vtkPolyData * normals,
+    vtkPolyData * features
   );
-
 };
-#endif // vtkPCLFPFHEstimationFilter_h
+#endif // vtkPCLFPFHEstimationFilter2_h
 
