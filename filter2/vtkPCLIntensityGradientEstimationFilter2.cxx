@@ -59,7 +59,7 @@ int vtkPCLIntensityGradientEstimationFilter2::ApplyPCLFilter2(
 //   std::set<std::string> requiredFieldNames { "intensity" };
 //   int index = vtkPCLConversions::GetPointTypeIndex(intensities, requiredFieldNames);
 // #define _statement(PointType) return this->InternalApplyPCLFilter2<PointType>(intensities, normals, output);
-//   PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+//   PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 // #undef _statement
 //   vtkErrorMacro(<< "intensity data does not contain intensity values")
 //   return 0;
@@ -73,10 +73,10 @@ int vtkPCLIntensityGradientEstimationFilter2::InternalApplyPCLFilter2(
   vtkPolyData * output
 )
 {
-  // No need for required fields here due to PCLP_INVOKE_WITH_NORMAL_POINT_TYPE.
+  // No need for required fields here due to PCLP_INVOKE_WITH_PCL_NORMAL_POINT_TYPE.
   int index = vtkPCLConversions::GetPointTypeIndex(normals);
 #define _statement(NPointType) return this->InternalInternalApplyPCLFilter2<IPointType, NPointType>(intensities, normals, output);
-  PCLP_INVOKE_WITH_NORMAL_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_PCL_NORMAL_POINT_TYPE(index, _statement)
 #undef _statement
   vtkErrorMacro(<< "normal data input does not contain normal components")
   return 0;

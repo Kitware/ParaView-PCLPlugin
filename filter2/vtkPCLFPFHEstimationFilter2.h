@@ -42,6 +42,8 @@ private:
 //------------------------------------------------------------------------------
 // Filter2 parameters.
 private:
+  typedef pcl::FPFHSignature33 FeatureType;
+  typedef pcl::PointCloud<FeatureType> FeatureCloudT;
   double Radius;
 
 public:
@@ -66,6 +68,12 @@ private:
   int InternalApplyPCLFilter2(
     vtkPolyData * points,
     vtkPolyData * normals,
+    vtkPolyData * features
+  );
+
+  template <typename T>
+  int ComputeFeatures(
+    T estimator,
     vtkPolyData * features
   );
 };

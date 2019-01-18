@@ -58,7 +58,7 @@ int vtkPCLPCDFileWriter::WritePCL(
 
   int index = vtkPCLConversions::GetPointTypeIndex(input);
 #define _statement(PointType) return this->InternalWritePCL<PointType>(input);
-  PCLP_INVOKE_WITH_ANY_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_PCL_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;
 }

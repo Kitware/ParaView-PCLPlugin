@@ -49,7 +49,7 @@ int vtkPCLNormalEstimationFilter::ApplyPCLFilter(
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
 #define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
-  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;
 }
@@ -71,7 +71,7 @@ int vtkPCLNormalEstimationFilter::InternalApplyPCLFilter(
   PointType const point;
   int index = vtkPCLConversions::GetPointTypeIndex<PointType const &>(point, requiredFieldNames);
 #define _statement(NormalPointType) return this->EstimateNormals<PointType, NormalPointType>(inputCloud, input, output);
-  PCLP_INVOKE_WITH_NORMAL_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_PCL_NORMAL_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;
 }

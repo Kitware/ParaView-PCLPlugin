@@ -26,7 +26,8 @@
 #define _PCLP_DECLARE_CONVERTER(i, data, PointType) \
   static void PolyDataFromPointCloud(               \
     pcl::PointCloud<PointType>::ConstPtr cloud,     \
-    vtkPolyData * polyData                          \
+    vtkPolyData * polyData,                         \
+    bool preserveExistingFields = false             \
   );                                                \
   static void PointCloudFromPolyData(               \
     vtkPolyData * polyData,                         \
@@ -35,7 +36,7 @@
 
 // Declare public conversion functions for all PCL XYZ point types.
 public:
-BOOST_PP_SEQ_FOR_EACH(_PCLP_DECLARE_CONVERTER, _, PCL_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH(_PCLP_DECLARE_CONVERTER, _, PCLP_POINT_TYPES)
 
 // Undefine the temporary macro.
 #undef _PCLP_DECLARE_CONVERTER

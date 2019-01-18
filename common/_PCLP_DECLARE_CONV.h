@@ -38,7 +38,11 @@
 
 //------------------------------------------------------------------------------
 //! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _PCLP_DECLARE_CONV.
-#define _PCLP_SET_FROM_ARRAY(r, arr, i, var) var = arr[i];
+#define _PCLP_VAR_EQUALS_ARRAY_VALUE(r, arr, i, var) var = arr[i];
+
+//------------------------------------------------------------------------------
+//! @brief Internal macro passed to BOOST_PP_SEQ_TRANSFORM in _PCLP_DECLARE_CONV.
+#define _PCLP_ARRAY_VALUE_EQUALS_VAR(r, arr, i, var) arr[i] = var;
 
 //------------------------------------------------------------------------------
 //! @brief Check if an element is in a set.
@@ -117,7 +121,7 @@
                                                                                             \
     /* The internal array type is determined from the first attribute of the point data. */ \
     /* This will remove all extends if it is an array type. */                              \
-    typedef typename std::remove_all_extents<                                               \
+    typedef typename std::remove_extent<                                                    \
       decltype(PointType::BOOST_PP_SEQ_ELEM(0, attrs))                                      \
     >::type ElementType;                                                                    \
                                                                                             \
@@ -148,7 +152,7 @@
       {                                                                                     \
         name << ArraySize;                                                                  \
       }                                                                                     \
-      return name.str();                                                             \
+      return name.str();                                                                    \
     }                                                                                       \
                                                                                             \
     /* Default constructor. Create a new array to hold the attributes. */                   \
@@ -224,44 +228,11 @@
                                                                                             \
                                                                                             \
     template <typename AttrT>                                                               \
-    void CopyFromPoint(AttrT & attr, vtkIdType i, PointType const & point)                  \
+    void InternalCopyFromPoint(AttrT & attr, vtkIdType i, PointType const & point)          \
     {                                                                                       \
-      AttributeType data[] {                                                                \
-        BOOST_PP_SEQ_ENUM(                                                                  \
-          BOOST_PP_SEQ_TRANSFORM(                                                           \
-            _PCLP_GET_ATTR,                                                                 \
-            point,                                                                          \
-            attrs                                                                           \
-          )                                                                                 \
-        )                                                                                   \
-      };                                                                                    \
-      this->Array->SetTypedTuple(i, data);                                                  \
-    }                                                                                       \
-                                                                                            \
-    template <typename AttrT>                                                               \
-    void CopyFromPoint(AttrT * attr, vtkIdType i, PointType const & point)                  \
-    {                                                                                       \
-      this->Array->SetTypedTuple(i, attr);                                                  \
-    }                                                                                       \
-                                                                                            \
-    void CopyFromPoint(vtkIdType i, PointType const & point) override                       \
-    {                                                                                       \
-      this->CopyFromPoint(point.BOOST_PP_SEQ_ELEM(0, attrs), i, point);                     \
-      this->BaseClassT::CopyFromPoint(i, point);                                            \
-    }                                                                                       \
-                                                                                            \
-                                                                                            \
-                                                                                            \
-    template <typename AttrT>                                                               \
-    void CopyToPoint(AttrT & attr, vtkIdType i, PointType & point) const                    \
-    {                                                                                       \
-      AttributeType values[ThisClassT::ArraySize] {0};                                      \
-      if (this->Array != nullptr)                                                           \
-      {                                                                                     \
-        this->Array->GetTypedTuple(i, values);                                              \
-      }                                                                                     \
+      ElementType * values = this->Array->GetPointer(i * ArraySize);                        \
       BOOST_PP_SEQ_FOR_EACH_I(                                                              \
-        _PCLP_SET_FROM_ARRAY,                                                               \
+        _PCLP_ARRAY_VALUE_EQUALS_VAR,                                                       \
         values,                                                                             \
         BOOST_PP_SEQ_TRANSFORM(                                                             \
           _PCLP_GET_ATTR,                                                                   \
@@ -271,16 +242,149 @@
       )                                                                                     \
     }                                                                                       \
                                                                                             \
+    template <typename AttrT, unsigned int N>                                               \
+    void InternalCopyFromPoint(AttrT (& attr)[N], vtkIdType i, PointType const & point)     \
+    {                                                                                       \
+      this->Array->SetTypedTuple(i, attr);                                                  \
+    }                                                                                       \
+                                                                                            \
+    void CopyFromPoint(vtkIdType i, PointType const & point) override                       \
+    {                                                                                       \
+      if (this->Array != nullptr)                                                           \
+      {                                                                                     \
+        this->InternalCopyFromPoint(point.BOOST_PP_SEQ_ELEM(0, attrs), i, point);           \
+      }                                                                                     \
+      this->BaseClassT::CopyFromPoint(i, point);                                            \
+    }                                                                                       \
+                                                                                            \
+                                                                                            \
+                                                                                            \
     template <typename AttrT>                                                               \
-    void CopyToPoint(AttrT * attr, vtkIdType i, PointType & point) const                    \
+    void InternalCopyFromCloud(                                                             \
+      AttrT & attr,                                                                         \
+      typename pcl::PointCloud<PointType>::ConstPtr & cloud                                 \
+    )                                                                                       \
+    {                                                                                       \
+      vtkIdType numberOfPoints = cloud->points.size();                                      \
+      ElementType * data = this->Array->GetPointer(0);                                      \
+      for (vtkIdType i = 0; i < numberOfPoints; ++i, data += ArraySize)                     \
+      {                                                                                     \
+        BOOST_PP_SEQ_FOR_EACH_I(                                                            \
+          _PCLP_ARRAY_VALUE_EQUALS_VAR,                                                     \
+          data,                                                                             \
+          BOOST_PP_SEQ_TRANSFORM(                                                           \
+            _PCLP_GET_ATTR,                                                                 \
+            cloud->points[i],                                                               \
+            attrs                                                                           \
+          )                                                                                 \
+        )                                                                                   \
+      }                                                                                     \
+    }                                                                                       \
+                                                                                            \
+    template <typename AttrT, unsigned int N>                                               \
+    void InternalCopyFromCloud(                                                             \
+      AttrT (& attr)[N],                                                                    \
+      typename pcl::PointCloud<PointType>::ConstPtr & cloud                                 \
+    )                                                                                       \
+    {                                                                                       \
+      vtkIdType numberOfPoints = cloud->points.size();                                      \
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)                                        \
+      {                                                                                     \
+        this->Array->SetTypedTuple(i, cloud->points[i].BOOST_PP_SEQ_ELEM(0, attrs));        \
+      }                                                                                     \
+    }                                                                                       \
+                                                                                            \
+    virtual                                                                                 \
+    void CopyFromCloud(typename pcl::PointCloud<PointType>::ConstPtr & cloud) override      \
+    {                                                                                       \
+      /* assert(this->Array != nullptr); */                                                 \
+      if (this->Array != nullptr)                                                           \
+      {                                                                                     \
+        static PointType point;                                                             \
+        this->InternalCopyFromCloud(point.BOOST_PP_SEQ_ELEM(0, attrs), cloud);              \
+      }                                                                                     \
+      this->BaseClassT::CopyFromCloud(cloud);                                               \
+    }                                                                                       \
+                                                                                            \
+                                                                                            \
+                                                                                            \
+    template <typename AttrT>                                                               \
+    void InternalCopyToPoint(AttrT & attr, vtkIdType i, PointType & point) const            \
+    {                                                                                       \
+      ElementType * values = this->Array->GetPointer(i * ArraySize);                        \
+      BOOST_PP_SEQ_FOR_EACH_I(                                                              \
+        _PCLP_VAR_EQUALS_ARRAY_VALUE,                                                       \
+        values,                                                                             \
+        BOOST_PP_SEQ_TRANSFORM(                                                             \
+          _PCLP_GET_ATTR,                                                                   \
+          point,                                                                            \
+          attrs                                                                             \
+        )                                                                                   \
+      )                                                                                     \
+    }                                                                                       \
+                                                                                            \
+    template <typename AttrT, unsigned int N>                                               \
+    void InternalCopyToPoint(AttrT (& attr)[N], vtkIdType i, PointType & point) const       \
     {                                                                                       \
       this->Array->GetTypedTuple(i, attr);                                                  \
     }                                                                                       \
                                                                                             \
     void CopyToPoint(vtkIdType i, PointType & point) const override                         \
     {                                                                                       \
-      this->CopyToPoint(point.BOOST_PP_SEQ_ELEM(0, attrs), i, point);                       \
+      if (this->Array != nullptr)                                                           \
+      {                                                                                     \
+        this->InternalCopyToPoint(point.BOOST_PP_SEQ_ELEM(0, attrs), i, point);             \
+      }                                                                                     \
       this->BaseClassT::CopyToPoint(i, point);                                              \
+    }                                                                                       \
+                                                                                            \
+                                                                                            \
+    template <typename AttrT>                                                               \
+    void InternalCopyToCloud(                                                               \
+      AttrT & attr,                                                                         \
+      typename pcl::PointCloud<PointType>::Ptr & cloud                                      \
+    ) const                                                                                 \
+    {                                                                                       \
+      vtkIdType numberOfPoints = this->Array->GetNumberOfTuples();                          \
+      ElementType * data = this->Array->GetPointer(0);                                      \
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)                                        \
+      {                                                                                     \
+        ElementType * values = data + (i * ArraySize);                                      \
+        BOOST_PP_SEQ_FOR_EACH_I(                                                            \
+          _PCLP_VAR_EQUALS_ARRAY_VALUE,                                                     \
+          values,                                                                           \
+          BOOST_PP_SEQ_TRANSFORM(                                                           \
+            _PCLP_GET_ATTR,                                                                 \
+            cloud->points[i],                                                               \
+            attrs                                                                           \
+          )                                                                                 \
+        )                                                                                   \
+      }                                                                                     \
+    }                                                                                       \
+                                                                                            \
+    template <typename AttrT, unsigned int N>                                               \
+    void InternalCopyToCloud(                                                               \
+      AttrT (& attr)[N],                                                                    \
+      typename pcl::PointCloud<PointType>::Ptr & cloud                                      \
+    ) const                                                                                 \
+    {                                                                                       \
+      vtkIdType numberOfPoints = this->Array->GetNumberOfTuples();                          \
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)                                        \
+      {                                                                                     \
+        this->Array->GetTypedTuple(i, cloud->points[i].BOOST_PP_SEQ_ELEM(0, attrs));        \
+      }                                                                                     \
+    }                                                                                       \
+                                                                                            \
+    virtual                                                                                 \
+    void CopyToCloud(typename pcl::PointCloud<PointType>::Ptr & cloud) const override       \
+    {                                                                                       \
+      /* assert(this->Array != nullptr); */                                                 \
+      if (this->Array != nullptr)                                                           \
+      {                                                                                     \
+        static PointType point;                                                             \
+        this->InternalCopyToCloud(point.BOOST_PP_SEQ_ELEM(0, attrs), cloud);                \
+      }                                                                                     \
+      this->BaseClassT::CopyToCloud(cloud);                                                 \
     }                                                                                       \
   };
 

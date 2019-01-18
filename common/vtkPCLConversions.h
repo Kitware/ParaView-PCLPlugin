@@ -79,7 +79,7 @@ public:
    */
   template <typename PointType>
   static
-  char const * GetPointTypeName();
+  std::string GetPointTypeName();
 
   /*!
    * @brief     Get the index of the best matching PCL point type in the
@@ -116,6 +116,16 @@ public:
   template <typename PointType>
   static
   void GetFieldNames(std::set<std::string> & fieldNames);
+
+
+  /*!
+   * @brief     Get the index of the pcl::Histogram point type of size n.
+   * @param[in] n The size of the histogram point.
+   * @return    The index of the corresponding point for use with the
+   *            PCLP_INVOKE_WITH_* macros.
+   */
+  static
+  int GetHistogramPointTypeIndex(int size);
 
   // TODO
   // Remove or update this legacy code from the previous version of the plugin..

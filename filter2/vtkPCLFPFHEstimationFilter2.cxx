@@ -66,7 +66,7 @@ int vtkPCLFPFHEstimationFilter2::ApplyPCLFilter2(
   {
     int index = vtkPCLConversions::GetPointTypeIndex(points);
 #define _statement(PointType) return this->InternalApplyPCLFilter2<PointType, pcl::Normal>(points, normals, features);
-    PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+    PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
   }
 
@@ -80,25 +80,14 @@ int vtkPCLFPFHEstimationFilter2::InternalApplyPCLFilter2(
   vtkPolyData * features
 )
 {
-  typedef pcl::FPFHSignature33 FeatureType;
-
   typedef pcl::PointCloud<PointType> PointCloudT;
-  typedef pcl::PointCloud<FeatureType> FeatureCloudT;
-
   typename PointCloudT::Ptr pointsCloud(new PointCloudT);
-  typename FeatureCloudT::Ptr featuresCloud(new FeatureCloudT);
-
   vtkPCLConversions::PointCloudFromPolyData(points, pointsCloud);
 
-
-  pcl::FPFHEstimationOMP<PointType, PointType, FeatureType> fe;
-  fe.setInputCloud(pointsCloud);
-  fe.setInputNormals(pointsCloud);
-  fe.setRadiusSearch(this->Radius);
-  fe.compute((* featuresCloud));
-
-  vtkPCLConversions::PolyDataFromPointCloud(featuresCloud, features);
-  return 1;
+  pcl::FPFHEstimationOMP<PointType, PointType, FeatureType> estimator;
+  estimator.setInputCloud(pointsCloud);
+  estimator.setInputNormals(pointsCloud);
+  return this->ComputeFeatures(estimator, features);
 }
 
 //------------------------------------------------------------------------------
@@ -109,26 +98,34 @@ int vtkPCLFPFHEstimationFilter2::InternalApplyPCLFilter2(
   vtkPolyData * features
 )
 {
-  typedef pcl::FPFHSignature33 FeatureType;
 
   typedef pcl::PointCloud<PointType> PointCloudT;
   typedef pcl::PointCloud<NormalType> NormalCloudT;
-  typedef pcl::PointCloud<FeatureType> FeatureCloudT;
 
   typename PointCloudT::Ptr pointsCloud(new PointCloudT);
   typename NormalCloudT::Ptr normalsCloud(new NormalCloudT);
-  typename FeatureCloudT::Ptr featuresCloud(new FeatureCloudT);
 
   vtkPCLConversions::PointCloudFromPolyData(points, pointsCloud);
   vtkPCLConversions::PointCloudFromPolyData(normals, normalsCloud);
 
 
-  pcl::FPFHEstimationOMP<PointType, NormalType, FeatureType> fe;
-  fe.setInputCloud(pointsCloud);
-  fe.setInputNormals(normalsCloud);
-  fe.setRadiusSearch(this->Radius);
-  fe.compute((* featuresCloud));
+  pcl::FPFHEstimationOMP<PointType, NormalType, FeatureType> estimator;
+  estimator.setInputCloud(pointsCloud);
+  estimator.setInputNormals(normalsCloud);
+  return this->ComputeFeatures(estimator, features);
 
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+int vtkPCLFPFHEstimationFilter2::ComputeFeatures(
+  T estimator,
+  vtkPolyData * features
+)
+{
+  estimator.setRadiusSearch(this->Radius);
+  typename FeatureCloudT::Ptr featuresCloud(new FeatureCloudT);
+  estimator.compute((* featuresCloud));
   vtkPCLConversions::PolyDataFromPointCloud(featuresCloud, features);
   return 1;
 }

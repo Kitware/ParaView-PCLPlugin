@@ -63,7 +63,7 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::ApplyPCLFilter4(
   // Determine the index of the spatial data point type.
   int index = vtkPCLConversions::GetPointTypeIndex(sourcePointsPD);
 #define _statement(PointType) return this->InternalApplyPCLFilter4<PointType>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
-  PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
   vtkErrorMacro(<< "no XYZ data in source points input")
   return 0;
@@ -84,7 +84,7 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalApplyPCLFilter4(
   // Determine the index of the feature data point type.
   int index = vtkPCLConversions::GetPointTypeIndex(sourceFeaturesPD);
 #define _statement(FeatureType) return this->InternalInternalApplyPCLFilter4<PointType,FeatureType>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
-  PCLP_INVOKE_WITH_FEATURE_POINT_TYPE(index, _statement)
+  PCLP_INVOKE_WITH_PCL_FEATURE_POINT_TYPE(index, _statement)
 #undef _statement
   vtkErrorMacro(<< "no feature data in source features input")
   return 0;

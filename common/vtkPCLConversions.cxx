@@ -53,7 +53,7 @@
  *     {
  *       ...
  *     };
- *     
+ *
  *     template <typename PointType>
  *     struct FooBarBaz<PointType, decltype(
  *       (void) PointType::foo,
@@ -116,9 +116,11 @@
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkFloatArray.h>
+#include <vtkDoubleArray.h>
 // #include <vtkTimerLog.h>
 
-#include <cassert>
+// #include <cassert>
 
 //------------------------------------------------------------------------------
 /*!
@@ -226,9 +228,17 @@ public:
   virtual
   void CopyFromPoint(vtkIdType i, PointType const & point) {};
 
+  //! @brief Copy data from a cloud into the internal array.
+  virtual
+  void CopyFromCloud(typename pcl::PointCloud<PointType>::ConstPtr & cloud) {};
+
   //! @brief Copy data from an internal array into a point.
   virtual
   void CopyToPoint(vtkIdType i, PointType & point) const {};
+
+  //! @brief Copy data from an internal array into a cloud.
+  virtual
+  void CopyToCloud(typename pcl::PointCloud<PointType>::Ptr & cloud) const {};
 
   //! @brief Insert field names of this point type into a set.
   virtual
@@ -252,6 +262,14 @@ public:
       }
     }
     return true;
+  }
+
+  //! @brief Check if the given point type contains a particular field.
+  bool HasField(std::string const & fieldName)
+  {
+    std::set<std::string> fields;
+    this->InsertFieldNames(fields);
+    return (fields.find(fieldName) != fields.end());
   }
 
   /*!
@@ -295,7 +313,7 @@ BOOST_PP_FOR(_PCLP_DC_STATE, _PCLP_DC_PRED, _PCLP_DC_OP, _PCLP_DC_MACRO)
 
 //------------------------------------------------------------------------------
 /*!
- * @brief Common base-class for all XYZ PCL point types.
+ * @brief Common intermediate base-class for all XYZ PCL point types.
  *
  * All XYZ PCL point clouds (i.e. those with PCL point types in
  * PCL_XYZ_POINT_TYPES) will store their attributes in the PolyData's PointData
@@ -368,7 +386,6 @@ public:
     }
   }
 
-
   virtual
   void SetNumberOfPoints(vtkIdType numberOfPoints) override
   {
@@ -383,6 +400,50 @@ public:
   }
 
   virtual
+  void CopyFromCloud(typename pcl::PointCloud<PointType>::ConstPtr & cloud) override
+  {
+    vtkIdType numberOfPoints = cloud->points.size();
+    if (numberOfPoints == 0)
+    {
+      return;
+    }
+    vtkFloatArray * floatPoints = vtkFloatArray::SafeDownCast(this->Points->GetData());
+    vtkDoubleArray * doublePoints = vtkDoubleArray::SafeDownCast(this->Points->GetData());
+    // assert((floatPoints != nullptr) || (doublePoints != nullptr));
+
+    if (floatPoints != nullptr)
+    {
+      float * data = floatPoints->GetPointer(0);
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)
+      {
+        data[i*3]   = cloud->points[i].x;
+        data[i*3+1] = cloud->points[i].y;
+        data[i*3+2] = cloud->points[i].z;
+      }
+    }
+    else if (doublePoints != nullptr)
+    {
+      double * data = doublePoints->GetPointer(0);
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)
+      {
+        data[i*3]   = cloud->points[i].x;
+        data[i*3+1] = cloud->points[i].y;
+        data[i*3+2] = cloud->points[i].z;
+      }
+    }
+
+    // auto * points = this->Points->GetPointer();
+    // for (vtkIdType i = 0; i < n; ++i)
+    // {
+    //   auto * pd = points->GetPoint(i);
+    //   auto * c = cloud->points[i];
+    //   pd[0] = c.x;
+    //   pd[1] = c.y;
+    //   pd[2] = c.z;
+    // }
+  }
+
+  virtual
   void CopyToPoint(vtkIdType i, PointType & point) const override
   {
     // float * pointData = static_cast<float *>(this->Points->GetData()->GetVoidPointer(i));
@@ -390,6 +451,50 @@ public:
     point.x = pointData[0];
     point.y = pointData[1];
     point.z = pointData[2];
+  }
+
+  virtual
+  void CopyToCloud(typename pcl::PointCloud<PointType>::Ptr & cloud) const override
+  {
+    vtkIdType numberOfPoints = this->PolyData->GetNumberOfPoints();
+    if (numberOfPoints == 0)
+    {
+      return;
+    }
+    vtkFloatArray * floatPoints = vtkFloatArray::SafeDownCast(this->Points->GetData());
+    vtkDoubleArray * doublePoints = vtkDoubleArray::SafeDownCast(this->Points->GetData());
+    // assert((floatPoints != nullptr) || (doublePoints != nullptr));
+
+    if (floatPoints != nullptr)
+    {
+      float * data = floatPoints->GetPointer(0);
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)
+      {
+        cloud->points[i].x = data[i*3];
+        cloud->points[i].y = data[i*3+1];
+        cloud->points[i].z = data[i*3+2];
+      }
+    }
+    else if (doublePoints != nullptr)
+    {
+      double * data = doublePoints->GetPointer(0);
+      for (vtkIdType i = 0; i < numberOfPoints; ++i)
+      {
+        cloud->points[i].x = data[i*3];
+        cloud->points[i].y = data[i*3+1];
+        cloud->points[i].z = data[i*3+2];
+      }
+    }
+
+    // auto * points = this->Points->GetPointer();
+    // for (vtkIdType i = 0; i < n; ++i)
+    // {
+    //   auto * pd = points->GetPoint(i);
+    //   auto * c = cloud->points[i];
+    //   c.x = pd[0];
+    //   c.y = pd[1];
+    //   c.z = pd[2];
+    // }
   }
 
   static
@@ -455,7 +560,7 @@ public:
 //
 // but these *cannot* be grouped together as ((Foo)(histogram)(values)), unlike
 // non-array types, e.g.:
-// 
+//
 //     ((HSV)(h)(s)(v))
 //     ((RGBRatios)(r_ratio)(g_ratio)(b_ratio))
 //
@@ -634,7 +739,7 @@ struct ScoreTracker
   {
 #define _PCLP_SCORE_POINT_TYPES(r, data, i, PointType) this->Update<PointType>(getScoreArg);
 
-    BOOST_PP_SEQ_FOR_EACH_I(_PCLP_SCORE_POINT_TYPES, _, PCL_POINT_TYPES)
+    BOOST_PP_SEQ_FOR_EACH_I(_PCLP_SCORE_POINT_TYPES, _, PCLP_POINT_TYPES)
     return this->Index;
   }
 };
@@ -665,6 +770,25 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+//! @brief Internal function to copy missing fields from one FieldData to
+//!        another.
+template <typename FieldDataT>
+void copyAbsentFields(FieldDataT * src, FieldDataT * dst)
+{
+  int srcSize = src->GetNumberOfArrays();
+  int index;
+  for (int i = 0; i < srcSize; ++i)
+  {
+    vtkAbstractArray * array = src->GetAbstractArray(i);
+    char const * name = array->GetName();
+    if (dst->GetAbstractArray(name, index) == nullptr)
+    {
+      dst->AddArray(array);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 /*!
  * @brief      Templated function to convert all PCL XYZ point types to a
  *             PolyData instance with attribute arrays that can be recovered
@@ -677,7 +801,8 @@ void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
 template <typename CloudT>
 void InternalPolyDataFromPointCloud(
   typename CloudT::ConstPtr & cloud,
-  vtkPolyData * polyData
+  vtkPolyData * polyData,
+  bool preserveExistingFields = false
 )
 {
   vtkIdType numberOfPoints = cloud->points.size();
@@ -687,6 +812,7 @@ void InternalPolyDataFromPointCloud(
 
   if (cloud->is_dense)
   {
+    // conv.CopyFromCloud(cloud);
     for (vtkIdType i = 0; i < numberOfPoints; ++i)
     {
       conv.CopyFromPoint(i, cloud->points[i]);
@@ -707,7 +833,25 @@ void InternalPolyDataFromPointCloud(
     numberOfPoints = j;
     conv.SetNumberOfPoints(numberOfPoints);
   }
-  conv.GetPolyData(polyData);
+
+
+  if (preserveExistingFields)
+  {
+    vtkNew<vtkPolyData> tmpPolyData;
+    conv.GetPolyData(tmpPolyData);
+
+    vtkFieldData * existingFieldData = polyData->GetFieldData();
+    vtkPointData * existingPointData = polyData->GetPointData();
+    vtkFieldData * extraFieldData = tmpPolyData->GetFieldData();
+    vtkPointData * extraPointData = tmpPolyData->GetPointData();
+
+    copyAbsentFields(extraFieldData, existingFieldData);
+    copyAbsentFields(extraPointData, existingPointData);
+  }
+  else
+  {
+    conv.GetPolyData(polyData);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -718,6 +862,28 @@ void InternalPolyDataFromPointCloud(
  * @param[in]  polyData The input PolyData instance.
  * @param[out] cloud    The point cloud.
  * @return     True if the conversion was successful, false otherwise.
+#define _DEFINE_CONVERTER(r, data, PointType)                                    \
+  void vtkPCLConversions::PolyDataFromPointCloud(                                \
+    pcl::PointCloud<PointType>::ConstPtr cloud,                                  \
+    vtkPolyData * polyData,                                                      \
+    bool preserveExistingFields                                                  \
+  )                                                                              \
+  {                                                                              \
+    InternalPolyDataFromPointCloud<pcl::PointCloud<PointType>>( \
+      cloud, \
+      polyData, \
+      preserveExistingFields \
+    ); \
+  }                                                                              \
+  void vtkPCLConversions::PointCloudFromPolyData(                                \
+    vtkPolyData * polyData,                                                      \
+    pcl::PointCloud<PointType>::Ptr & cloud                                      \
+  )                                                                              \
+  {                                                                              \
+    InternalPointCloudFromPolyData<pcl::PointCloud<PointType>>( \
+      polyData, \
+      cloud \
+    ); \
  *
  * The completeness of the return type depends on the presence of expected data
  * arrays in the PolyData instance. These will exist if the PolyData was
@@ -755,6 +921,7 @@ void InternalPointCloudFromPolyData(
     return;
   }
   ConvPoint<typename CloudT::PointType> conv(polyData);
+  // conv.CopyToCloud(cloud);
   for (vtkIdType i = 0; i < numberOfPoints; ++i)
   {
     conv.CopyToPoint(i, cloud->points[i]);
@@ -763,28 +930,38 @@ void InternalPointCloudFromPolyData(
 
 //------------------------------------------------------------------------------
 // Define converters for all XYZ point types.
-#define _DEFINE_CONVERTER(r, data, PointType)                                    \
-  void vtkPCLConversions::PolyDataFromPointCloud(                                \
-    pcl::PointCloud<PointType>::ConstPtr cloud,                                  \
-    vtkPolyData * polyData                                                       \
-  )                                                                              \
-  {                                                                              \
-    InternalPolyDataFromPointCloud<pcl::PointCloud<PointType>>(cloud, polyData); \
-  }                                                                              \
-  void vtkPCLConversions::PointCloudFromPolyData(                                \
-    vtkPolyData * polyData,                                                      \
-    pcl::PointCloud<PointType>::Ptr & cloud                                      \
-  )                                                                              \
-  {                                                                              \
-    InternalPointCloudFromPolyData<pcl::PointCloud<PointType>>(polyData, cloud); \
+#define _DEFINE_CONVERTER(r, data, PointType)                   \
+  void vtkPCLConversions::PolyDataFromPointCloud(               \
+    pcl::PointCloud<PointType>::ConstPtr cloud,                 \
+    vtkPolyData * polyData,                                     \
+    bool preserveExistingFields                                 \
+  )                                                             \
+  {                                                             \
+    InternalPolyDataFromPointCloud<pcl::PointCloud<PointType>>( \
+      cloud,                                                    \
+      polyData,                                                 \
+      preserveExistingFields                                    \
+    );                                                          \
+  }                                                             \
+  void vtkPCLConversions::PointCloudFromPolyData(               \
+    vtkPolyData * polyData,                                     \
+    pcl::PointCloud<PointType>::Ptr & cloud                     \
+  )                                                             \
+  {                                                             \
+    InternalPointCloudFromPolyData<pcl::PointCloud<PointType>>( \
+      polyData,                                                 \
+      cloud                                                     \
+    );                                                          \
   }
-BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCL_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCLP_POINT_TYPES)
+
+#undef _DEFINE_CONVERTER
 
 
 
 //------------------------------------------------------------------------------
 template <typename PointType>
-char const * vtkPCLConversions::GetPointTypeName()
+std::string vtkPCLConversions::GetPointTypeName()
 {
   return PointMeta<PointType>::GetName();
 }
@@ -809,6 +986,22 @@ int vtkPCLConversions::GetPointTypeIndex(
 }
 
 //------------------------------------------------------------------------------
+int vtkPCLConversions::GetHistogramPointTypeIndex(int size)
+{
+#define _HPTI_CASE_STATEMENT(r, data, i, PointType) \
+  case sizeof(PointType::histogram) / sizeof(std::remove_extent<decltype(PointType::histogram)>::type): \
+    return PointMeta<PointType>::GetIndex();
+
+  switch (size)
+  {
+    BOOST_PP_SEQ_FOR_EACH_I(_HPTI_CASE_STATEMENT, _, PCLP_HISTOGRAM_POINT_TYPES)
+  }
+  return -1;
+
+#undef _HPTI_CASE_STATEMENT
+}
+
+//------------------------------------------------------------------------------
 template <typename PointType>
 void vtkPCLConversions::GetFieldNames(std::set<std::string> & fieldNames)
 {
@@ -830,8 +1023,8 @@ _PCLP_INSTANTIATE_GetPointTypeIndex(std::set<std::string> const &)
 
 //------------------------------------------------------------------------------
 // Template specialization for all PCL XYZ point types.
-#define _PCLP_INSTANTIATE_GetPointTypeIndex(r, data, i, PointType)                    \
-  template char const * vtkPCLConversions::GetPointTypeName<PointType>();             \
+#define _PCLP_INSTANTIATE_POINT_TYPE_METHODS(r, data, i, PointType)                   \
+  template std::string vtkPCLConversions::GetPointTypeName<PointType>();              \
                                                                                       \
   template void vtkPCLConversions::GetFieldNames<PointType>(std::set<std::string> &); \
                                                                                       \
@@ -856,9 +1049,9 @@ _PCLP_INSTANTIATE_GetPointTypeIndex(std::set<std::string> const &)
   }
 
 
-BOOST_PP_SEQ_FOR_EACH_I(_PCLP_INSTANTIATE_GetPointTypeIndex, _, PCL_POINT_TYPES)
+BOOST_PP_SEQ_FOR_EACH_I(_PCLP_INSTANTIATE_POINT_TYPE_METHODS, _, PCLP_POINT_TYPES)
 
-#undef _PCLP_INSTANTIATE_GetPointTypeIndex
+#undef _PCLP_INSTANTIATE_POINT_TYPE_METHODS
 
 
 //------------------------------------------------------------------------------

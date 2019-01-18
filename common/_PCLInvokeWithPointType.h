@@ -20,12 +20,23 @@
  *
  * PCL point types are determined at runtime based on input data such as the
  * attribute arrays in a PolyData instance or the attribute fields in a PCD file
- * header. The PCL library provides a macro sequence named PCL_XYZ_POINT_TYPES
- * that enumerates all point types with XYZ data, which are the point types
- * supported by this plugin. The macros defined in this file are used to
- * dispatch calls to templated functions that accept the PCL point type as its
- * first parameter. They are to be used in conjunction with
- * vtkPCLConversions::GetIndex to invoke the correct function at runtime.
+ * header. The PCL library provides several macro sequences such as
+ * PCL_POINT_TYPES and PCL_XYZ_POINT_TYPES that contain points in particular
+ * categories.The macros defined in this file are used to dispatch calls to
+ * templated functions that accept the PCL point type as its first parameter.
+ * They are to be used in conjunction with vtkPCLConversions::GetIndex to invoke
+ * the point-type-dependent function at runtime.
+ *
+ * In addition to the sequences provided by PCL, a sequence named
+ * PCLP_HISTOGRAM_POINT_TYPES is also defined in a separate file and included
+ * here. This sequence is used to define PCLP_POINT_TYPES as an augmentation of
+ * PCL_POINT_TYPES with the histogram functions, and PCLP_FEATURE_POINT_TYPES as
+ * a similar augmentation of PCL_FEATURE_POINT_TYPES.
+ *
+ * All macros here that rely on the extra point type sequences defined by this
+ * plugin begin with "PCLP_INVOKE_WITH_PCLP_". Those that use PCL-defined
+ * sequences without modification begin with "PCLP_INVOKE_WITH_PCL_" and the
+ * part of the name after "WIDTH_" matches the sequence defined by PCL.
  */
 
 #ifndef __PCLInvokeWithPointType_h
@@ -34,29 +45,42 @@
 #include <boost/preprocessor.hpp>
 #include <pcl/impl/point_types.hpp>
 
+#include "PCLPHistogramPointTypes.h"
+
 //------------------------------------------------------------------------------
-// Declare a constexpr function with overrides to get the index of the different
-// PCL point types.
+//! @brief All point types, including supported templated histogram types.
+#define PCLP_POINT_TYPES PCL_POINT_TYPES PCLP_HISTOGRAM_POINT_TYPES
+
+//------------------------------------------------------------------------------
+//! @brief All feature point types, including supported templated histogram
+//!        types.
+#define PCLP_FEATURE_POINT_TYPES PCL_FEATURE_POINT_TYPES PCLP_HISTOGRAM_POINT_TYPES
+
+//------------------------------------------------------------------------------
+/*!
+ * @brief Internal struct for indexing point types and getting their names at
+ *        run-time.
+ */
 template <typename T>
 struct PointMeta
 {
-  static constexpr int GetIndex() { return -1; };
-  static char const * GetName() { return nullptr; };
+  static constexpr int GetIndex() { return -1; }
+  static std::string GetName() { return ""; }
 };
 
 // Template specializations for all PCL types.
-#define _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT(r, data, i, PointType)         \
-  template <>                                                                \
-  struct PointMeta<PointType>                                                \
-  {                                                                          \
-    static constexpr int GetIndex() { return i; };                           \
-    static char const * GetName() { return BOOST_PP_STRINGIZE(PointType); }; \
+#define _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT(r, data, i, PointType)        \
+  template <>                                                               \
+  struct PointMeta<PointType>                                               \
+  {                                                                         \
+    static constexpr int GetIndex() { return i; }                           \
+    static std::string GetName() { return BOOST_PP_STRINGIZE(PointType); } \
   };
 
 BOOST_PP_SEQ_FOR_EACH_I(
   _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT,
   _,
-  PCL_POINT_TYPES
+  PCLP_POINT_TYPES
 )
 
 #undef _PCLP_DECLARE_POINT_TYPE_INDEX_STRUCT
@@ -74,111 +98,113 @@ BOOST_PP_SEQ_FOR_EACH_I(
 //------------------------------------------------------------------------------
 /*!
  * @brief     Invoke a templated function that accepts a PCL point type as its
- *            first template parameter based on the point type's index in the
- *            PCL_XYZ_POINT_TYPES sequence.
- * @param[in] index     An int containing the point type index determined by
- *                      vtkPCLConversions::GetPointTypeIndex. Negative values
- *                      will use the plain PointXYZ type.
- * @param[in] statement A macro that accepts the point type to produce a valid
- *                      block of code in the case statement.
+ *            first template parameter (without Histogram point types).
+ * @param[in] index       An int containing the point type index determined by
+ *                        vtkPCLConversions::GetPointTypeIndex. Negative values
+ *                        will fall through the switch statement.
+ * @param[in] statement   A macro that accepts the point type to produce a valid
+ *                        block of code in the case statement.
+ * @param[in] point_types The preprocessor sequence of point types.
  *
  * This approach is used to circumvent the limitations of runtime type
- * detection.
+ * detection. Nevertheless, because compile-time constant conditional blocks are
+ * still initially compiled by the compiler, all conditional blocks must contain
+ * compilable code, i.e. the statement must be compilable for all point types
+ * handled by this macro. If not, use a different sequence of point types, or
+ * defer calls to a templated function within the statement.
  */
-#define PCLP_INVOKE_WITH_XYZ_POINT_TYPE(index, statement) \
-  switch (index)                                          \
-  {                                                       \
-    BOOST_PP_SEQ_FOR_EACH_I(                              \
-      _PCLP_POINT_TYPE_SWITCH_CASE,                       \
-      statement,                                          \
-      PCL_XYZ_POINT_TYPES                                 \
-    )                                                     \
-  }
-
-  //   [> All supported point types are expected to contain XYZ data. <] \
-  //   default:                                                          \
-  //     function<pcl::PointXYZ>(__VA_ARGS__);                           \
-  // }
-
-
-//------------------------------------------------------------------------------
-/*!
- * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
- * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
- *          PCL_RGB_POINT_TYPES except PointNormal.
- */
-#define PCLP_INVOKE_WITH_RGB_POINT_TYPE(index, statement) \
-  switch (index)                                          \
-  {                                                       \
-    BOOST_PP_SEQ_FOR_EACH_I(                              \
-      _PCLP_POINT_TYPE_SWITCH_CASE,                       \
-      statement,                                          \
-      PCL_RGB_POINT_TYPES                                 \
-    )                                                     \
+#define PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, point_types) \
+  switch (index)                                                         \
+  {                                                                      \
+    BOOST_PP_SEQ_FOR_EACH_I(                                             \
+      _PCLP_POINT_TYPE_SWITCH_CASE,                                      \
+      statement,                                                         \
+      point_types                                                        \
+    )                                                                    \
   }
 
 //------------------------------------------------------------------------------
 /*!
- * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
- * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
- *          PCL_FEATURE_POINT_TYPES except PointNormal.
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief   Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
+ *          PCL_POINT_TYPES.
  */
-#define PCLP_INVOKE_WITH_FEATURE_POINT_TYPE(index, statement) \
-  switch (index)                                              \
-  {                                                           \
-    BOOST_PP_SEQ_FOR_EACH_I(                                  \
-      _PCLP_POINT_TYPE_SWITCH_CASE,                           \
-      statement,                                              \
-      PCL_FEATURE_POINT_TYPES                                 \
-    )                                                         \
-  }
+#define PCLP_INVOKE_WITH_PCL_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCL_POINT_TYPES)
 
 //------------------------------------------------------------------------------
 /*!
- * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
- * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief   Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
+ *          PCL_XYZ_POINT_TYPES.
+ */
+#define PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCL_XYZ_POINT_TYPES)
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief   Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
+ *          PCL_RGB_POINT_TYPES.
+ */
+#define PCLP_INVOKE_WITH_PCL_RGB_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCL_RGB_POINT_TYPES)
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief   Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
+ *          PCL_FEATURE_POINT_TYPES.
+ */
+#define PCLP_INVOKE_WITH_PCL_FEATURE_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCL_FEATURE_POINT_TYPES)
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief   Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
  *          PCL_NORMAL_POINT_TYPES.
  */
-#define PCLP_INVOKE_WITH_NORMAL_POINT_TYPE(index, statement) \
-  switch (index)                                             \
-  {                                                          \
-    BOOST_PP_SEQ_FOR_EACH_I(                                 \
-      _PCLP_POINT_TYPE_SWITCH_CASE,                          \
-      statement,                                             \
-      PCL_NORMAL_POINT_TYPES                                 \
-    )                                                        \
-  }
+#define PCLP_INVOKE_WITH_PCL_NORMAL_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCL_NORMAL_POINT_TYPES)
 
 //------------------------------------------------------------------------------
 /*!
- * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
- * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types in
- *          PCL_NORMAL_POINT_TYPES except PointNormal.
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types that
+ *        contains both XYZ and normal data.
  */
 #define PCLP_INVOKE_WITH_XYZ_NORMAL_POINT_TYPE(index, statement) \
-  switch (index)                                             \
-  {                                                          \
-    BOOST_PP_SEQ_FOR_EACH_I(                                 \
-      _PCLP_POINT_TYPE_SWITCH_CASE,                          \
-      statement,                                             \
-      BOOST_PP_SEQ_TAIL(PCL_NORMAL_POINT_TYPES)              \
-    )                                                        \
-  }
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, BOOST_PP_SEQ_TAIL(PCL_NORMAL_POINT_TYPES))
 
 //------------------------------------------------------------------------------
 /*!
- * @copydoc PCLP_INVOKE_WITH_XYZ_POINT_TYPE
- * @brief   Same as PCLP_INVOKE_WITH_XYZ_POINT_TYPE but for all point types.
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all supported
+ *        pcl::Histogram types.
  */
-#define PCLP_INVOKE_WITH_ANY_POINT_TYPE(index, statement) \
-  switch (index)                                          \
-  {                                                       \
-    BOOST_PP_SEQ_FOR_EACH_I(                              \
-      _PCLP_POINT_TYPE_SWITCH_CASE,                       \
-      statement,                                          \
-      PCL_POINT_TYPES                                     \
-    )                                                     \
-  }
+#define PCLP_INVOKE_WITH_PCLP_HISTOGRAM_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCLP_HISTOGRAM_POINT_TYPES)
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
+ *        PCLP_POINT_TYPES.
+ */
+#define PCLP_INVOKE_WITH_PCLP_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCLP_POINT_TYPES)
+
+//------------------------------------------------------------------------------
+/*!
+ * @copydoc PCLP_INVOKE_WITH_GIVEN_POINT_TYPE
+ * @brief Invoke PCLP_INVOKE_WITH_GIVEN_POINT_TYPE with all point types in
+ *        PCLP_FEATURE_POINT_TYPES.
+ */
+#define PCLP_INVOKE_WITH_PCLP_FEATURE_POINT_TYPE(index, statement) \
+  PCLP_INVOKE_WITH_GIVEN_POINT_TYPE(index, statement, PCLP_POINT_TYPES)
+
+
 
 #endif // __PCLInvokeWithPointType_h
 

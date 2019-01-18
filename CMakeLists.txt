@@ -96,20 +96,20 @@ endmacro(add_module)
 # name. This is necessary for txx files to ensure that the expected
 # client-server files are generated.
 
+# General
 # add_module(PCLDummyFilter)
-add_module(PCLFPFHEstimationFilter2)
-add_module(PCLIntensityGradientEstimationFilter2)
-add_module(PCLIterativeClosestPointFilter2 filter2/vtkPCLRegistrationFilter2.txx)
-add_module(PCLNormalEstimationFilter)
-add_module(PCLPCDFileReader)
-add_module(PCLPCDFileWriter)
-add_module(PCLPassThroughFilter)
+
+# Conversions
 add_module(PCLPointCloudXYZRGBtoXYZIFilter)
-add_module(PCLRigidAlignmentFilter2)
-# add_module(PCLSampleConsensusInitialAlignmentFilter2 filter2/vtkPCLRegistrationFilter2.txx)
-add_module(PCLSampleConsensusModelRegistrationFilter4)
+
+# Generic filters.
+add_module(PCLPassThroughFilter)
 add_module(PCLStatisticalOutlierRemovalFilter)
 add_module(PCLVoxelGridFilter)
+
+# Readers, writers and sources.
+add_module(PCLPCDFileReader)
+add_module(PCLPCDFileWriter)
 
 if(ENABLE_OPENNI)
   if(OpenNI_FOUND OR OpenNI2_FOUND)
@@ -118,6 +118,20 @@ if(ENABLE_OPENNI)
     message(WARNING "OpenNI was not found.")
   endif()
 endif()
+
+# Features
+add_module(PCLNormalEstimationFilter)
+add_module(PCLFPFHEstimationFilter2)
+add_module(PCLRSDEstimationFilter2)
+add_module(PCLIntensityGradientEstimationFilter2)
+
+# Registration/alignment
+add_module(PCLIterativeClosestPointFilter2 filter2/vtkPCLRegistrationFilter2.txx)
+# add_module(PCLSampleConsensusInitialAlignmentFilter2 filter2/vtkPCLRegistrationFilter2.txx)
+add_module(PCLSampleConsensusModelRegistrationFilter4)
+
+# Custom/compound.
+add_module(PCLRigidAlignmentFilter2)
 
 #-------------------------------------------------------------------------------
 list(REMOVE_DUPLICATES ServerManagerIncludeDirs)
