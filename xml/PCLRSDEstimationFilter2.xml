@@ -1,0 +1,77 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLRSDEstimationFilter"
+      class="vtkPCLRSDEstimationFilter2"
+      label="PCL RSD Estimation Filter2"
+      >
+      <Documentation
+        short_help="RSDEstimation filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Points"
+        port_index="0"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>If the point cloud contains normals, a separate normal cloud is not required.</Documentation>
+      </InputProperty>
+
+
+      <InputProperty
+        name="Normals"
+        port_index="0"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+        <Documentation>If the point cloud does not contain normals, a separate normal cloud is required.</Documentation>
+      </InputProperty>
+
+
+      <DoubleVectorProperty
+        name="RadiusSearch"
+        command="SetRadiusSearch"
+        number_of_elements="1"
+        default_values="0.05"
+        >
+        <Documentation>The search radius for neighboring points.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="PlaneRadius"
+        command="SetPlaneRadius"
+        number_of_elements="1"
+        default_values="0.5"
+        >
+        <Documentation>The radius beyond which spheres will be considered infinite (i.e. planes).</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="SaveHistograms"
+        command="SetSaveHistograms"
+        number_of_elements="1"
+        default_values="0"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>Save the histograms so that the output can be passed to inputs that require feature clouds.</Documentation>
+      </IntVectorProperty>
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLRSDEstimationFilter2 -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
