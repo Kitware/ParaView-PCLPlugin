@@ -180,15 +180,7 @@ protected:
   static
   vtkAbstractArray * GetArray(vtkPolyData * polyData, char const * name)
   {
-    vtkFieldData * fieldData = polyData->GetFieldData();
-    if (fieldData != nullptr)
-    {
-      return fieldData->GetAbstractArray(name);
-    }
-    else
-    {
-      return nullptr;
-    }
+    return polyData->GetFieldData()->GetAbstractArray(name);
   }
 
 public:
@@ -218,6 +210,29 @@ public:
   {
     addVertexCells(this->PolyData);
     polyData->ShallowCopy(this->PolyData);
+  }
+
+
+  //! @brief Return true if the given PolyData instance appears to be
+  //!        convertible, i.e. all existing field data arrays have the expected
+  //!        number of components..
+  static
+  bool AppearsConvertible(vtkPolyData * polyData)
+  {
+    return true;
+  }
+
+  //! @brief     Get the number of points expected after conversion.
+  //! @param[in] polyData The PolyData instance to check. If nullptr, check the
+  //!                     internal instance.
+  virtual
+  vtkIdType GetNumberOfPoints(vtkPolyData * polyData = nullptr)
+  {
+    if (polyData == nullptr)
+    {
+      polyData = this->PolyData;
+    }
+    return (polyData == nullptr) ? 0 : polyData->GetFieldData()->GetNumberOfTuples();
   }
 
   //! @brief Set the number of points.
@@ -345,6 +360,12 @@ struct ConvXYZ<
 protected:
   vtkSmartPointer<vtkPoints> Points;
 
+  static
+  vtkAbstractArray * GetArray(vtkPolyData * polyData, char const * name)
+  {
+    return polyData->GetPointData()->GetAbstractArray(name);
+  }
+
 public:
   typedef ConvXYZ<PointType> ThisClassT;
   typedef ConvBase<PointType> BaseClassT;
@@ -373,17 +394,20 @@ public:
   }
 
   static
-  vtkAbstractArray * GetArray(vtkPolyData * polyData, char const * name)
+  bool AppearsConvertible(vtkPolyData * polyData)
   {
-    vtkFieldData * fieldData = polyData->GetPointData();
-    if (fieldData != nullptr)
+    return true;
+    // return (polyData->GetNumberOfPoints() > 0) ? BaseClassT::AppearsConvertible : false;
+  }
+
+  virtual
+  vtkIdType GetNumberOfPoints(vtkPolyData * polyData = nullptr)
+  {
+    if (polyData == nullptr)
     {
-      return fieldData->GetAbstractArray(name);
+      polyData = this->PolyData;
     }
-    else
-    {
-      return nullptr;
-    }
+    return (polyData == nullptr) ? 0 : polyData->GetNumberOfPoints();
   }
 
   virtual
@@ -503,7 +527,7 @@ public:
     bool negativeIfMissing = true
   )
   {
-    int count = (polyData->GetPoints() == nullptr) ? 0 : 3;
+    int count = (polyData->GetNumberOfPoints() > 0) ? 0 : 3;
     if (count == 0 && negativeIfMissing)
     {
       return -1;
@@ -897,34 +921,31 @@ void InternalPointCloudFromPolyData(
   typename CloudT::Ptr & cloud
 )
 {
-  vtkIdType numberOfPoints =  0;
-  vtkPointData * pointData = polyData->GetPointData();
-  if (pointData != nullptr)
+  if (ConvPoint<typename CloudT::PointType>::AppearsConvertible(polyData))
   {
-    numberOfPoints = polyData->GetNumberOfPoints();
-  }
-  if (numberOfPoints == 0)
-  {
-    vtkFieldData * fieldData = polyData->GetFieldData();
-    if (fieldData != nullptr)
+    ConvPoint<typename CloudT::PointType> conv(polyData);
+    vtkIdType numberOfPoints = conv.GetNumberOfPoints();
+
+    cloud->width = numberOfPoints;
+    cloud->height = 1;
+    cloud->is_dense = true;
+    cloud->points.resize(numberOfPoints);
+    if (! numberOfPoints)
     {
-      numberOfPoints = fieldData->GetNumberOfTuples();
+      return;
+    }
+    // conv.CopyToCloud(cloud);
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+    {
+      conv.CopyToPoint(i, cloud->points[i]);
     }
   }
-
-  cloud->width = numberOfPoints;
-  cloud->height = 1;
-  cloud->is_dense = true;
-  cloud->points.resize(numberOfPoints);
-  if (! numberOfPoints)
+  else
   {
-    return;
-  }
-  ConvPoint<typename CloudT::PointType> conv(polyData);
-  // conv.CopyToCloud(cloud);
-  for (vtkIdType i = 0; i < numberOfPoints; ++i)
-  {
-    conv.CopyToPoint(i, cloud->points[i]);
+    cloud->width = 0;
+    cloud->height = 1;
+    cloud->is_dense = true;
+    cloud->points.resize(0);
   }
 }
 

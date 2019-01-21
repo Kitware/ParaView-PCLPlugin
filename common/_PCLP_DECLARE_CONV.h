@@ -116,9 +116,7 @@
     )                                                                                       \
    ,0)> : public BOOST_PP_CAT(Conv, parent)<PointType>                                      \
   {                                                                                         \
-    typedef BOOST_PP_CAT(Conv, name)<PointType> ThisClassT;                                 \
-    typedef BOOST_PP_CAT(Conv, parent)<PointType> BaseClassT;                               \
-                                                                                            \
+  private:                                                                                  \
     /* The internal array type is determined from the first attribute of the point data. */ \
     /* This will remove all extends if it is an array type. */                              \
     typedef typename std::remove_extent<                                                    \
@@ -155,6 +153,20 @@
       return name.str();                                                                    \
     }                                                                                       \
                                                                                             \
+    /* Get the array corresponding to the attributes managed by this converter. */          \
+    static                                                                                  \
+    vtkAbstractArray * GetThisArray(vtkPolyData * polyData)                                 \
+    {                                                                                       \
+      return ThisClassT::GetArray(                                                          \
+        polyData,                                                                           \
+        ThisClassT::GetArrayName().c_str()                                                  \
+      );                                                                                    \
+    }                                                                                       \
+                                                                                            \
+  public:                                                                                   \
+    typedef BOOST_PP_CAT(Conv, name)<PointType> ThisClassT;                                 \
+    typedef BOOST_PP_CAT(Conv, parent)<PointType> BaseClassT;                               \
+                                                                                            \
     /* Default constructor. Create a new array to hold the attributes. */                   \
     BOOST_PP_CAT(Conv, name)()                                                              \
     {                                                                                       \
@@ -168,10 +180,41 @@
     BOOST_PP_CAT(Conv, name)(vtkPolyData * polyData)                                        \
       : BaseClassT { polyData }                                                             \
     {                                                                                       \
-      this->Array =                                                                         \
-        ArrayType::SafeDownCast(                                                            \
-          this->FieldData->GetAbstractArray(ThisClassT::GetArrayName().c_str())             \
-        );                                                                                  \
+      this->Array = ArrayType::SafeDownCast(ThisClassT::GetThisArray(polyData));            \
+    }                                                                                       \
+                                                                                            \
+    /* The array may be missing but must have the right size if present. */                 \
+    static                                                                                  \
+    bool AppearsConvertible(vtkPolyData * polyData)                                         \
+    {                                                                                       \
+      vtkAbstractArray * array = ThisClassT::GetThisArray(polyData);                        \
+      return                                                                                \
+        (array == nullptr || array->GetNumberOfComponents() == ThisClassT::ArraySize) ?     \
+        BaseClassT::AppearsConvertible(polyData) :                                          \
+        false;                                                                              \
+    }                                                                                       \
+                                                                                            \
+    /* The number of points is the smallest number of tuples in any of the */               \
+    /* internal arrays. If any of the arrays has the wrong number of */                     \
+    /* components then this will return 0. */                                               \
+    virtual                                                                                 \
+    vtkIdType GetNumberOfPoints(vtkPolyData * polyData = nullptr)                           \
+    {                                                                                       \
+      if (polyData == nullptr)                                                              \
+      {                                                                                     \
+        polyData = this->PolyData;                                                          \
+      }                                                                                     \
+      vtkAbstractArray * array = ThisClassT::GetThisArray(polyData);                        \
+      if (array->GetNumberOfComponents() != ThisClassT::ArraySize)                          \
+      {                                                                                     \
+        return 0;                                                                           \
+      }                                                                                     \
+      vtkIdType numberOfPoints = array->GetNumberOfTuples();                                \
+      vtkIdType numberOfParentPoints = this->BaseClassT::GetNumberOfPoints(polyData);       \
+      return                                                                                \
+        (numberOfPoints < numberOfParentPoints) ?                                           \
+        numberOfPoints :                                                                    \
+        numberOfParentPoints;                                                               \
     }                                                                                       \
                                                                                             \
     virtual                                                                                 \
@@ -185,8 +228,7 @@
     int GetScore(vtkPolyData * polyData, bool negativeIfMissing = true)                     \
     {                                                                                       \
       int count =                                                                           \
-        (ThisClassT::GetArray(polyData, ThisClassT::GetArrayName().c_str()) != nullptr)     \
-        ? BOOST_PP_SEQ_SIZE(attrs) : 0;                                                     \
+        (ThisClassT::GetThisArray(polyData) != nullptr) ? BOOST_PP_SEQ_SIZE(attrs) : 0;     \
       if (count == 0 && negativeIfMissing)                                                  \
       {                                                                                     \
         return -1;                                                                          \
