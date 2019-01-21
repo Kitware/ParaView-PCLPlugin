@@ -15,7 +15,7 @@
 // limitations under the License.
 //==============================================================================
 
-#include "vtkPCLRigidAlignmentFilter2.h"
+#include "vtkPCLBRigidAlignmentFilter2.h"
 #include "vtkPCLConversions.h"
 #include "FeatureExtractor.h"
 
@@ -27,10 +27,10 @@
 
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPCLRigidAlignmentFilter2);
+vtkStandardNewMacro(vtkPCLBRigidAlignmentFilter2);
 
 //------------------------------------------------------------------------------
-vtkPCLRigidAlignmentFilter2::vtkPCLRigidAlignmentFilter2()
+vtkPCLBRigidAlignmentFilter2::vtkPCLBRigidAlignmentFilter2()
 {
   this->NormalRadius = 0.02;
   this->FeatureRadius = 0.02;
@@ -41,18 +41,18 @@ vtkPCLRigidAlignmentFilter2::vtkPCLRigidAlignmentFilter2()
 }
 
 //------------------------------------------------------------------------------
-vtkPCLRigidAlignmentFilter2::~vtkPCLRigidAlignmentFilter2()
+vtkPCLBRigidAlignmentFilter2::~vtkPCLBRigidAlignmentFilter2()
 {
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLRigidAlignmentFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLBRigidAlignmentFilter2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkPCLRigidAlignmentFilter2::ApplyPCLFilter2(
+int vtkPCLBRigidAlignmentFilter2::ApplyPCLFilter2(
   vtkPolyData * input,
   vtkPolyData * target,
   vtkPolyData * output
@@ -71,7 +71,7 @@ template <
   typename NormalT=pcl::Normal,
   typename FeatureT=pcl::FPFHSignature33
 >
-int vtkPCLRigidAlignmentFilter2::InternalApplyPCLFilter2(
+int vtkPCLBRigidAlignmentFilter2::InternalApplyPCLFilter2(
   vtkPolyData * input,
   vtkPolyData * target,
   vtkPolyData * output

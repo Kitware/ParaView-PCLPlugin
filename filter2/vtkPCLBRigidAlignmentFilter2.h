@@ -15,29 +15,29 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLRigidAlignmentFilter2_h
-#define vtkPCLRigidAlignmentFilter2_h
+#ifndef vtkPCLBRigidAlignmentFilter2_h
+#define vtkPCLBRigidAlignmentFilter2_h
 
 #include "vtkPCLFilter2.h"
 #include "vtkPCLRegistrationFilter2.h"
 
-class VTK_EXPORT vtkPCLRigidAlignmentFilter2 : public vtkPCLFilter2
+class VTK_EXPORT vtkPCLBRigidAlignmentFilter2 : public vtkPCLFilter2
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLRigidAlignmentFilter2 * New();
-  vtkTypeMacro(vtkPCLRigidAlignmentFilter2, vtkPCLFilter2);
+  static vtkPCLBRigidAlignmentFilter2 * New();
+  vtkTypeMacro(vtkPCLBRigidAlignmentFilter2, vtkPCLFilter2);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLRigidAlignmentFilter2();
-  ~vtkPCLRigidAlignmentFilter2();
+  vtkPCLBRigidAlignmentFilter2();
+  ~vtkPCLBRigidAlignmentFilter2();
 
 private:
-  vtkPCLRigidAlignmentFilter2(const vtkPCLRigidAlignmentFilter2&) = delete;
-  void operator=(const vtkPCLRigidAlignmentFilter2&) = delete;
+  vtkPCLBRigidAlignmentFilter2(const vtkPCLBRigidAlignmentFilter2&) = delete;
+  void operator=(const vtkPCLBRigidAlignmentFilter2&) = delete;
 
 //------------------------------------------------------------------------------
 // Parameters specific to this filter.
@@ -103,5 +103,5 @@ private:
   );
 
 };
-#endif // vtkPCLRigidAlignmentFilter2_h
+#endif // vtkPCLBRigidAlignmentFilter2_h
 

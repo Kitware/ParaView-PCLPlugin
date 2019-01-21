@@ -128,10 +128,10 @@ add_module(PCLIntensityGradientEstimationFilter2)
 # Registration/alignment
 add_module(PCLIterativeClosestPointFilter2 filter2/vtkPCLRegistrationFilter2.txx)
 # add_module(PCLSampleConsensusInitialAlignmentFilter2 filter2/vtkPCLRegistrationFilter2.txx)
-add_module(PCLSampleConsensusModelRegistrationFilter4)
 
 # Custom/compound.
-add_module(PCLRigidAlignmentFilter2)
+add_module(PCLBSampleConsensusModelRegistrationFilter4)
+add_module(PCLBRigidAlignmentFilter2)
 
 #-------------------------------------------------------------------------------
 list(REMOVE_DUPLICATES ServerManagerIncludeDirs)

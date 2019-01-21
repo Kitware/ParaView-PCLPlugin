@@ -61,3 +61,9 @@ Failing at address: 0x1508
 *** End of error message ***
 ~~~~~
 
+# Developer Guidelines
+
+One goal of this project is to eventually provide filters for all PCL filter functions. Ideally these filters should simply convert the input data to a PCL cloud, call the function, then convert the cloud back. All parameters of the function should be exposed via the ServerManager proxy so that a complete PCL workflow can be recreated via ParaView. These filters should follow the format of existing filters whenever possible, with each group (e.g. 2-input filters) using the same base class (e.g. vtkPCLFilter2). The names of all filter parameters should be identical to those of the PCL filter that it wraps.
+
+Filters that do not correspond directly to a single PCL function should use the "PCLB" prefix (PCL-based) instead of "PCL" and should start their proxy descriptions with "PCL-based". The parameters of all functions used in the filter should be exposed to make these compound filters as versatile as possible. In general, compound filters should be avoided whenever possible, but the need for simplified or faster workflows that omit intermittent conversions may not always permit this.
+

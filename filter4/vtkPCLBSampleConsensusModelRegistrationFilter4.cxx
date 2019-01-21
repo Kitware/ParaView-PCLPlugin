@@ -15,7 +15,7 @@
 // limitations under the License.
 //==============================================================================
 
-#include "vtkPCLSampleConsensusModelRegistrationFilter4.h"
+#include "vtkPCLBSampleConsensusModelRegistrationFilter4.h"
 #include "vtkPCLConversions.h"
 #include "FeatureExtractor.h"
 
@@ -27,10 +27,10 @@
 
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPCLSampleConsensusModelRegistrationFilter4);
+vtkStandardNewMacro(vtkPCLBSampleConsensusModelRegistrationFilter4);
 
 //------------------------------------------------------------------------------
-vtkPCLSampleConsensusModelRegistrationFilter4::vtkPCLSampleConsensusModelRegistrationFilter4()
+vtkPCLBSampleConsensusModelRegistrationFilter4::vtkPCLBSampleConsensusModelRegistrationFilter4()
 {
   this->DistanceThreshold = 0.2;
   this->MaxIterations = 2500;
@@ -41,18 +41,18 @@ vtkPCLSampleConsensusModelRegistrationFilter4::vtkPCLSampleConsensusModelRegistr
 }
 
 //------------------------------------------------------------------------------
-vtkPCLSampleConsensusModelRegistrationFilter4::~vtkPCLSampleConsensusModelRegistrationFilter4()
+vtkPCLBSampleConsensusModelRegistrationFilter4::~vtkPCLBSampleConsensusModelRegistrationFilter4()
 {
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLSampleConsensusModelRegistrationFilter4::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLBSampleConsensusModelRegistrationFilter4::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkPCLSampleConsensusModelRegistrationFilter4::ApplyPCLFilter4(
+int vtkPCLBSampleConsensusModelRegistrationFilter4::ApplyPCLFilter4(
   vtkPolyData * sourcePointsPD,
   vtkPolyData * sourceFeaturesPD,
   vtkPolyData * targetPointsPD,
@@ -73,7 +73,7 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::ApplyPCLFilter4(
 
 //------------------------------------------------------------------------------
 template <typename PointType>
-int vtkPCLSampleConsensusModelRegistrationFilter4::InternalApplyPCLFilter4(
+int vtkPCLBSampleConsensusModelRegistrationFilter4::InternalApplyPCLFilter4(
   vtkPolyData * sourcePointsPD,
   vtkPolyData * sourceFeaturesPD,
   vtkPolyData * targetPointsPD,
@@ -94,7 +94,7 @@ int vtkPCLSampleConsensusModelRegistrationFilter4::InternalApplyPCLFilter4(
 
 //------------------------------------------------------------------------------
 template <typename PointType, typename FeatureType>
-int vtkPCLSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilter4(
+int vtkPCLBSampleConsensusModelRegistrationFilter4::InternalInternalApplyPCLFilter4(
   vtkPolyData * sourcePointsPD,
   vtkPolyData * sourceFeaturesPD,
   vtkPolyData * targetPointsPD,

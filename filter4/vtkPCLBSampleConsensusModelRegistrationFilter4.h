@@ -15,28 +15,28 @@
 // limitations under the License.
 //=============================================================================
 
-#ifndef vtkPCLSampleConsensusModelRegistrationFilter4_h
-#define vtkPCLSampleConsensusModelRegistrationFilter4_h
+#ifndef vtkPCLBSampleConsensusModelRegistrationFilter4_h
+#define vtkPCLBSampleConsensusModelRegistrationFilter4_h
 
 #include "vtkPCLFilter4.h"
 
-class VTK_EXPORT vtkPCLSampleConsensusModelRegistrationFilter4 : public vtkPCLFilter4
+class VTK_EXPORT vtkPCLBSampleConsensusModelRegistrationFilter4 : public vtkPCLFilter4
 {
 //------------------------------------------------------------------------------
 // Boilerplate VTK code.
 public:
-  static vtkPCLSampleConsensusModelRegistrationFilter4 * New();
-  vtkTypeMacro(vtkPCLSampleConsensusModelRegistrationFilter4, vtkPCLFilter4);
+  static vtkPCLBSampleConsensusModelRegistrationFilter4 * New();
+  vtkTypeMacro(vtkPCLBSampleConsensusModelRegistrationFilter4, vtkPCLFilter4);
   void PrintSelf(ostream & os, vtkIndent indent) override;
 
 protected:
 
-  vtkPCLSampleConsensusModelRegistrationFilter4();
-  ~vtkPCLSampleConsensusModelRegistrationFilter4();
+  vtkPCLBSampleConsensusModelRegistrationFilter4();
+  ~vtkPCLBSampleConsensusModelRegistrationFilter4();
 
 private:
-  vtkPCLSampleConsensusModelRegistrationFilter4(const vtkPCLSampleConsensusModelRegistrationFilter4&) = delete;
-  void operator=(const vtkPCLSampleConsensusModelRegistrationFilter4&) = delete;
+  vtkPCLBSampleConsensusModelRegistrationFilter4(const vtkPCLBSampleConsensusModelRegistrationFilter4&) = delete;
+  void operator=(const vtkPCLBSampleConsensusModelRegistrationFilter4&) = delete;
 
 //------------------------------------------------------------------------------
 // Parameters specific to this filter.
@@ -102,5 +102,5 @@ private:
   );
 
 };
-#endif // vtkPCLSampleConsensusModelRegistrationFilter4_h
+#endif // vtkPCLBSampleConsensusModelRegistrationFilter4_h
 
