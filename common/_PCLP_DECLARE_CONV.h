@@ -196,7 +196,8 @@
                                                                                             \
     /* The number of points is the smallest number of tuples in any of the */               \
     /* internal arrays. If any of the arrays has the wrong number of */                     \
-    /* components then this will return 0. */                                               \
+    /* components then this will return 0. Missing arrays are ignored to */                 \
+    /* support forced conversions from incomplete sources. */                               \
     virtual                                                                                 \
     vtkIdType GetNumberOfPoints(vtkPolyData * polyData = nullptr)                           \
     {                                                                                       \
@@ -205,7 +206,11 @@
         polyData = this->PolyData;                                                          \
       }                                                                                     \
       vtkAbstractArray * array = ThisClassT::GetThisArray(polyData);                        \
-      if (array->GetNumberOfComponents() != ThisClassT::ArraySize)                          \
+      if (array == nullptr)                                                                 \
+      {                                                                                     \
+        return this->BaseClassT::GetNumberOfPoints(polyData);                               \
+      }                                                                                     \
+      else if (array->GetNumberOfComponents() != ThisClassT::ArraySize)                     \
       {                                                                                     \
         return 0;                                                                           \
       }                                                                                     \

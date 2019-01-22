@@ -527,7 +527,7 @@ public:
     bool negativeIfMissing = true
   )
   {
-    int count = (polyData->GetNumberOfPoints() > 0) ? 0 : 3;
+    int count = (polyData->GetNumberOfPoints() > 0) ? 3 : 0;
     if (count == 0 && negativeIfMissing)
     {
       return -1;
