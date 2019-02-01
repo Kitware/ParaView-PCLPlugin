@@ -126,6 +126,9 @@ add_module(PCLFPFHEstimationFilter2)
 add_module(PCLRSDEstimationFilter2)
 add_module(PCLIntensityGradientEstimationFilter2)
 
+# Misc
+add_module(PCLMovingLeastSquaresFilter)
+
 # Registration/alignment
 add_module(PCLIterativeClosestPointFilter2 filter2/vtkPCLRegistrationFilter2.txx)
 # add_module(PCLSampleConsensusInitialAlignmentFilter2 filter2/vtkPCLRegistrationFilter2.txx)

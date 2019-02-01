@@ -1,0 +1,177 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+    <SourceProxy
+      name="PCLMovingLeastSquaresFilter"
+      class="vtkPCLMovingLeastSquaresFilter"
+      label="PCL Moving Least Squares Filter"
+      >
+      <Documentation
+        short_help="MovingLeastSquares filter from the Point Cloud Library (PCL)." >
+      </Documentation>
+
+      <InputProperty
+        name="Input"
+        command="SetInputConnection">
+        <ProxyGroupDomain name="groups">
+          <Group name="sources"/>
+          <Group name="filters"/>
+        </ProxyGroupDomain>
+        <DataTypeDomain name="input_type">
+          <DataType value="vtkPolyData"/>
+        </DataTypeDomain>
+      </InputProperty>
+
+
+      <IntVectorProperty
+        name="ComputeNormals"
+        command="SetComputeNormals"
+        default_values="0"
+        number_of_elements="1"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>If true, compute the normals.</Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="PolynomialOrder"
+        command="SetPolynomialOrder"
+        default_values="2"
+        number_of_elements="1"
+        >
+        <Documentation>The order of the polynomial to fit. If > 1, a polynomial fit will be used.</Documentation>
+      </IntVectorProperty>
+
+      <!-- <IntVectorProperty -->
+      <!--   name="PolynomialFit" -->
+      <!--   command="SetPolynomialFit" -->
+      <!--   default_values="0" -->
+      <!--   number_of_elements="1" -->
+      <!--   > -->
+      <!--   <BooleanDomain name="bool" /> -->
+      <!--   <Documentation>If true, fit a polynomial of the given order.</Documentation> -->
+      <!-- </IntVectorProperty> -->
+
+      <DoubleVectorProperty
+        name="SearchRadius"
+        command="SetSearchRadius"
+        number_of_elements="1"
+        default_values="0.0"
+        >
+        <Documentation>The radius within which to search for the k nearest neighbors.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="SqrGaussParam"
+        command="SetSqrGaussParam"
+        number_of_elements="1"
+        default_values="0.0"
+        >
+        <Documentation>Parameter for distance-based weighting of neighbors. The square of the search radius usually works best.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="UpsamplingRadius"
+        command="SetUpsamplingRadius"
+        number_of_elements="1"
+        default_values="0.0"
+        >
+        <Documentation>Radius of the circle in the local point plane that will be sampled.</Documentation>
+      </DoubleVectorProperty>
+
+      <DoubleVectorProperty
+        name="UpsamplingStepSize"
+        command="SetUpsamplingStepSize"
+        number_of_elements="1"
+        default_values="0.0"
+        >
+        <Documentation>Step size for local plane sampling.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="PointDensity"
+        command="SetPointDensity"
+        default_values="0"
+        number_of_elements="0"
+        >
+        <Documentation>The desired number of points within the search radius.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="DilationVoxelSize"
+        command="SetDilationVoxelSize"
+        number_of_elements="1"
+        default_values="1.0"
+        >
+        <Documentation>The voxel size for the voxel grid.</Documentation>
+      </DoubleVectorProperty>
+
+      <IntVectorProperty
+        name="DilationIterations"
+        command="SetDilationIterations"
+        default_values="0"
+        number_of_elements="1"
+        >
+        <Documentation>Number of dilation steps of the voxel grid.</Documentation>
+      </IntVectorProperty>
+
+      <!-- <IntVectorProperty -->
+      <!--   name="CacheMLSResults" -->
+      <!--   command="SetCacheMLSResults" -->
+      <!--   default_values="0" -->
+      <!--   number_of_elements="0" -->
+      <!--   > -->
+      <!--   <BooleanDomain name="bool" /> -->
+      <!--   <Documentation>If true, cache the results.</Documentation> -->
+      <!-- </IntVectorProperty> -->
+
+      <IntVectorProperty
+        name="NumberOfThreads"
+        command="SetNumberOfThreads"
+        default_values="1"
+        number_of_elements="1"
+        >
+        <Documentation>Maximum number of threads to use.</Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="UpsamplingMethod"
+        command="SetUpsamplingMethod"
+        default_values="0"
+        number_of_elements="1"
+        >
+        <Documentation>Set the upsampling method.</Documentation>
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="NONE" />
+          <Entry value="1" text="DISTINCT_CLOUD" />
+          <Entry value="2" text="SAMPLE_LOCAL_PLANE" />
+          <Entry value="3" text="RANDOM_UNIFORM_DENSITY" />
+          <Entry value="4" text="VOXEL_GRID_DILATION" />
+        </EnumerationDomain>
+      </IntVectorProperty>
+
+      <IntVectorProperty
+        name="ProjectionMethod"
+        command="SetProjectionMethod"
+        default_values="1"
+        number_of_elements="1"
+        >
+        <Documentation>Set the projection method.</Documentation>
+        <EnumerationDomain name="enum">
+          <Entry value="0" text="NONE" />
+          <Entry value="1" text="SIMPLE" />
+          <Entry value="2" text="ORTHOGONAL" />
+        </EnumerationDomain>
+      </IntVectorProperty>
+
+
+
+
+
+      <Hints>
+        <ShowInMenu category="PCL" />
+      </Hints>
+      <!-- End PCLMovingLeastSquaresFilter -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+
