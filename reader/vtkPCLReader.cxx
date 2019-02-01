@@ -31,9 +31,9 @@ vtkPCLReader::vtkPCLReader()
   // TODO
   // Remove this once it's included in vtkAbstractPolyDataReader in the official
   // release.
-  // this->SetNumberOfInputPorts(0);
-  // this->SetNumberOfOutputPorts(1);
-  // this->FileName = nullptr;
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
+  this->FileName = nullptr;
 }
 
 //------------------------------------------------------------------------------

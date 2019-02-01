@@ -19,12 +19,10 @@ Dependencies are listed in the table below along with the version used during de
 
 | Dependency  | Tested Version  | Minimum Version  |
 | :---------: | :-------------: | :--------------: |
-| ParaView    | master          | ?                |
+| ParaView    | 5.6.0           | ?                |
 | PCL         | 1.9             | ?                |
 | Eigen       | 3.6.3           | ?                |
 | Boost       | 1.68            | ?                |
-
-The dependency on ParaView master is temporary and due to a minor issue with ParaView 5.6.0 that will be corrected in the next release (normally spring 2019).
 
 ### PCL Configuration
 
