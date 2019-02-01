@@ -32,12 +32,6 @@ vtkStandardNewMacro(vtkPCLBSampleConsensusModelRegistrationFilter4);
 //------------------------------------------------------------------------------
 vtkPCLBSampleConsensusModelRegistrationFilter4::vtkPCLBSampleConsensusModelRegistrationFilter4()
 {
-  this->DistanceThreshold = 0.2;
-  this->MaxIterations = 2500;
-  this->Probability = 0.99;
-
-  this->HasTransformation = false;
-  this->ReuseTransformation = false;
 }
 
 //------------------------------------------------------------------------------

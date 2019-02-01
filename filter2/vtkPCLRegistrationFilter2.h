@@ -45,17 +45,17 @@ private:
 //------------------------------------------------------------------------------
 protected:
   // Registration convergence criteria.
-  double MaxCorrespondenceDistance;
-  unsigned int MaximumIterations;
-  double TransformationEpsilon;
-  double TransformationRotationEpsilon;
-  double EuclideanFitnessEpsilon;
+  double MaxCorrespondenceDistance {0.05};
+  unsigned int MaximumIterations {50};
+  double TransformationEpsilon {1e-8};
+  double TransformationRotationEpsilon {1e-8};
+  double EuclideanFitnessEpsilon {1.0};
 
 protected:
   // Transformation caching.
-  Eigen::Matrix4f TransformationMatrix;
-  bool HasTransformation;
-  bool ReuseTransformation;
+  Eigen::Matrix4f TransformationMatrix {Eigen::Matrix4f::Identity()};
+  bool HasTransformation {false};
+  bool ReuseTransformation {false};
 
 public:
   vtkGetMacro(MaxCorrespondenceDistance, double);

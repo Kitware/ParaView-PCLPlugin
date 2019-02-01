@@ -23,15 +23,6 @@
 //------------------------------------------------------------------------------
 inline
 vtkPCLRegistrationFilter2::vtkPCLRegistrationFilter2()
-  : MaxCorrespondenceDistance { 0.05 }
-  , MaximumIterations { 50 }
-  , TransformationEpsilon { 1e-8 }
-  , TransformationRotationEpsilon { 1e-8 }
-  , EuclideanFitnessEpsilon { 1 }
-
-  , TransformationMatrix { decltype(TransformationMatrix)::Identity() }
-  , HasTransformation { false }
-  , ReuseTransformation { false }
 {
 }
 

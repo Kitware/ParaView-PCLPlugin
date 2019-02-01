@@ -28,7 +28,6 @@ vtkStandardNewMacro(vtkPCLFPFHEstimationFilter2);
 vtkPCLFPFHEstimationFilter2::vtkPCLFPFHEstimationFilter2()
 {
   this->SecondPortOptional = true;
-  this->Radius = 0.05;
 }
 
 //------------------------------------------------------------------------------

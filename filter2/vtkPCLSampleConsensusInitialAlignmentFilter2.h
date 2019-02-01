@@ -42,9 +42,9 @@ private:
 //------------------------------------------------------------------------------
 // Parameters specific to this filter.
 private:
-  float MinSampleDistance;
-  float NormalRadius;
-  float FeatureRadius;
+  float MinSampleDistance {0.05};
+  float NormalRadius {0.05};
+  float FeatureRadius {0.07};
 
 public:
   vtkGetMacro(MinSampleDistance, float);

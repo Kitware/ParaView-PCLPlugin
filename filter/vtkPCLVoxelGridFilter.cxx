@@ -26,9 +26,6 @@ vtkStandardNewMacro(vtkPCLVoxelGridFilter);
 //------------------------------------------------------------------------------
 vtkPCLVoxelGridFilter::vtkPCLVoxelGridFilter()
 {
-  this->LeafSize[0] = 0.01;
-  this->LeafSize[1] = 0.01;
-  this->LeafSize[2] = 0.01;
 }
 
 //------------------------------------------------------------------------------

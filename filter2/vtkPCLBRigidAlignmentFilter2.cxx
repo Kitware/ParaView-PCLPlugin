@@ -32,12 +32,6 @@ vtkStandardNewMacro(vtkPCLBRigidAlignmentFilter2);
 //------------------------------------------------------------------------------
 vtkPCLBRigidAlignmentFilter2::vtkPCLBRigidAlignmentFilter2()
 {
-  this->NormalRadius = 0.02;
-  this->FeatureRadius = 0.02;
-
-  this->DistanceThreshold = 0.02;
-  this->MaxIterations = 50;
-  this->Probability = 1.0;
 }
 
 //------------------------------------------------------------------------------

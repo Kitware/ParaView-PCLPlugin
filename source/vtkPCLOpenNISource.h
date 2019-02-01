@@ -40,13 +40,13 @@ private:
 
 //------------------------------------------------------------------------------
 private:
-  std::string DeviceID;
-  bool WithColor;
+  std::string DeviceID {""};
+  bool WithColor {false};
   
   class GrabberWrapperBase;
   template <typename PointType>
   class GrabberWrapper;
-  GrabberWrapperBase * MyGrabberWrapper;
+  GrabberWrapperBase * MyGrabberWrapper {nullptr};
 
   void Reset();
 

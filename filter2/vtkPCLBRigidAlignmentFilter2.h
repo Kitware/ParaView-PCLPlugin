@@ -42,16 +42,16 @@ private:
 //------------------------------------------------------------------------------
 // Parameters specific to this filter.
 private:
-  double NormalRadius;
-  double FeatureRadius;
+  double NormalRadius {0.02};
+  double FeatureRadius {0.02};
 
-  double DistanceThreshold;
-  int MaxIterations;
-  double Probability;
+  double DistanceThreshold {0.02};
+  int MaxIterations {2500};
+  double Probability {1.0};
 
-  Eigen::Matrix4f TransformationMatrix;
-  bool HasTransformation;
-  bool ReuseTransformation;
+  Eigen::Matrix4f TransformationMatrix {Eigen::Matrix4f::Identity()};
+  bool HasTransformation {false};
+  bool ReuseTransformation {false};
 
 public:
   vtkGetMacro(NormalRadius, double);

@@ -41,13 +41,13 @@ private:
 //------------------------------------------------------------------------------
 // Parameters specific to this filter.
 private:
-  double DistanceThreshold;
-  int MaxIterations;
-  double Probability;
+  double DistanceThreshold {0.2};
+  int MaxIterations {2500};
+  double Probability {0.99};
 
-  Eigen::Matrix4f TransformationMatrix;
-  bool HasTransformation;
-  bool ReuseTransformation;
+  Eigen::Matrix4f TransformationMatrix {Eigen::Matrix4f::Identity()};
+  bool HasTransformation {false};
+  bool ReuseTransformation {false};
 
 public:
   vtkGetMacro(DistanceThreshold, double);

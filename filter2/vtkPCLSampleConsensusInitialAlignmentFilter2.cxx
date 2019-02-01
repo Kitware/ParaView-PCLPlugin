@@ -32,7 +32,6 @@ vtkStandardNewMacro(vtkPCLSampleConsensusInitialAlignmentFilter2);
 //------------------------------------------------------------------------------
 vtkPCLSampleConsensusInitialAlignmentFilter2::vtkPCLSampleConsensusInitialAlignmentFilter2()
 {
-  this->MinSampleDistance = 0.05;
 }
 
 //------------------------------------------------------------------------------

@@ -27,7 +27,6 @@ vtkStandardNewMacro(vtkPCLNormalEstimationFilter);
 //------------------------------------------------------------------------------
 vtkPCLNormalEstimationFilter::vtkPCLNormalEstimationFilter()
 {
-  this->Radius = 0.05;
 }
 
 //------------------------------------------------------------------------------

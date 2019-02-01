@@ -28,9 +28,6 @@ vtkStandardNewMacro(vtkPCLRSDEstimationFilter2);
 vtkPCLRSDEstimationFilter2::vtkPCLRSDEstimationFilter2()
 {
   this->SecondPortOptional = true;
-  this->SaveHistograms = false;
-  this->RadiusSearch = 0.05;
-  this->PlaneRadius = 0.5;
 }
 
 //------------------------------------------------------------------------------

@@ -42,9 +42,11 @@ private:
 // Filter parameters and their getters/setters. These are exposed through the
 // ServerManager proxy.
 private:
-  char * FieldName;
-  double Limits[2];
-  bool Invert;
+  // Initialize the filter parameters. These values should match the values set
+  // in the ServerManager proxy.
+  char * FieldName = nullptr;
+  double Limits[2] {0.0, 0.1};
+  bool Invert {false};
 
 public:
   vtkSetStringMacro(FieldName);

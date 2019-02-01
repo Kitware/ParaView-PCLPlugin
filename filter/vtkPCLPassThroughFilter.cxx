@@ -26,12 +26,6 @@ vtkStandardNewMacro(vtkPCLPassThroughFilter);
 //------------------------------------------------------------------------------
 vtkPCLPassThroughFilter::vtkPCLPassThroughFilter()
 {
-  // Initialize the filter parameters. These values should match the values set
-  // in the ServerManager proxy.
-  this->SetFieldName("x");
-  this->Limits[0] = 0.0;
-  this->Limits[1] = 1.0;
-  this->Invert = false;
 }
 
 //------------------------------------------------------------------------------

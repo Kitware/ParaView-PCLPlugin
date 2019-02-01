@@ -41,7 +41,7 @@ private:
 //------------------------------------------------------------------------------
 // Filter parameters.
 private:
-  float LeafSize[3];
+  float LeafSize[3] {0.01, 0.01, 0.01};
 
 public:
   vtkSetVector3Macro(LeafSize, float);

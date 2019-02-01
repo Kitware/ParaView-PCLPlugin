@@ -41,7 +41,7 @@ private:
 //------------------------------------------------------------------------------
 // Filter parameters.
 private:
-  double Radius;
+  double Radius {0.05};
 
 public:
   vtkSetMacro(Radius, double);

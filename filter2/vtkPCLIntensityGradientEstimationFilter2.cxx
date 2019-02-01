@@ -31,7 +31,6 @@ vtkStandardNewMacro(vtkPCLIntensityGradientEstimationFilter2);
 //------------------------------------------------------------------------------
 vtkPCLIntensityGradientEstimationFilter2::vtkPCLIntensityGradientEstimationFilter2()
 {
-  this->RadiusSearch = 0.10;
 }
 
 //------------------------------------------------------------------------------

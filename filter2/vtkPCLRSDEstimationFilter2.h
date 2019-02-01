@@ -48,9 +48,9 @@ private:
   // TODO
   // Maybe add NrSubdivisions. Supporting this will require supporting arbitrary
   // Histogram<N> types up to some limit, where N = max(NrSubdivisions)^2.
-  double PlaneRadius;
-  double RadiusSearch;
-  bool SaveHistograms;
+  double PlaneRadius {0.5};
+  double RadiusSearch {0.05};
+  bool SaveHistograms {false};
 
 public:
   vtkSetMacro(PlaneRadius, double);

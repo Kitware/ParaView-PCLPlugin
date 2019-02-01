@@ -182,9 +182,6 @@ vtkStandardNewMacro(vtkPCLOpenNISource);
 
 //------------------------------------------------------------------------------
 vtkPCLOpenNISource::vtkPCLOpenNISource()
-  : MyGrabberWrapper { nullptr }
-  , WithColor { false }
-  , DeviceID { "" }
 {
   this->Reset();
 }

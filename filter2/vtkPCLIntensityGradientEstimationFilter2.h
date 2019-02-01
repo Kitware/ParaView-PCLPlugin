@@ -42,7 +42,7 @@ private:
 //------------------------------------------------------------------------------
 // Parameters specific to this filter.
 private:
-  float RadiusSearch;
+  float RadiusSearch {0.10};
 
 public:
   vtkGetMacro(RadiusSearch, float);

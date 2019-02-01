@@ -44,7 +44,7 @@ private:
 private:
   typedef pcl::FPFHSignature33 FeatureType;
   typedef pcl::PointCloud<FeatureType> FeatureCloudT;
-  double Radius;
+  double Radius {0.07};
 
 public:
   vtkSetMacro(Radius, double);

@@ -26,8 +26,6 @@ vtkStandardNewMacro(vtkPCLStatisticalOutlierRemovalFilter);
 //------------------------------------------------------------------------------
 vtkPCLStatisticalOutlierRemovalFilter::vtkPCLStatisticalOutlierRemovalFilter()
 {
-  this->MeanK = 50.0;
-  this->StddevMulThresh = 1.0;
 }
 
 //------------------------------------------------------------------------------

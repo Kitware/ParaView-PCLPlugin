@@ -41,8 +41,8 @@ private:
 //------------------------------------------------------------------------------
 // Filter parameters.
 private:
-  double MeanK;
-  double StddevMulThresh;
+  double MeanK {50.0};
+  double StddevMulThresh {1.0};
 
 public:
   vtkSetMacro(MeanK, double);
