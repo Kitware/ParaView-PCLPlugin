@@ -982,7 +982,7 @@ BOOST_PP_SEQ_FOR_EACH(_DEFINE_CONVERTER, _, PCLP_POINT_TYPES)
 
 //------------------------------------------------------------------------------
 template <typename PointType>
-std::string vtkPCLConversions::GetPointTypeName()
+std::string vtkPCLConversions::GetPointTypeName(PointType const & point)
 {
   return PointMeta<PointType>::GetName();
 }
@@ -1045,7 +1045,9 @@ _PCLP_INSTANTIATE_GetPointTypeIndex(std::set<std::string> const &)
 //------------------------------------------------------------------------------
 // Template specialization for all PCL XYZ point types.
 #define _PCLP_INSTANTIATE_POINT_TYPE_METHODS(r, data, i, PointType)                   \
-  template std::string vtkPCLConversions::GetPointTypeName<PointType>();              \
+  template std::string vtkPCLConversions::GetPointTypeName<PointType>(                \
+    PointType const & point                                                           \
+  );                                                                                  \
                                                                                       \
   template void vtkPCLConversions::GetFieldNames<PointType>(std::set<std::string> &); \
                                                                                       \

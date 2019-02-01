@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 # Find ParaView
 if (NOT ParaView_BINARY_DIR)
   find_package(ParaView REQUIRED)
+  message(STATUS "PARAVIEW_USE_FILE: ${PARAVIEW_USE_FILE}")
   include(${PARAVIEW_USE_FILE})
 endif()
 include(ParaViewPlugins)

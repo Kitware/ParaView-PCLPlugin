@@ -76,10 +76,11 @@ public:
    * @brief  Return the point type as a string.
    * @tparam PointType The PCL point type.
    * @return The name of the point, with the "pcl::" prefix.
+   * @todo   Remove the argument when dropping support for ParaView 5.4.
    */
   template <typename PointType>
   static
-  std::string GetPointTypeName();
+  std::string GetPointTypeName(PointType const & point);
 
   /*!
    * @brief     Get the index of the best matching PCL point type in the
