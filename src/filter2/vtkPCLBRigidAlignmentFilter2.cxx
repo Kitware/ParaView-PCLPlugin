@@ -53,18 +53,14 @@ int vtkPCLBRigidAlignmentFilter2::ApplyPCLFilter2(
 )
 {
   int index = vtkPCLConversions::GetPointTypeIndex(input);
-#define _statement(PointType) return this->InternalApplyPCLFilter2<PointType>(input, target, output);
+#define _statement(PointType) return this->InternalApplyPCLFilter2<PointType,pcl::Normal,pcl::FPFHSignature33>(input, target, output);
   PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <
-  typename PointT=pcl::PointXYZ,
-  typename NormalT=pcl::Normal,
-  typename FeatureT=pcl::FPFHSignature33
->
+template <typename PointT, typename NormalT, typename FeatureT>
 int vtkPCLBRigidAlignmentFilter2::InternalApplyPCLFilter2(
   vtkPolyData * input,
   vtkPolyData * target,

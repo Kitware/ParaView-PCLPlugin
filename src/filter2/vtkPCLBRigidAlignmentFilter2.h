@@ -91,11 +91,7 @@ private:
     vtkPolyData * output
   ) override;
 
-  template <
-    typename PointType=pcl::PointXYZ, 
-    typename NormalType=pcl::Normal, 
-    typename FeatureType=pcl::FPFHSignature33
-  >
+  template <typename PointT, typename NormalT, typename FeatureT>
   int InternalApplyPCLFilter2(
     vtkPolyData * input,
     vtkPolyData * reference,
