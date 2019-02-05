@@ -34,9 +34,11 @@ vtkPCLStatisticalOutlierRemovalFilter::~vtkPCLStatisticalOutlierRemovalFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLStatisticalOutlierRemovalFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLStatisticalOutlierRemovalFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "MeanK: " << this->MeanK << '\n';
+  os << indent << "StddevMulThresh: " << this->StddevMulThresh << '\n';
 }
 
 //------------------------------------------------------------------------------

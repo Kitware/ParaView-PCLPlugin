@@ -36,9 +36,10 @@ vtkPCLFPFHEstimationFilter2::~vtkPCLFPFHEstimationFilter2()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLFPFHEstimationFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLFPFHEstimationFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Radius: " << this->Radius << '\n';
 }
 
 //------------------------------------------------------------------------------

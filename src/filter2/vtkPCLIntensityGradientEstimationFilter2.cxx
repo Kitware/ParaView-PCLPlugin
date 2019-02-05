@@ -39,9 +39,10 @@ vtkPCLIntensityGradientEstimationFilter2::~vtkPCLIntensityGradientEstimationFilt
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLIntensityGradientEstimationFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLIntensityGradientEstimationFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "RadiusSearch: " << this->RadiusSearch << '\n';
 }
 
 //------------------------------------------------------------------------------

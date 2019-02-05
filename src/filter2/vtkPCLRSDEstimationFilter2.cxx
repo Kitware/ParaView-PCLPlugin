@@ -36,9 +36,12 @@ vtkPCLRSDEstimationFilter2::~vtkPCLRSDEstimationFilter2()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLRSDEstimationFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLRSDEstimationFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "PlaneRadius: " << this->PlaneRadius << '\n';
+  os << indent << "RadiusSearch: " << this->RadiusSearch << '\n';
+  os << indent << "SaveHistograms: " << (this->SaveHistograms ? "yes" : "no") << '\n';
 }
 
 //------------------------------------------------------------------------------

@@ -35,7 +35,7 @@ vtkPCLWriter::~vtkPCLWriter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLWriter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLWriter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

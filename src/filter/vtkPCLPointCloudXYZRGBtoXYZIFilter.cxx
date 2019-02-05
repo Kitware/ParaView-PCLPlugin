@@ -34,7 +34,7 @@ vtkPCLPointCloudXYZRGBtoXYZIFilter::~vtkPCLPointCloudXYZRGBtoXYZIFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLPointCloudXYZRGBtoXYZIFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLPointCloudXYZRGBtoXYZIFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

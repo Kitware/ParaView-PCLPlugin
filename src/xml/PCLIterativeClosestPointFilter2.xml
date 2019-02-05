@@ -11,6 +11,16 @@
         short_help="IterativeClosestPoint filter from the Point Cloud Library (PCL)." >
       </Documentation>
 
+      <IntVectorProperty
+        name="UseReciprocalCorrespondences"
+        command="SetUseReciprocalCorrespondences"
+        number_of_elements="1"
+        default_values="0"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>If true, use reciprocal correspondences.</Documentation>
+      </IntVectorProperty>
+
       <Hints>
         <ShowInMenu category="PCL" />
       </Hints>

@@ -36,7 +36,7 @@ vtkPCLFilter4::~vtkPCLFilter4()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLFilter4::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLFilter4::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

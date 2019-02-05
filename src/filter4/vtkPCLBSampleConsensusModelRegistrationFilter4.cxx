@@ -40,9 +40,15 @@ vtkPCLBSampleConsensusModelRegistrationFilter4::~vtkPCLBSampleConsensusModelRegi
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLBSampleConsensusModelRegistrationFilter4::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLBSampleConsensusModelRegistrationFilter4::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "DistanceThreshold: " << this->DistanceThreshold << "\n";
+  os << indent << "MaxIterations: " << this->MaxIterations << "\n";
+  os << indent << "Probability: " << this->Probability << "\n";
+  os << indent << "TransformationMatrix: " << this->TransformationMatrix << "\n";
+  os << indent << "HasTransformation: " << (this->HasTransformation ? "yes" : "no") << "\n";
+  os << indent << "ReuseTransformation: " << (this->ReuseTransformation ? "yes" : "no") << "\n";
 }
 
 //------------------------------------------------------------------------------

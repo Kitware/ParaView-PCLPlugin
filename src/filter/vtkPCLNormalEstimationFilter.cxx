@@ -35,9 +35,10 @@ vtkPCLNormalEstimationFilter::~vtkPCLNormalEstimationFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLNormalEstimationFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLNormalEstimationFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Radius: " << this->Radius << "\n";
 }
 
 //------------------------------------------------------------------------------

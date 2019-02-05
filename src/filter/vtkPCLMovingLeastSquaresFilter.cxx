@@ -45,6 +45,25 @@ getUpsamplingMethod(unsigned int index)
 }
 
 //------------------------------------------------------------------------------
+char const * getUpsamplingMethodString(unsigned int index)
+{
+	switch (index)
+	{
+		case 1:
+			return "DISTINCT_CLOUD";
+		case 2:
+			return "SAMPLE_LOCAL_PLANE";
+		case 3:
+			return "RANDOM_UNIFORM_DENSITY";
+		case 4:
+			return "VOXEL_GRID_DILATION";
+		case 0:
+		default:
+			return "NONE";
+	}
+}
+
+//------------------------------------------------------------------------------
 // The indices must correspond to the ones in the proxy.
 pcl::MLSResult::ProjectionMethod
 getProjectionMethod(unsigned int index)
@@ -62,6 +81,21 @@ getProjectionMethod(unsigned int index)
 }
 
 //------------------------------------------------------------------------------
+char const * getProjectionMethodString(unsigned int index)
+{
+	switch (index)
+	{
+		case 1:
+			return "SIMPLE";
+		case 2:
+			return "ORTHOGONAL";
+		case 0:
+		default:
+			return "NONE";
+	}
+}
+
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLMovingLeastSquaresFilter);
 
 //------------------------------------------------------------------------------
@@ -75,9 +109,21 @@ vtkPCLMovingLeastSquaresFilter::~vtkPCLMovingLeastSquaresFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLMovingLeastSquaresFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLMovingLeastSquaresFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "ComputeNormals: " << (this->ComputeNormals ? "yes" : "no") << '\n';
+  os << indent << "PolynomialOrder: " << this->PolynomialOrder << '\n';
+  os << indent << "SearchRadius: " << this->SearchRadius << '\n';
+  os << indent << "SqrGaussParam: " << this->SqrGaussParam << '\n';
+  os << indent << "UpsamplingRadius: " << this->UpsamplingRadius << '\n';
+  os << indent << "UpsamplingStepSize: " << this->UpsamplingStepSize << '\n';
+  os << indent << "PointDensity: " << this->PointDensity << '\n';
+  os << indent << "DilationVoxelSize: " << this->DilationVoxelSize << '\n';
+  os << indent << "CacheMLSResults: " << this->CacheMLSResults << '\n';
+  os << indent << "NumberOfThreads: " << this->NumberOfThreads << '\n';
+  os << indent << "UpsamplingMethod: " << getUpsamplingMethodString(this->UpsamplingMethod) << '\n';
+  os << indent << "ProjectionMethod: " << getProjectionMethodString(this->ProjectionMethod) << '\n';
 }
 
 //------------------------------------------------------------------------------

@@ -197,9 +197,12 @@ vtkPCLOpenNISource::~vtkPCLOpenNISource()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLOpenNISource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLOpenNISource::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "DeviceID: " << this->DeviceID << '\n';
+  os << indent << "WithColor: " << this->WithColor << '\n';
+  os << indent << "MyGrabberWrapper: " << this->MyGrabberWrapper << '\n';
 }
 
 //------------------------------------------------------------------------------

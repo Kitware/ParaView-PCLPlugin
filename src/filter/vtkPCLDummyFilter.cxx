@@ -37,9 +37,10 @@ vtkPCLDummyFilter::~vtkPCLDummyFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLDummyFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLDummyFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Message: " << this->Message << '\n';
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ int vtkPCLDummyFilter::RequestData(
   vtkPolyData * input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkInformation * outInfo = outputVector->GetInformationObject(0);
   vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  std::cout << this->Message << std::endl;
+  std::cout << this->Message << '\n';
   output->ShallowCopy(input);
   return 1;
 }

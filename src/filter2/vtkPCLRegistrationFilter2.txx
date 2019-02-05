@@ -37,6 +37,15 @@ inline
 void vtkPCLRegistrationFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "MaxCorrespondenceDistance: " << this->MaxCorrespondenceDistance << '\n';
+  os << indent << "MaximumIterations: " << this->MaximumIterations << '\n';
+  os << indent << "TransformationEpsilon: " << this->TransformationEpsilon << '\n';
+  os << indent << "TransformationEpsilon: " << this->TransformationEpsilon << '\n';
+  os << indent << "TransformationRotationEpsilon: " << this->TransformationRotationEpsilon << '\n';
+  os << indent << "EuclideanFitnessEpsilon: " << this->EuclideanFitnessEpsilon << '\n';
+  os << indent << "TransformationMatrix: " << this->TransformationMatrix << "\n";
+  os << indent << "HasTransformation: " << (this->HasTransformation ? "yes" : "no") << "\n";
+  os << indent << "ReuseTransformation: " << (this->ReuseTransformation ? "yes" : "no") << "\n";
 }
 
 //------------------------------------------------------------------------------

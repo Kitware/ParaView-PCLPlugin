@@ -36,7 +36,7 @@ vtkPCLSource::~vtkPCLSource()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLSource::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

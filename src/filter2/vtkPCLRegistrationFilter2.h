@@ -51,7 +51,6 @@ protected:
   double TransformationRotationEpsilon {1e-8};
   double EuclideanFitnessEpsilon {1.0};
 
-protected:
   // Transformation caching.
   Eigen::Matrix4f TransformationMatrix {Eigen::Matrix4f::Identity()};
   bool HasTransformation {false};

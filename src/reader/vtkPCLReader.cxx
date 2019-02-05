@@ -42,7 +42,7 @@ vtkPCLReader::~vtkPCLReader()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLReader::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLReader::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

@@ -40,9 +40,12 @@ vtkPCLSampleConsensusInitialAlignmentFilter2::~vtkPCLSampleConsensusInitialAlign
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLSampleConsensusInitialAlignmentFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLSampleConsensusInitialAlignmentFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "MinSampleDistance: " << this->MinSampleDistance << '\n';
+  os << indent << "NormalRadius: " << this->NormalRadius << '\n';
+  os << indent << "FeatureRadius: " << this->FeatureRadius << '\n';
 }
 
 //------------------------------------------------------------------------------

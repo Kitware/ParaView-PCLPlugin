@@ -34,9 +34,12 @@ vtkPCLPassThroughFilter::~vtkPCLPassThroughFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLPassThroughFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLPassThroughFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "FieldName: " << (this->FieldName == nullptr ? "" : this->FieldName) << '\n';
+  os << indent << "Limits: " << this->Limits[0] << " - " << this->Limits[1] << '\n';
+  os << indent << "Invert: " << (this->Invert ? "yes" : "no") << '\n';
 }
 
 //------------------------------------------------------------------------------

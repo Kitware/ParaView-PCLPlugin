@@ -40,7 +40,14 @@ private:
   void operator=(const vtkPCLIterativeClosestPointFilter2&) = delete;
 
 //------------------------------------------------------------------------------
+private:
+  bool UseReciprocalCorrespondences = false;
+
+//------------------------------------------------------------------------------
 public:
+  vtkSetMacro(UseReciprocalCorrespondences, bool);
+  vtkGetMacro(UseReciprocalCorrespondences, bool);
+
 //------------------------------------------------------------------------------
 private:
   int ApplyPCLFilter2(

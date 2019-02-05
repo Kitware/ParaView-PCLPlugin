@@ -788,7 +788,7 @@ vtkPCLConversions::~vtkPCLConversions()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLConversions::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLConversions::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

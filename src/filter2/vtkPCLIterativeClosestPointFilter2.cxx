@@ -39,9 +39,10 @@ vtkPCLIterativeClosestPointFilter2::~vtkPCLIterativeClosestPointFilter2()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLIterativeClosestPointFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLIterativeClosestPointFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "UseReciprocalCorrespondences: " << (this->UseReciprocalCorrespondences ? "yes" : "no") << '\n';
 }
 
 //------------------------------------------------------------------------------
@@ -83,6 +84,7 @@ int vtkPCLIterativeClosestPointFilter2::InternalApplyPCLFilter2(
     pcl::IterativeClosestPoint<PointType, PointType> icp;
     icp.setInputCloud(inputCloud);
     icp.setInputTarget(targetCloud);
+    icp.setUseReciprocalCorrespondences(this->UseReciprocalCorrespondences);
 
     // Set common registration options and align.
     this->ConfigureAndAlign<PointType,PointType>(icp, (* outputCloud));

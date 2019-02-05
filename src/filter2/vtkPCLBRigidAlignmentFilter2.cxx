@@ -40,9 +40,17 @@ vtkPCLBRigidAlignmentFilter2::~vtkPCLBRigidAlignmentFilter2()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLBRigidAlignmentFilter2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLBRigidAlignmentFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "NormalRadius: " << this->NormalRadius << "\n";
+  os << indent << "FeatureRadius: " << this->FeatureRadius << "\n";
+  os << indent << "DistanceThreshold: " << this->DistanceThreshold << "\n";
+  os << indent << "MaxIterations: " << this->MaxIterations << "\n";
+  os << indent << "Probability: " << this->Probability << "\n";
+  os << indent << "TransformationMatrix: " << this->TransformationMatrix << "\n";
+  os << indent << "HasTransformation: " << (this->HasTransformation ? "yes" : "no") << "\n";
+  os << indent << "ReuseTransformation: " << (this->ReuseTransformation ? "yes" : "no") << "\n";
 }
 
 //------------------------------------------------------------------------------

@@ -34,9 +34,10 @@ vtkPCLVoxelGridFilter::~vtkPCLVoxelGridFilter()
 }
 
 //------------------------------------------------------------------------------
-void vtkPCLVoxelGridFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPCLVoxelGridFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "LeafSize: " << this->LeafSize[0] << ", " << this->LeafSize[1] << ", " << this->LeafSize[2] << '\n';
 }
 
 //------------------------------------------------------------------------------
