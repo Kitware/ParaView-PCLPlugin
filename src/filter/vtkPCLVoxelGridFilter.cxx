@@ -50,6 +50,7 @@ int vtkPCLVoxelGridFilter::ApplyPCLFilter(
 #define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
   PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "no XYZ point data in input")
   return 0;
 }
 

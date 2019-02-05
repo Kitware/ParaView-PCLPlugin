@@ -53,6 +53,7 @@ int vtkPCLPCDFileReader::LoadPCLReader(
 {
   if (this->FileName == "")
   {
+    vtkErrorMacro(<< "no file name given")
     return 0;
   }
 
@@ -85,6 +86,7 @@ int vtkPCLPCDFileReader::LoadPCLReader(
 #define _statement(PointType) return this->InternalLoadPCLReader<PointType>(output);
   PCLP_INVOKE_WITH_PCL_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "failed to determine PCL point type from file")
   return 0;
 }
 
@@ -98,6 +100,7 @@ int vtkPCLPCDFileReader::InternalLoadPCLReader(
   typename CloudT::Ptr outputCloud(new CloudT);
   if (pcl::io::loadPCDFile(this->FileName, (* outputCloud)) == -1)
   {
+    vtkErrorMacro(<< "failed to load file")
     return 0;
   }
   else

@@ -15,6 +15,11 @@
 // limitations under the License.
 //==============================================================================
 
+/*!
+ * @file
+ * @deprecated This file will likely be removed in the near future.
+ */
+
 #ifndef _PCLP_FeatureExtractor_h
 #define _PCLP_FeatureExtractor_h
 

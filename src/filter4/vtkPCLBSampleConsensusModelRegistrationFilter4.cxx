@@ -65,7 +65,7 @@ int vtkPCLBSampleConsensusModelRegistrationFilter4::ApplyPCLFilter4(
 #define _statement(PointType) return this->InternalApplyPCLFilter4<PointType>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
   PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
-  vtkErrorMacro(<< "no XYZ data in source points input")
+  vtkErrorMacro(<< "no XYZ point data in input")
   return 0;
 
   // return this->InternalInternalApplyPCLFilter4<pcl::PointNormal,pcl::FPFHSignature33>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
@@ -86,7 +86,7 @@ int vtkPCLBSampleConsensusModelRegistrationFilter4::InternalApplyPCLFilter4(
 #define _statement(FeatureType) return this->InternalInternalApplyPCLFilter4<PointType,FeatureType>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);
   PCLP_INVOKE_WITH_PCL_FEATURE_POINT_TYPE(index, _statement)
 #undef _statement
-  vtkErrorMacro(<< "no feature data in source features input")
+  vtkErrorMacro(<< "input did not match any feature point type")
   return 0;
   
   // return this->InternalInternalApplyPCLFilter4<PointType,pcl::FPFHSignature33>(sourcePointsPD, sourceFeaturesPD, targetPointsPD, targetFeaturesPD, output);

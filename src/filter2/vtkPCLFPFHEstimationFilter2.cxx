@@ -70,6 +70,7 @@ int vtkPCLFPFHEstimationFilter2::ApplyPCLFilter2(
 #undef _statement
   }
 
+  vtkErrorMacro(<< "no XYZ point data in input")
   return 0;
 }
 

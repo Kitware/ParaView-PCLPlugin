@@ -53,6 +53,7 @@ int vtkPCLPCDFileWriter::WritePCL(
 {
   if (this->FileName == nullptr)
   {
+    vtkErrorMacro(<< "no file name given")
     return 0;
   }
 
@@ -60,6 +61,7 @@ int vtkPCLPCDFileWriter::WritePCL(
 #define _statement(PointType) return this->InternalWritePCL<PointType>(input);
   PCLP_INVOKE_WITH_PCL_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "failed to determine PCL point type")
   return 0;
 }
 

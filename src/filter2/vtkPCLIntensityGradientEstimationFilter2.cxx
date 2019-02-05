@@ -78,7 +78,7 @@ int vtkPCLIntensityGradientEstimationFilter2::InternalApplyPCLFilter2(
 #define _statement(NPointType) return this->InternalInternalApplyPCLFilter2<IPointType, NPointType>(intensities, normals, output);
   PCLP_INVOKE_WITH_PCL_NORMAL_POINT_TYPE(index, _statement)
 #undef _statement
-  vtkErrorMacro(<< "normal data input does not contain normal components")
+  vtkErrorMacro(<< "failed to determine normal point type from normals input")
   return 0;
 }
 

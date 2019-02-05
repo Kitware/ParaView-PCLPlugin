@@ -64,6 +64,7 @@ int vtkPCLBRigidAlignmentFilter2::ApplyPCLFilter2(
 #define _statement(PointType) return this->InternalApplyPCLFilter2<PointType,pcl::Normal,pcl::FPFHSignature33>(input, target, output);
   PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "no XYZ point data in input")
   return 0;
 }
 
@@ -129,6 +130,7 @@ int vtkPCLBRigidAlignmentFilter2::InternalApplyPCLFilter2(
     ransacFilter.setProbability(this->Probability);
     if (! (ransacFilter.computeModel() && ransacFilter.refineModel()))
     {
+      vtkErrorMacro(<< "failed to compute random sample consensus")
       return 0;
     }
 

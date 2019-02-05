@@ -69,6 +69,7 @@ int vtkPCLPassThroughFilter::ApplyPCLFilter(
 
   // If control reaches this point then no switch statement was executed and no
   // filter was applied. Return 0 to indicate this.
+  vtkErrorMacro(<< "no XYZ point data in input")
   return 0;
 }
 

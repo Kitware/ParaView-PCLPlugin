@@ -55,12 +55,12 @@ int vtkPCLRSDEstimationFilter2::ApplyPCLFilter2(
   // normals.
   if (normals == nullptr)
   {
-    std::cout << "normals is null" << std::endl;
     std::set<std::string> requiredFieldNames { "normal_x", "normal_y", "normal_z" };
     int index = vtkPCLConversions::GetPointTypeIndex(points, requiredFieldNames);
 #define _statement(PointType) return this->InternalApplyPCLFilter2<PointType>(points, features);
     PCLP_INVOKE_WITH_XYZ_NORMAL_POINT_TYPE(index, _statement)
 #undef _statement
+    vtkErrorMacro(<< "failed to determine a corresponding point type with normal attributes")
   }
 
   // Otherwise both the point and normal type have to be determined.
@@ -70,6 +70,7 @@ int vtkPCLRSDEstimationFilter2::ApplyPCLFilter2(
 #define _statement(PointType) return this->InternalApplyPCLFilter2<PointType, pcl::Normal>(points, normals, features);
     PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
+    vtkErrorMacro(<< "no XYZ point data in input")
   }
 
   return 0;

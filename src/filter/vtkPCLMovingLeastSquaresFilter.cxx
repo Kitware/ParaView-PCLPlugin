@@ -136,6 +136,7 @@ int vtkPCLMovingLeastSquaresFilter::ApplyPCLFilter(
 #define _statement(PointType) return this->InternalApplyPCLFilter<PointType>(input, output);
   PCLP_INVOKE_WITH_PCL_XYZ_POINT_TYPE(index, _statement)
 #undef _statement
+  vtkErrorMacro(<< "no XYZ point data in input")
   return 0;
 }
 
@@ -155,6 +156,7 @@ int vtkPCLMovingLeastSquaresFilter::InternalApplyPCLFilter(
 #define _statement(NormalPointType) return this->InternalInternalApplyPCLFilter<PointType, NormalPointType>(input, output);
     PCLP_INVOKE_WITH_XYZ_NORMAL_POINT_TYPE(index, _statement)
 #undef _statement
+    vtkErrorMacro(<< "failed to determine a corresponding point type with normal attributes")
     return 0;
   }
   else
