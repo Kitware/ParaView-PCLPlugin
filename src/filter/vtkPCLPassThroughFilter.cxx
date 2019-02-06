@@ -37,9 +37,9 @@ vtkPCLPassThroughFilter::~vtkPCLPassThroughFilter()
 void vtkPCLPassThroughFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FieldName: " << (this->FieldName == nullptr ? "" : this->FieldName) << '\n';
-  os << indent << "Limits: " << this->Limits[0] << " - " << this->Limits[1] << '\n';
-  os << indent << "Invert: " << (this->Invert ? "yes" : "no") << '\n';
+  os << indent << "FilterFieldName: " << (this->FilterFieldName == nullptr ? "" : this->FilterFieldName) << '\n';
+  os << indent << "FilterLimits: " << this->FilterLimits[0] << " - " << this->FilterLimits[1] << '\n';
+  os << indent << "FilterLimitsNegative: " << (this->FilterLimitsNegative ? "yes" : "no") << '\n';
 }
 
 //------------------------------------------------------------------------------
@@ -91,12 +91,12 @@ int vtkPCLPassThroughFilter::InternalApplyPCLFilter(
   // Convert the input PolyData instance to a point cloud.
   vtkPCLConversions::PointCloudFromPolyData(input, inputCloud);
 
-  // Apply the filter using 
+  // Apply the filter using pure PCL code.
   pcl::PassThrough<PointType> filter;
   filter.setInputCloud(inputCloud);
-  filter.setFilterFieldName(this->FieldName);
-  filter.setFilterLimits(this->Limits[0], this->Limits[1]);
-  filter.setFilterLimitsNegative(this->Invert);
+  filter.setFilterFieldName(this->FilterFieldName);
+  filter.setFilterLimits(this->FilterLimits[0], this->FilterLimits[1]);
+  filter.setFilterLimitsNegative(this->FilterLimitsNegative);
   filter.filter(* outputCloud);
 
   // Convert the result to the output PolyData instance.

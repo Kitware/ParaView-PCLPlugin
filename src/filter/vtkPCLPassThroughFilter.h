@@ -44,19 +44,19 @@ private:
 private:
   // Initialize the filter parameters. These values should match the values set
   // in the ServerManager proxy.
-  char * FieldName = nullptr;
-  double Limits[2] {0.0, 0.1};
-  bool Invert {false};
+  char * FilterFieldName = nullptr;
+  double FilterLimits[2] {0.0, 0.1};
+  bool FilterLimitsNegative {false};
 
 public:
-  vtkSetStringMacro(FieldName);
-  vtkGetStringMacro(FieldName);
+  vtkSetStringMacro(FilterFieldName);
+  vtkGetStringMacro(FilterFieldName);
 
-  vtkSetVector2Macro(Limits, double);
-  vtkGetVector2Macro(Limits, double);
+  vtkSetVector2Macro(FilterLimits, double);
+  vtkGetVector2Macro(FilterLimits, double);
 
-  vtkSetMacro(Invert, bool);
-  vtkGetMacro(Invert, bool);
+  vtkSetMacro(FilterLimitsNegative, bool);
+  vtkGetMacro(FilterLimitsNegative, bool);
 
 //------------------------------------------------------------------------------
 private:

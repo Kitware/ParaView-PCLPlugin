@@ -23,29 +23,29 @@
 
 
       <StringVectorProperty
-        name="FieldName"
+        name="FilterFieldName"
         default_values="x"
-        command="SetFieldName"
+        command="SetFilterFieldName"
         number_of_elements="1">
-        <Documentation>Set the field (PCL point type attribute, e.g. "x", "y", "z", "r", "g", "b") to which the filter will be applied. The present fields will be determined by the input data.</Documentation>
+        <Documentation>Provide the name of the field to be used for filtering data.</Documentation>
       </StringVectorProperty>
 
       <DoubleVectorProperty
-        name="Limits"
-        command="SetLimits"
+        name="FilterLimits"
+        command="SetFilterLimits"
         number_of_elements="2"
         default_values="0.0 1.0"
         >
-        <Documentation>Set the limits of the filter.</Documentation>
+        <Documentation>Set the numerical limits for the field for filtering data.</Documentation>
       </DoubleVectorProperty>
 
       <IntVectorProperty
-        name="Invert"
+        name="FilterLimitsNegative"
         default_values="0"
-        command="SetInvert"
+        command="SetFilterLimitsNegative"
         number_of_elements="1">
         <BooleanDomain name="bool" />
-        <Documentation>Invert the filter. If set, the filter will remove points within the limits.</Documentation>
+        <Documentation>Set to true if we want to return the data outside the interval specified by setFilterLimits (min, max).</Documentation>
       </IntVectorProperty>
 
       <Hints>
