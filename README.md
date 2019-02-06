@@ -64,3 +64,22 @@ It is possible to create filters with multiple inputs, some of which may even be
 
 Ideally each filter should correspond as closely as possible to a single PCL functionality (e.g. `PassThrough`, `NormalEstimation`, `VoxelGrid`). In such cases, the name of the filter and class should use the PCL filter to signify that it is essentially a pure PCL function. In some cases this is nevertheless impossible, such as when intermediate steps and PolyData-inconvertible data objects are required. Filters that involve intermediate steps should use the PCLB prefix to indicate that they are PCL-based but not pure PCL). All internal parameters should be exposed via the server manager proxy to make the filter as generic as possible.
 
+## Naming Conventions
+
+Filter file names follow a precise format: `[vtk]PCL[B]<name><category><extension>`
+
+`[vtk]`
+:   The "vtk" prefix is required for the header and source files as each filter is a VTK class. This is omitted from the server mananager XML file name.
+
+`PCL[B]`
+:   All filters in the plugin contain the prefix "PCL" in their name. If the filter wraps a single PCL function then "PCL" should be used. If it wraps a block of PCL code with intermediate steps then "PCLB" should be used to indicate that it is a "PCL-based" filter without a one-to-one correspondence to a PCL function.
+
+`<name>`
+:   The name of the filter, in CamelCase. For simple filters, this should match the name of the underlying PCL class or function.
+
+`<category>`
+:   The name of the filter, in CamelCase. "Filter" for filters with 1 input, "Filter2" for filters with 2 inputs and so on, "Source" for sources, "Reader" for readers and "Writer" for writers.
+
+`<extension>`
+:   The normal file extension: `.h` for the header, `.cxx` for the source file and `.xml` for the server manager XML.
+
