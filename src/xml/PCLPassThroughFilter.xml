@@ -24,9 +24,10 @@
 
       <StringVectorProperty
         name="FilterFieldName"
-        default_values="x"
         command="SetFilterFieldName"
-        number_of_elements="1">
+        number_of_elements="1"
+        default_values="x"
+        >
         <Documentation>Provide the name of the field to be used for filtering data.</Documentation>
       </StringVectorProperty>
 
