@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 #-------------------------------------------------------------------------------
 # Find ParaView
-if (NOT ParaView_BINARY_DIR)
+if(NOT ParaView_BINARY_DIR)
   find_package(ParaView REQUIRED)
   message(STATUS "PARAVIEW_USE_FILE: ${PARAVIEW_USE_FILE}")
   include(${PARAVIEW_USE_FILE})
@@ -22,6 +22,12 @@ add_definitions(${PCL_DEFINITIONS})
 find_package(Boost REQUIRED)
 include_directories(${BOOST_INCLUDE_DIRS})
 # link_directories(${BOOST_LIBRARY_DIRS})
+
+#-------------------------------------------------------------------------------
+find_package(ospray)
+if(ospray_FOUND)
+  link_directories(${ospray_LIBRARY_DIRS})
+endif()
 
 #-------------------------------------------------------------------------------
 # Options
