@@ -48,22 +48,12 @@ int vtkPCLFilter4::RequestData(
   vtkInformationVector * outputVector
 )
 {
-  // Extract the polydata and pass it on to the derived classes method.
-  vtkInformation * inInfoA = inputVector[0]->GetInformationObject(0);
-  vtkPolyData * inputA(vtkPolyData::SafeDownCast(inInfoA->Get(vtkDataObject::DATA_OBJECT())));
-
-  vtkInformation * inInfoB = inputVector[1]->GetInformationObject(0);
-  vtkPolyData * inputB(vtkPolyData::SafeDownCast(inInfoB->Get(vtkDataObject::DATA_OBJECT())));
-
-  vtkInformation * inInfoC = inputVector[2]->GetInformationObject(0);
-  vtkPolyData * inputC(vtkPolyData::SafeDownCast(inInfoC->Get(vtkDataObject::DATA_OBJECT())));
-
-  vtkInformation * inInfoD = inputVector[3]->GetInformationObject(0);
-  vtkPolyData * inputD(vtkPolyData::SafeDownCast(inInfoD->Get(vtkDataObject::DATA_OBJECT())));
-
-  vtkInformation * outInfo = outputVector->GetInformationObject(0);
-  vtkPolyData * output(vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())));
-
+  // Get the polydata and pass it on to the derived classes method.
+  vtkPolyData * inputA = vtkPolyData::GetData(inputVector[0]->GetInformationObject(0));
+  vtkPolyData * inputB = vtkPolyData::GetData(inputVector[1]->GetInformationObject(0));
+  vtkPolyData * inputC = vtkPolyData::GetData(inputVector[2]->GetInformationObject(0));
+  vtkPolyData * inputD = vtkPolyData::GetData(inputVector[3]->GetInformationObject(0));
+  vtkPolyData * output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
   return this->ApplyPCLFilter4(inputA, inputB, inputC, inputD, output);
 }
 

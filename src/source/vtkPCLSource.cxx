@@ -48,8 +48,7 @@ int vtkPCLSource::RequestData(
   vtkInformationVector * outputVector
 )
 {
-  vtkInformation * outInfo = outputVector->GetInformationObject(0);
-  vtkPolyData * output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData * output = vtkPolyData::GetData(outputVector->GetInformationObject(0));
   return this->LoadPCLSource(output);
 }
 
