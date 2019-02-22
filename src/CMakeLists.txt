@@ -35,65 +35,14 @@ option(ENABLE_OPENNI "Enable OpenNI Support (requires PCL with OpenNI support)."
 
 #-------------------------------------------------------------------------------
 # Initialize ParaView plugin variables.
-set(ServerManagerIncludeDirs
-  common
-  )
-set(ServerManagerSources
-  common/vtkPCLConversions.cxx
-  )
-set(ServerManagerXML
-  xml/PCLCommon.xml
-  )
+set(ServerManagerIncludeDirs)
+set(ServerManagerSources)
+set(ServerManagerXML xml/PCLCommon.xml)
+
 
 #-------------------------------------------------------------------------------
-# Macro
-#-------------------------------------------------------------------------------
-# Use a macro to ensure that related files are handled together. The argument is
-# a name such as PCLPassThroughFilter or PCLPCDFileReader, without the vtk
-# prefix or file extension. The directory will be parsed from the final part of
-# the word ("Filter", "Reader", etc.) converted to lower case and suffixed with
-# "s". Obviously this macro assumes that all arguments follow the same naming
-# conventions.
-#
-# Additional xml and source files can be passed to this function. They will be
-# added ServerManagerXML and ServerManagerSources according to their extension
-# (.xml, .cxx, .txx).
-macro(add_module name)
-  message(STATUS "Add module ${name}.")
-
-  # Add the ServerManager xml file.
-  list(APPEND ServerManagerXML "xml/${name}.xml")
-
-  # The final part of the name determines the type, include directory and parent
-  # class. For example, all modules ending in "Filter" are expected to be in the
-  # "filter" directory along with their required headers and to inherit from
-  # "vtkPCLFilter" defined in "vtkPCLFilter.cxx".
-  string(REGEX MATCH "[A-Z][a-z]+[0-9]*$" filter_type "${name}")
-  string(TOLOWER "${filter_type}" directory)
-
-  # Ensure that the include directory is included.
-  list(APPEND ServerManagerIncludeDirs "${directory}")
-
-  # Ensure that the parent class source is included (e.g. vtkPCLFilter.cxx) for
-  # all filter types.
-  list(APPEND ServerManagerSources "${directory}/vtkPCL${filter_type}.cxx")
-
-  # Add the source file. Use append_if_missing in case the class is a parent
-  # class for another filter and thus already included.
-  list(APPEND ServerManagerSources "${directory}/vtk${name}.cxx")
-
-  # Append any additional xml or source files.
-  foreach(additional_arg ${ARGN})
-    get_filename_component(additional_arg_ext "${additional_arg}" EXT)
-    if("${additional_arg_ext}" STREQUAL ".xml")
-      list(APPEND ServerManagerXML "${additional_arg}")
-    elseif("${additional_arg_ext}" STREQUAL ".cxx" OR "${additional_arg_ext}" STREQUAL ".txx")
-      list(APPEND ServerManagerSources "${additional_arg}")
-    else()
-      message(WARNING "unrecognized extension passed to add_module macro")
-    endif()
-  endforeach()
-endmacro(add_module)
+# Include the "add_module" macro.
+include("cmake/macros.cmake")
 
 #-------------------------------------------------------------------------------
 # Add the plugin modules (filters, readers, etc.) The add_module macro accepts
