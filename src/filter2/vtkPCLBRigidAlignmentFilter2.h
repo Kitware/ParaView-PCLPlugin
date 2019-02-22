@@ -19,7 +19,6 @@
 #define vtkPCLBRigidAlignmentFilter2_h
 
 #include "vtkPCLFilter2.h"
-#include "vtkPCLRegistrationFilter2.h"
 
 class VTK_EXPORT vtkPCLBRigidAlignmentFilter2 : public vtkPCLFilter2
 {

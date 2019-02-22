@@ -18,7 +18,6 @@
 #ifndef vtkPCLIterativeClosestPointFilter2_h
 #define vtkPCLIterativeClosestPointFilter2_h
 
-#include "vtkPCLFilter2.h"
 #include "vtkPCLRegistrationFilter2.h"
 
 class VTK_EXPORT vtkPCLIterativeClosestPointFilter2 : public vtkPCLRegistrationFilter2
