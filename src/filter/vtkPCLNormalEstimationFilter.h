@@ -42,10 +42,20 @@ private:
 // Filter parameters.
 private:
   double Radius {0.05};
+  
+  // KdTree attributes
+  bool UseKdTree {false};
+  float Epsilon {0}; // default value of pcl::search::Kdtree
 
 public:
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
+
+  vtkSetMacro(UseKdTree, bool);
+  vtkGetMacro(UseKdTree, bool);
+
+  vtkSetMacro(Epsilon, float);
+  vtkGetMacro(Epsilon, float);
 
 //------------------------------------------------------------------------------
 private:

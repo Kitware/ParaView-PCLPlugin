@@ -114,7 +114,7 @@ macro(add_module name)
   # Add the ServerManager xml file.
   list(APPEND ServerManagerXML "xml/${name}.xml")
 
-  # The final part of the name determines the subdirectory in which the related
+  # The final part of the name determines the subdirectory in which the C++
   # files are located.  For example, all modules ending in "Filter" are expected
   # to be in the "filter" directory.
   string(REGEX MATCH "[A-Z][a-z]+[0-9]*$" filter_type "${name}")

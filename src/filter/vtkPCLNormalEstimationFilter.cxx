@@ -21,6 +21,7 @@
 
 // #define PCL_NO_PRECOMPILE
 #include <pcl/features/normal_3d_omp.h>
+#include <pcl/search/kdtree.h>
 
 vtkStandardNewMacro(vtkPCLNormalEstimationFilter);
 
@@ -39,6 +40,8 @@ void vtkPCLNormalEstimationFilter::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "UseKdtree: " << this->UseKdTree << "\n";
+  os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -87,6 +90,8 @@ int vtkPCLNormalEstimationFilter::EstimateNormals(
 )
 {
   typedef pcl::PointCloud<NormalPointType> NormalCloudT;
+  typedef pcl::search::KdTree<PointType> KdTreeT;
+
   typename NormalCloudT::Ptr outputCloud(new NormalCloudT);
 
   // Copy the xyz data. The normal data will be inserted by the estimator below.
@@ -95,6 +100,13 @@ int vtkPCLNormalEstimationFilter::EstimateNormals(
   pcl::NormalEstimationOMP<PointType, NormalPointType> ne;
   ne.setRadiusSearch(this->Radius);
   ne.setInputCloud(inputCloud);
+  if (this->UseKdTree)
+  {
+    typename KdTreeT::Ptr kdtree(new KdTreeT());
+    std::cout << "Epsilon: " << kdtree->getEpsilon() << '\n';
+    kdtree->setEpsilon(this->Epsilon);
+    ne.setSearchMethod(kdtree);
+  }
   ne.compute((* outputCloud));
 
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);
