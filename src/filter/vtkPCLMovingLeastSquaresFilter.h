@@ -59,6 +59,10 @@ private:
   unsigned int UpsamplingMethod = 0;
 	unsigned int ProjectionMethod = 1;
 
+  // KdTree attributes
+  bool UseKdTree {false};
+  float Epsilon {0};
+
 public:
   vtkSetMacro(ComputeNormals, bool);
   vtkGetMacro(ComputeNormals, bool);
@@ -101,6 +105,12 @@ public:
 
   vtkSetMacro(ProjectionMethod, unsigned int);
   vtkGetMacro(ProjectionMethod, unsigned int);
+
+  vtkSetMacro(UseKdTree, bool);
+  vtkGetMacro(UseKdTree, bool);
+
+  vtkSetMacro(Epsilon, float);
+  vtkGetMacro(Epsilon, float);
 
 //------------------------------------------------------------------------------
 private:

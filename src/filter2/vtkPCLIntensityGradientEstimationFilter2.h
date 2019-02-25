@@ -44,9 +44,19 @@ private:
 private:
   float RadiusSearch {0.10};
 
+  // KdTree attributes
+  bool UseKdTree {false};
+  float Epsilon {0};
+
 public:
   vtkGetMacro(RadiusSearch, float);
   vtkSetMacro(RadiusSearch, float);
+
+  vtkSetMacro(UseKdTree, bool);
+  vtkGetMacro(UseKdTree, bool);
+
+  vtkSetMacro(Epsilon, float);
+  vtkGetMacro(Epsilon, float);
 
 //------------------------------------------------------------------------------
 private:

@@ -21,6 +21,7 @@
 
 #define PCL_NO_PRECOMPILE 1
 #include <pcl/surface/mls.h>
+#include <pcl/search/kdtree.h>
 
 //------------------------------------------------------------------------------
 // The indices must correspond to the ones in the proxy.
@@ -124,6 +125,8 @@ void vtkPCLMovingLeastSquaresFilter::PrintSelf(ostream & os, vtkIndent indent)
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << '\n';
   os << indent << "UpsamplingMethod: " << getUpsamplingMethodString(this->UpsamplingMethod) << '\n';
   os << indent << "ProjectionMethod: " << getProjectionMethodString(this->ProjectionMethod) << '\n';
+  os << indent << "UseKdtree: " << this->UseKdTree << "\n";
+  os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -177,6 +180,7 @@ int vtkPCLMovingLeastSquaresFilter::InternalInternalApplyPCLFilter(
   typedef pcl::PointCloud<InPointType> InCloudT;
   typedef pcl::PointCloud<OutPointType> OutCloudT;
   // typedef pcl::PointCloud<NormalPointType> NormalCloudT;
+  typedef pcl::search::KdTree<InPointType> KdTreeT;
 
   typename InCloudT::Ptr inputCloud(new InCloudT);
   typename OutCloudT::Ptr outputCloud(new OutCloudT);
@@ -195,6 +199,12 @@ int vtkPCLMovingLeastSquaresFilter::InternalInternalApplyPCLFilter(
 
 	mls.setInputCloud(inputCloud);
 	// mls.setOutputNormals(normalCloud);
+  if (this->UseKdTree)
+  {
+    typename KdTreeT::Ptr kdtree(new KdTreeT());
+    kdtree->setEpsilon(this->Epsilon);
+    mls.setSearchMethod(kdtree);
+  }
 
 	mls.setComputeNormals(this->ComputeNormals);
 	mls.setPolynomialOrder(this->PolynomialOrder);

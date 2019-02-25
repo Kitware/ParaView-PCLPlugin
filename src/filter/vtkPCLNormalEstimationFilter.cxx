@@ -23,6 +23,9 @@
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/search/kdtree.h>
 
+
+
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPCLNormalEstimationFilter);
 
 //------------------------------------------------------------------------------
@@ -103,7 +106,6 @@ int vtkPCLNormalEstimationFilter::EstimateNormals(
   if (this->UseKdTree)
   {
     typename KdTreeT::Ptr kdtree(new KdTreeT());
-    std::cout << "Epsilon: " << kdtree->getEpsilon() << '\n';
     kdtree->setEpsilon(this->Epsilon);
     ne.setSearchMethod(kdtree);
   }

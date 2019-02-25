@@ -19,6 +19,7 @@
 #define vtkPCLRegistrationFilter2_txx
 
 #include "vtkPCLRegistrationFilter2.h"
+#include <pcl/search/kdtree.h>
 
 //------------------------------------------------------------------------------
 inline
@@ -46,6 +47,8 @@ void vtkPCLRegistrationFilter2::PrintSelf(ostream & os, vtkIndent indent)
   os << indent << "TransformationMatrix: " << this->TransformationMatrix << "\n";
   os << indent << "HasTransformation: " << (this->HasTransformation ? "yes" : "no") << "\n";
   os << indent << "ReuseTransformation: " << (this->ReuseTransformation ? "yes" : "no") << "\n";
+  os << indent << "UseKdtree: " << this->UseKdTree << "\n";
+  os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -73,6 +76,28 @@ void vtkPCLRegistrationFilter2::ConfigureAndAlign(
   pcl::PointCloud<PointSource> & outputCloud
 )
 {
+  typedef pcl::search::KdTree<PointSource> KdTreeSourceT;
+  typedef pcl::search::KdTree<PointTarget> KdTreeTargetT;
+  if (this->UseKdTree)
+  {
+    // Do not override existing search methods.
+    auto kdtreeSourcePtr = reg.getSearchMethodSource();
+    if (kdtreeSourcePtr == nullptr)
+    {
+      typename KdTreeSourceT::Ptr kdtreeSource(new KdTreeSourceT());
+      kdtreeSource->setEpsilon(this->Epsilon);
+      reg.setSearchMethodSource(kdtreeSource);
+    }
+
+    auto kdtreeTargetPtr = reg.getSearchMethodTarget();
+    if (kdtreeTargetPtr == nullptr)
+    {
+      typename KdTreeTargetT::Ptr kdtreeTarget(new KdTreeTargetT());
+      kdtreeTarget->setEpsilon(this->Epsilon);
+      reg.setSearchMethodTarget(kdtreeTarget);
+    }
+  }
+
   reg.setMaxCorrespondenceDistance(this->MaxCorrespondenceDistance);
   reg.setMaximumIterations(this->MaximumIterations);
   reg.setTransformationEpsilon(this->TransformationEpsilon);

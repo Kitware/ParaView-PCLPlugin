@@ -56,6 +56,11 @@ protected:
   bool HasTransformation {false};
   bool ReuseTransformation {false};
 
+  // KdTree attributes
+  bool UseKdTree {false};
+  float Epsilon {0};
+
+
 public:
   vtkGetMacro(MaxCorrespondenceDistance, double);
   vtkSetMacro(MaxCorrespondenceDistance, double);
@@ -74,6 +79,12 @@ public:
   
   vtkGetMacro(ReuseTransformation, bool);
   vtkSetMacro(ReuseTransformation, bool);
+
+  vtkSetMacro(UseKdTree, bool);
+  vtkGetMacro(UseKdTree, bool);
+
+  vtkSetMacro(Epsilon, float);
+  vtkGetMacro(Epsilon, float);
 
   void Reset()
   {

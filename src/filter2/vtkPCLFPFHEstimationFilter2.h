@@ -46,9 +46,19 @@ private:
   typedef pcl::PointCloud<FeatureType> FeatureCloudT;
   double Radius {0.07};
 
+  // KdTree attributes
+  bool UseKdTree {false};
+  float Epsilon {0};
+
 public:
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
+
+  vtkSetMacro(UseKdTree, bool);
+  vtkGetMacro(UseKdTree, bool);
+
+  vtkSetMacro(Epsilon, float);
+  vtkGetMacro(Epsilon, float);
 
 //------------------------------------------------------------------------------
 private:

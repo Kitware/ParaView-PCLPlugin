@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 
 #include <pcl/features/intensity_gradient.h>
+#include <pcl/search/kdtree.h>
 
 
 
@@ -43,6 +44,8 @@ void vtkPCLIntensityGradientEstimationFilter2::PrintSelf(ostream & os, vtkIndent
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "RadiusSearch: " << this->RadiusSearch << '\n';
+  os << indent << "UseKdtree: " << this->UseKdTree << "\n";
+  os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -93,6 +96,7 @@ int vtkPCLIntensityGradientEstimationFilter2::InternalInternalApplyPCLFilter2(
   typedef pcl::PointCloud<IPointType> ICloudT;
   typedef pcl::PointCloud<NPointType> NCloudT;
   typedef pcl::PointCloud<pcl::IntensityGradient> IGCloudT;
+  typedef pcl::search::KdTree<IPointType> KdTreeT;
 
   typename ICloudT::Ptr intensityCloud(new ICloudT);
   typename NCloudT::Ptr normalCloud(new NCloudT);
@@ -110,6 +114,12 @@ int vtkPCLIntensityGradientEstimationFilter2::InternalInternalApplyPCLFilter2(
   ige.setInputCloud(intensityCloud);
   ige.setInputNormals(normalCloud);
   ige.setRadiusSearch(this->RadiusSearch);
+  if (this->UseKdTree)
+  {
+    typename KdTreeT::Ptr kdtree(new KdTreeT());
+    kdtree->setEpsilon(this->Epsilon);
+    ige.setSearchMethod(kdtree);
+  }
   ige.compute((* outputCloud));
 
   vtkPCLConversions::PolyDataFromPointCloud(outputCloud, output);

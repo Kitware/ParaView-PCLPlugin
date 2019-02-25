@@ -21,6 +21,7 @@
 
 // #define PCL_NO_PRECOMPILE
 #include <pcl/features/fpfh_omp.h>
+#include <pcl/search/kdtree.h>
 
 vtkStandardNewMacro(vtkPCLFPFHEstimationFilter2);
 
@@ -40,6 +41,8 @@ void vtkPCLFPFHEstimationFilter2::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Radius: " << this->Radius << '\n';
+  os << indent << "UseKdtree: " << this->UseKdTree << "\n";
+  os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -124,6 +127,16 @@ int vtkPCLFPFHEstimationFilter2::ComputeFeatures(
   vtkPolyData * features
 )
 {
+  typedef typename T::PointCloud::PointType PointInType;
+  typedef pcl::search::KdTree<PointInType> KdTreeT;
+
+  if (this->UseKdTree)
+  {
+    typename KdTreeT::Ptr kdtree(new KdTreeT());
+    kdtree->setEpsilon(this->Epsilon);
+    estimator.setSearchMethod(kdtree);
+  }
+
   estimator.setRadiusSearch(this->Radius);
   typename FeatureCloudT::Ptr featuresCloud(new FeatureCloudT);
   estimator.compute((* featuresCloud));

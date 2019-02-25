@@ -165,6 +165,36 @@
 
 
 
+      <IntVectorProperty
+        name="UseKdTree"
+        label="Use KdTree"
+        command="SetUseKdTree"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced"
+        >
+        <BooleanDomain name="bool" />
+        <Documentation>Configure the filter to explicitly use a K-d tree.</Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+        name="Epsilon"
+        command="SetEpsilon"
+        number_of_elements="1"
+        default_values="0"
+        panel_visibility="advanced"
+        >
+        <Documentation>Search epsilon precision (error bound) for nearest neighbor searches.</Documentation>
+      </DoubleVectorProperty>
+
+      <PropertyGroup
+        label="K-d Tree Properties"
+        panel_visibility="advanced"
+        >
+        <Property name="UseKdTree" />
+        <Property name="Epsilon" />
+      </PropertyGroup>
+
 
 
       <Hints>
