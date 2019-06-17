@@ -168,6 +168,49 @@ protected:
   vtkSmartPointer<vtkFieldData> FieldData;
 
   /*!
+   * @brief Get an array pointer from a FieldData instance.
+   * @param[in] fieldData The fieldData instance.
+   * @param[in] name The name of the array.
+   * @return A pointer to the array, or nullptr if it does not exist.
+   *
+   * If an exact name match is not found, the array names are scanned for a
+   * case-insensitive match.
+   */
+  static
+  inline
+  vtkAbstractArray * GetArray(vtkFieldData * fieldData, char const * name)
+  {
+    vtkAbstractArray * match = fieldData->GetAbstractArray(name);
+    if (match == nullptr)
+    {
+      for (int i = 0; i < fieldData->GetNumberOfArrays(); ++i)
+      {
+        vtkAbstractArray * candidateArray = fieldData->GetAbstractArray(i);
+        char const * candidateName = candidateArray->GetName();
+        bool same = true;
+        int j = 0;
+        while (same)
+        {
+          char const a = std::tolower(candidateName[j]);
+          char const b = std::tolower(name[j]);
+          same = (a == b);
+          ++j;
+          if (a == '\0' || b == '\0')
+          {
+            break;
+          }
+        }
+        if (same)
+        {
+          match = candidateArray;
+          break;
+        }
+      }
+    }
+    return match;
+  }
+
+  /*!
    * @brief Get an array pointer from a PolyData instance.
    * @param[in] polyData The PolyData instance.
    * @param[in] name The name of the array.
@@ -180,7 +223,7 @@ protected:
   static
   vtkAbstractArray * GetArray(vtkPolyData * polyData, char const * name)
   {
-    return polyData->GetFieldData()->GetAbstractArray(name);
+    return ConvBase<PointT>::GetArray(static_cast<vtkFieldData *>(polyData->GetFieldData()), name);
   }
 
 public:
@@ -363,7 +406,7 @@ protected:
   static
   vtkAbstractArray * GetArray(vtkPolyData * polyData, char const * name)
   {
-    return polyData->GetPointData()->GetAbstractArray(name);
+    return ConvBase<PointType>::GetArray(static_cast<vtkFieldData *>(polyData->GetPointData()), name);
   }
 
 public:
