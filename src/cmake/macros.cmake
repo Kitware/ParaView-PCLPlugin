@@ -70,11 +70,11 @@ macro(add_includes fpath)
 
         # Add it and its source files to the queue if they exist.
         # Create the globbing pattern.
-        set(included_name_pattern "${CMAKE_SOURCE_DIR}/*/${included_name}.*")
+        set(included_name_pattern "${CMAKE_CURRENT_SOURCE_DIR}/*/${included_name}.*")
         # Glob the name in the source directory.
         file(
           GLOB included_matches 
-          RELATIVE "${CMAKE_SOURCE_DIR}" 
+          RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
           CONFIGURE_DEPENDS
           "${included_name_pattern}"
         )

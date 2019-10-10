@@ -129,3 +129,7 @@ ADD_PARAVIEW_PLUGIN(
 target_include_directories(${plugin_name} PRIVATE ${ServerManagerIncludeDirs})
 target_link_libraries(${plugin_name} LINK_PRIVATE ${plugin_deps})
 
+#-------------------------------------------------------------------------------
+install(TARGETS ${plugin_name}
+        RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
