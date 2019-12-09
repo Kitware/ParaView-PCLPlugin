@@ -15,12 +15,12 @@ cmake --build .
 
 ## Dependencies
 
-Dependencies are listed in the table below along with the version used during development and testing. Minimum required versions have not been determined yet.
+Dependencies are listed in the table below along with the version used during development and testing. Minimum required versions have not been all determined yet.
 
 | Dependency  | Tested Version  | Minimum Version  |
 | :---------: | :-------------: | :--------------: |
-| ParaView    | 5.6.0           | ?                |
-| PCL         | 1.9             | ?                |
+| ParaView    | 5.6.0           | 5.5.0            |
+| PCL         | 1.9             | 1.9              |
 | Eigen       | 3.6.3           | ?                |
 | Boost       | 1.68            | ?                |
 
